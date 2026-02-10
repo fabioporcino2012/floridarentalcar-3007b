@@ -789,12 +789,12 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
    do SEU projeto Firebase. Veja o guia de setup.
    ============================================================== */
 const FIREBASE_CONFIG = {
-  apiKey: "SUA_API_KEY_AQUI",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  projectId: "SEU_PROJETO",
-  storageBucket: "SEU_PROJETO.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef"
+  apiKey: "AIzaSyCOBaTzerrtRf1FpKCDPXt5lqHqPe4vY5w",
+  authDomain: "floridarentalcar-3007b.firebaseapp.com",
+  projectId: "floridarentalcar-3007b",
+  storageBucket: "floridarentalcar-3007b.firebasestorage.app",
+  messagingSenderId: "919190214515",
+  appId: "1:919190214515:web:6087c48ee5032df4ee5706"
 };
 
 /* ==============================================================
@@ -1598,7 +1598,7 @@ async function seedFrotaIfEmpty() {
 window.addEventListener('DOMContentLoaded', () => {
   const ok = initFirebase();
 
-  if (!ok || FIREBASE_CONFIG.apiKey === "SUA_API_KEY_AQUI") {
+  if (!ok || FIREBASE_CONFIG.apiKey.startsWith("SUA_")) {
     // Demo mode without Firebase
     document.getElementById('loginScreen').innerHTML = `
       <div class="login-box">

@@ -54,195 +54,169 @@
 <div class="stabs" id="stabs"></div>
 <div class="main" id="main"></div>
 <script>
-// ================================================================
-// DATA - Para editar: encontre o setor, altere, salve no GitHub
-// ================================================================
-function emptyS(name){return{vision:"A definir",org:{leader:{name:"A definir",role:"Líder "+name},coords:[],team:[]},meta:{title:"A definir",desc:""},kpis:[{label:"KPI 1",value:"—",desc:"A definir",target:0,color:"var(--blue)"},{label:"KPI 2",value:"—",desc:"A definir",target:0,color:"var(--green)"},{label:"KPI 3",value:"—",desc:"A definir",target:0,color:"var(--yellow)"}],macros:[]}}
-
+function emptyS(n){return{vision:"A definir",org:{leader:{name:"A definir",role:"Líder "+n},coords:[],team:[]},meta:{title:"A definir",desc:""},kpis:[{label:"KPI 1",value:"—",desc:"A definir",target:0,color:"var(--blue)"},{label:"KPI 2",value:"—",desc:"A definir",target:0,color:"var(--green)"},{label:"KPI 3",value:"—",desc:"A definir",target:0,color:"var(--yellow)"}],macros:[]}}
 const SECTORS = {
-
 "Frota": {
   vision:"Garantir que a FRC tenha sempre a frota certa, no lugar certo, na hora certa. Maximizar a taxa de utilização, minimizar custos de manutenção e garantir que todo veículo entregue ao cliente esteja em perfeitas condições.",
   org:{leader:{name:"A definir",role:"Líder de Frota"},coords:[{name:"A definir",role:"Coord. Oficina"},{name:"A definir",role:"Coord. Logística"}],team:[{name:"—",role:"Mecânico"},{name:"—",role:"Mecânico"},{name:"—",role:"Aux. Administrativo"}]},
   meta:{title:"Taxa de utilização da frota ≥ 85%",desc:"Veículos alugados / frota total ativa, medido diariamente."},
-  kpis:[
-    {label:"Taxa de Utilização",value:"85%",desc:"Veículos alugados / frota total",target:85,color:"var(--green)"},
-    {label:"Tempo Médio Parado",value:"< 48h",desc:"Tempo sem alugar após devolução",target:70,color:"var(--blue)"},
-    {label:"Custo Manut./Receita",value:"< 8%",desc:"Custo manutenção como % receita",target:60,color:"var(--yellow)"}
-  ],
+  kpis:[{label:"Taxa de Utilização",value:"85%",desc:"Veículos alugados / frota total",target:85,color:"var(--green)"},{label:"Tempo Médio Parado",value:"< 48h",desc:"Tempo sem alugar após devolução",target:70,color:"var(--blue)"},{label:"Custo Manut./Receita",value:"< 8%",desc:"Custo manutenção como % receita",target:60,color:"var(--yellow)"}],
   macros:[
-    {title:"Aquisição de Veículo",desc:"Compra, documentação e preparação para a frota.",color:0,responsible:"Gestor de Frota",prazo:"7-15 dias",
-      micro:[
-        {type:"action",title:"Identificar necessidade",desc:"Analisar demanda por categoria (Economy, SUV, Tesla, Mustang, Ram) vs. disponibilidade. Verificar sazonalidade.",tags:[{l:"Gestor Frota",t:"resp"},{l:"Dashboard",t:"sistema"}]},
-        {type:"decision",title:"Orçamento aprovado?",desc:"Verificar budget conforme plano de expansão.",branches:{yes:"Prosseguir com cotação.",no:"Solicitar aprovação ao CEO com ROI."}},
-        {type:"action",title:"Cotação e negociação",desc:"Cotar em 3+ fornecedores. Negociar preço e condições.",tags:[{l:"Gestor Frota",t:"resp"},{l:"5 dias úteis",t:"prazo"}]},
-        {type:"action",title:"Documentação e registro",desc:"Registrar veículo, seguro, Dunas, SunPass.",tags:[{l:"Administrativo",t:"resp"},{l:"Dunas",t:"sistema"},{l:"3 dias",t:"prazo"}]},
-        {type:"action",title:"Preparação do veículo",desc:"Inspeção, lavagem, acessórios, fotos, cadastro.",tags:[{l:"Oficina",t:"resp"},{l:"2 dias",t:"prazo"}]},
-        {type:"end-ok",title:"Veículo disponível para locação",desc:"100% pronto, cadastrado, disponível."}
-      ],
-      penalties:["Atraso > 5 dias: advertência verbal","Sem documentação em operação: advertência escrita","Sem inspeção entregue: suspensão + retreinamento"]
-    },
-    {title:"Manutenção Preventiva",desc:"Revisões periódicas, troca de óleo, pneus, freios.",color:1,responsible:"Coord. Oficina",prazo:"Conforme km/tempo",
-      micro:[
-        {type:"action",title:"Alerta de manutenção",desc:"Dunas gera alerta automático por km ou tempo.",tags:[{l:"Dunas",t:"sistema"},{l:"Automático",t:"prazo"}]},
-        {type:"action",title:"Agendar manutenção",desc:"Agendar sem impactar reservas.",tags:[{l:"Coord. Oficina",t:"resp"},{l:"24h após alerta",t:"prazo"}]},
-        {type:"action",title:"Executar manutenção",desc:"Serviços conforme checklist. Registrar tudo.",tags:[{l:"Mecânico",t:"resp"},{l:"Dunas",t:"sistema"}]},
-        {type:"decision",title:"Aprovado na inspeção?",branches:{yes:"Liberar. Atualizar status.",no:"Retrabalho imediato."}},
-        {type:"end-ok",title:"Veículo liberado",desc:"Manutenção registrada, próximo alerta programado."}
-      ],
-      penalties:["Não agendada em 24h: advertência verbal","Manutenção vencida em operação: advertência escrita","Reincidência: suspensão"]
-    },
-    {title:"Gestão de Sinistros",desc:"Dano: comunicação, documentação, reparo, retorno.",color:3,responsible:"Gestor Frota + Pós-venda",prazo:"Conforme gravidade",
-      micro:[
-        {type:"action",title:"Receber comunicação",desc:"Registrar no Kommo + Dunas com fotos.",tags:[{l:"Pós-venda",t:"resp"},{l:"Kommo",t:"sistema"},{l:"Imediato",t:"prazo"}]},
-        {type:"action",title:"Classificar gravidade",desc:"Estético leve, mecânico ou perda total.",tags:[{l:"Gestor Frota",t:"resp"}]},
-        {type:"decision",title:"Pode continuar operando?",branches:{yes:"Agendar reparo em janela sem reserva.",no:"Retirar. Acionar seguro. Substituto."}},
-        {type:"action",title:"Acionar seguro / orçar",desc:"Abrir sinistro ou cotar em oficinas.",tags:[{l:"Administrativo",t:"resp"},{l:"48h",t:"prazo"}]},
-        {type:"action",title:"Executar e inspecionar reparo",desc:"Acompanhar, cobrar prazos, test drive.",tags:[{l:"Coord. Oficina",t:"resp"}]},
-        {type:"end-ok",title:"Veículo retorna",desc:"Sinistro finalizado, custos apurados."}
-      ],
-      penalties:["Não registrado em 24h: advertência escrita","Dano mecânico sem autorização: suspensão","Seguro fora do prazo: responsável assume custo"]
-    },
-    {title:"Controle de Disponibilidade",desc:"Gestão diária: disponíveis, alugados, manutenção, trânsito.",color:4,responsible:"Gestor de Frota",prazo:"Diário",
-      micro:[
-        {type:"action",title:"Atualizar status da frota",desc:"8h: disponíveis, alugados, manutenção, trânsito (ORL/MIA/FLL).",tags:[{l:"Gestor Frota",t:"resp"},{l:"Dashboard",t:"sistema"},{l:"8h diário",t:"prazo"}]},
-        {type:"action",title:"Verificar devoluções",desc:"Cruzar devoluções com reservas pendentes.",tags:[{l:"Operacional",t:"resp"},{l:"Dunas",t:"sistema"}]},
-        {type:"decision",title:"Demanda > Disponibilidade?",branches:{yes:"Acionar Cegonha ou emergencial.",no:"Normal. Registrar ociosidade."}},
-        {type:"action",title:"Relatório semanal",desc:"Taxa ocupação por praça e categoria.",tags:[{l:"Gestor Frota",t:"resp"},{l:"Sexta-feira",t:"prazo"}]},
-        {type:"end-ok",title:"Frota otimizada",desc:"Utilização maximizada."}
-      ],
-      penalties:["Dashboard não atualizado 8h: advertência verbal","Cliente sem veículo: advertência escrita","Reincidência 30 dias: reunião performance"]
-    },
-    {title:"Desativação / Venda",desc:"Fim do ciclo: análise, venda, baixa.",color:7,responsible:"Gestor Frota + Financeiro",prazo:"Conforme ciclo",
-      micro:[
-        {type:"action",title:"Identificar fim de ciclo",desc:"Análise mensal: km, custo, valor revenda.",tags:[{l:"Gestor Frota",t:"resp"},{l:"Mensal",t:"prazo"}]},
-        {type:"decision",title:"Custo manter > Benefício?",branches:{yes:"Iniciar desativação.",no:"Manter. Reavaliar 30 dias."}},
-        {type:"action",title:"Preparar para venda",desc:"Cosmética, limpeza, documentação, preço.",tags:[{l:"Oficina+Financeiro",t:"resp"},{l:"5 dias",t:"prazo"}]},
-        {type:"action",title:"Anunciar e vender",desc:"Publicar, negociar, transferir.",tags:[{l:"Administrativo",t:"resp"}]},
-        {type:"action",title:"Baixa no sistema",desc:"Remover Dunas, atualizar Dashboard, receita.",tags:[{l:"Gestor Frota",t:"resp"},{l:"Dunas",t:"sistema"}]},
-        {type:"end-ok",title:"Veículo desativado",desc:"Receita registrada, frota atualizada."}
-      ],
-      penalties:["Custo negativo sem justificativa: advertência escrita","Baixa não feita 48h: advertência verbal"]
-    }
+    {title:"Aquisição de Veículo",desc:"Compra, documentação e preparação para a frota.",color:0,responsible:"Gestor de Frota",prazo:"7-15 dias",micro:[{type:"action",title:"Identificar necessidade",desc:"Analisar demanda por categoria (Economy, SUV, Tesla, Mustang, Ram) vs. disponibilidade.",tags:[{l:"Gestor Frota",t:"resp"},{l:"Dashboard",t:"sistema"}]},{type:"decision",title:"Orçamento aprovado?",desc:"Verificar budget conforme plano.",branches:{yes:"Prosseguir com cotação.",no:"Solicitar aprovação CEO com ROI."}},{type:"action",title:"Cotação e negociação",desc:"Cotar em 3+ fornecedores.",tags:[{l:"Gestor Frota",t:"resp"},{l:"5 dias úteis",t:"prazo"}]},{type:"action",title:"Documentação e registro",desc:"Registrar, seguro, Dunas, SunPass.",tags:[{l:"Administrativo",t:"resp"},{l:"Dunas",t:"sistema"},{l:"3 dias",t:"prazo"}]},{type:"action",title:"Preparação do veículo",desc:"Inspeção, lavagem, fotos, cadastro.",tags:[{l:"Oficina",t:"resp"},{l:"2 dias",t:"prazo"}]},{type:"end-ok",title:"Veículo disponível",desc:"100% pronto, cadastrado, disponível."}],penalties:["Atraso > 5 dias: advertência verbal","Sem documentação em operação: advertência escrita","Sem inspeção: suspensão + retreinamento"]},
+    {title:"Manutenção Preventiva",desc:"Revisões periódicas, troca de óleo, pneus, freios.",color:1,responsible:"Coord. Oficina",prazo:"Conforme km/tempo",micro:[{type:"action",title:"Alerta de manutenção",desc:"Dunas gera alerta automático.",tags:[{l:"Dunas",t:"sistema"},{l:"Automático",t:"prazo"}]},{type:"action",title:"Agendar manutenção",desc:"Agendar sem impactar reservas.",tags:[{l:"Coord. Oficina",t:"resp"},{l:"24h após alerta",t:"prazo"}]},{type:"action",title:"Executar manutenção",desc:"Serviços conforme checklist.",tags:[{l:"Mecânico",t:"resp"},{l:"Dunas",t:"sistema"}]},{type:"decision",title:"Aprovado na inspeção?",branches:{yes:"Liberar. Atualizar status.",no:"Retrabalho imediato."}},{type:"end-ok",title:"Veículo liberado",desc:"Manutenção registrada."}],penalties:["Não agendada em 24h: advertência verbal","Manutenção vencida em operação: advertência escrita","Reincidência: suspensão"]},
+    {title:"Gestão de Sinistros",desc:"Dano: comunicação, documentação, reparo, retorno.",color:3,responsible:"Gestor Frota + Pós-venda",prazo:"Conforme gravidade",micro:[{type:"action",title:"Receber comunicação",desc:"Registrar no Kommo + Dunas com fotos.",tags:[{l:"Pós-venda",t:"resp"},{l:"Kommo",t:"sistema"},{l:"Imediato",t:"prazo"}]},{type:"action",title:"Classificar gravidade",desc:"Estético, mecânico ou perda total.",tags:[{l:"Gestor Frota",t:"resp"}]},{type:"decision",title:"Pode continuar operando?",branches:{yes:"Agendar reparo em janela sem reserva.",no:"Retirar. Acionar seguro. Substituto."}},{type:"action",title:"Acionar seguro / orçar",desc:"Abrir sinistro ou cotar oficinas.",tags:[{l:"Administrativo",t:"resp"},{l:"48h",t:"prazo"}]},{type:"action",title:"Executar e inspecionar",desc:"Acompanhar, cobrar prazos, test drive.",tags:[{l:"Coord. Oficina",t:"resp"}]},{type:"end-ok",title:"Veículo retorna",desc:"Sinistro finalizado, custos apurados."}],penalties:["Não registrado em 24h: advertência escrita","Dano mecânico sem autorização: suspensão","Seguro fora do prazo: responsável assume custo"]},
+    {title:"Controle de Disponibilidade",desc:"Gestão diária: disponíveis, alugados, manutenção, trânsito.",color:4,responsible:"Gestor de Frota",prazo:"Diário",micro:[{type:"action",title:"Atualizar status da frota",desc:"8h: disponíveis, alugados, manutenção, trânsito (ORL/MIA/FLL).",tags:[{l:"Gestor Frota",t:"resp"},{l:"Dashboard",t:"sistema"},{l:"8h diário",t:"prazo"}]},{type:"action",title:"Verificar devoluções",desc:"Cruzar devoluções com reservas.",tags:[{l:"Operacional",t:"resp"},{l:"Dunas",t:"sistema"}]},{type:"decision",title:"Demanda > Disponibilidade?",branches:{yes:"Acionar Cegonha ou emergencial.",no:"Normal. Registrar ociosidade."}},{type:"action",title:"Relatório semanal",desc:"Taxa ocupação por praça e categoria.",tags:[{l:"Gestor Frota",t:"resp"},{l:"Sexta-feira",t:"prazo"}]},{type:"end-ok",title:"Frota otimizada",desc:"Utilização maximizada."}],penalties:["Dashboard não atualizado 8h: advertência verbal","Cliente sem veículo: advertência escrita","Reincidência 30 dias: reunião performance"]},
+    {title:"Desativação / Venda",desc:"Fim do ciclo: análise, venda, baixa.",color:7,responsible:"Gestor Frota + Financeiro",prazo:"Conforme ciclo",micro:[{type:"action",title:"Identificar fim de ciclo",desc:"Análise mensal: km, custo, valor revenda.",tags:[{l:"Gestor Frota",t:"resp"},{l:"Mensal",t:"prazo"}]},{type:"decision",title:"Custo manter > Benefício?",branches:{yes:"Iniciar desativação.",no:"Manter. Reavaliar 30 dias."}},{type:"action",title:"Preparar para venda",desc:"Cosmética, limpeza, documentação, preço.",tags:[{l:"Oficina+Financeiro",t:"resp"},{l:"5 dias",t:"prazo"}]},{type:"action",title:"Anunciar e vender",desc:"Publicar, negociar, transferir.",tags:[{l:"Administrativo",t:"resp"}]},{type:"action",title:"Baixa no sistema",desc:"Remover Dunas, Dashboard, receita.",tags:[{l:"Gestor Frota",t:"resp"},{l:"Dunas",t:"sistema"}]},{type:"end-ok",title:"Veículo desativado",desc:"Receita registrada, frota atualizada."}],penalties:["Custo negativo sem justificativa: advertência escrita","Baixa não feita 48h: advertência verbal"]}
   ]
 },
-
 "Comercial": {
-  vision:"Converter o máximo de leads em reservas com excelência, garantindo que cada turista brasileiro escolha a FRC.",
-  org:{leader:{name:"A definir",role:"Líder Comercial"},coords:[{name:"A definir",role:"Coord. Vendas ORL"},{name:"A definir",role:"Coord. Vendas MIA/FLL"}],team:[{name:"—",role:"Vendedor"},{name:"—",role:"Vendedor"},{name:"—",role:"Vendedor"},{name:"—",role:"Vendedor"}]},
-  meta:{title:"Meta de reservas mensais: A definir",desc:"Reservas fechadas/mês vs. meta."},
+  vision:"Ser o ponto de conversão da FRC: transformar cada lead em uma experiência de compra memorável, onde o turista brasileiro sente confiança desde o primeiro contato no WhatsApp até a confirmação da reserva. Nosso diferencial não é só preço — é a combinação de atendimento em português com empatia, resposta imediata, condições únicas (pagamento em reais, sem IOF, parcelamento) e preço final transparente com tudo incluso, sem pegadinhas e sem taxas extras. O cliente sabe exatamente o que está pagando. O Comercial existe para garantir que nenhum lead qualificado escolha a concorrência por falta de velocidade, clareza ou atenção da nossa equipe.",
+  org:{leader:{name:"Thamires",role:"Líder Comercial"},coords:[{name:"Alyson",role:"Supervisor Comercial"},{name:"André",role:"Supervisor Comercial"},{name:"Carlos",role:"Analista de Dados & Gestão IA"},{name:"Guilherme",role:"Backoffice"},{name:"Bruna",role:"Backoffice"}],team:[{name:"Time A (7-8)",role:"Consultores - Sup. Alyson"},{name:"Time B (7-8)",role:"Consultores - Sup. André"}]},
+  meta:{title:"Receita mensal do setor comercial (R$/mês)",desc:"Faturamento total de reservas fechadas no mês vs. meta estabelecida."},
   kpis:[
-    {label:"Taxa de Conversão",value:"A definir",desc:"Leads qualificados que fecharam",target:0,color:"var(--green)"},
-    {label:"Tempo de Resposta",value:"< 5 min",desc:"Lead entra → primeiro contato",target:0,color:"var(--blue)"},
-    {label:"Ticket Médio",value:"A definir",desc:"Valor médio por reserva (R$)",target:0,color:"var(--yellow)"}
+    {label:"Taxa de Conversão",value:"MQL→SQL→Venda",desc:"Eficiência do vendedor em transformar lead em reserva. Distribuição igualitária = sem desculpa.",target:0,color:"var(--green)"},
+    {label:"Receita Líquida/Vendedor",value:"R$/mês",desc:"Faturamento real descontando descontos dados. Expõe quem destrói margem.",target:0,color:"var(--blue)"},
+    {label:"Taxa Reativação Base",value:"%",desc:"Leads da base trabalhados e convertidos. Maior fonte de faturamento.",target:0,color:"var(--yellow)"}
   ],
   macros:[
-    {title:"Captação e Distribuição de Leads",desc:"Lead via mídia digital → Kommo → vendedor.",color:0,responsible:"Gestor Comercial",prazo:"< 5 min",micro:[{type:"action",title:"Aguardando definição com CEO",desc:"Macro aprovado. Micro será detalhado.",tags:[{l:"Pendente",t:"resp"}]}],penalties:["A definir"]},
-    {title:"Atendimento e Qualificação",desc:"WhatsApp, qualificação, diferenciais FRC.",color:1,responsible:"Vendedor",prazo:"Mesmo dia",micro:[{type:"action",title:"Aguardando definição com CEO",desc:"Macro aprovado. Micro será detalhado.",tags:[{l:"Pendente",t:"resp"}]}],penalties:["A definir"]},
-    {title:"Negociação e Fechamento",desc:"Proposta, negociação, pagamento, reserva.",color:2,responsible:"Vendedor",prazo:"Conforme cliente",micro:[{type:"action",title:"Aguardando definição com CEO",desc:"Macro aprovado. Micro será detalhado.",tags:[{l:"Pendente",t:"resp"}]}],penalties:["A definir"]},
-    {title:"Gestão de Pipeline e Follow-up",desc:"Leads não fechados: follow-up e reativação.",color:3,responsible:"Vendedor + Gestor",prazo:"Contínuo",micro:[{type:"action",title:"Aguardando definição com CEO",desc:"Macro aprovado. Micro será detalhado.",tags:[{l:"Pendente",t:"resp"}]}],penalties:["A definir"]},
-    {title:"Metas, Performance e Rotina",desc:"Metas, KPIs, ranking, consequências.",color:5,responsible:"Líder Comercial",prazo:"Mensal",micro:[{type:"action",title:"Aguardando definição com CEO",desc:"Macro aprovado. Micro será detalhado.",tags:[{l:"Pendente",t:"resp"}]}],penalties:["A definir"]}
+    {title:"Entrada e Classificação de Leads",desc:"Lead chega → IA filtra → classifica Novo/Retornou → Backoffice distribui.",color:0,responsible:"Backoffice + IA",prazo:"< 15 min",
+      micro:[
+        {type:"action",title:"Lead chega via mídia digital",desc:"Instagram, Google, Facebook. Registrado automaticamente no Kommo.",tags:[{l:"Automático",t:"sistema"},{l:"Kommo",t:"sistema"}]},
+        {type:"action",title:"IA faz filtro inicial",desc:"Classificação automática: lead com potencial (MQL) vs. lead frio.",tags:[{l:"IA",t:"sistema"},{l:"Automático",t:"prazo"}]},
+        {type:"decision",title:"Lead qualificado pela IA?",desc:"Filtro automático de qualidade.",branches:{yes:"Segue para classificação: Lead Novo ou Lead Retornou.",no:"Lead frio. Vai direto para Cadência (Macro 4)."}},
+        {type:"action",title:"Classificar: Lead Novo ou Lead Retornou",desc:"Sistema identifica se é primeiro contato ou lead que voltou da Cadência.",tags:[{l:"Kommo",t:"sistema"},{l:"Automático",t:"prazo"}]},
+        {type:"action",title:"Backoffice distribui o lead",desc:"Guilherme ou Bruna distribuem conforme filas e regras de horário. Distribuição igualitária.",tags:[{l:"Backoffice",t:"resp"},{l:"Kommo",t:"sistema"}]},
+        {type:"end-ok",title:"Lead atribuído ao consultor",desc:"Lead no funil comercial, pronto para atendimento."}
+      ],
+      penalties:["Lead não distribuído em 15 min: advertência verbal ao backoffice","Erro de distribuição (fora da regra): feedback corretivo","Reincidência: advertência escrita"]},
+
+    {title:"Qualificação (MQL → SQL)",desc:"Primeiro contato → levantamento de interesse → qualificação → orçamento.",color:1,responsible:"Consultor",prazo:"Mesmo dia",
+      micro:[
+        {type:"action",title:"Primeiro contato via WhatsApp",desc:"Apresentação, confirmar interesse, iniciar levantamento.",tags:[{l:"Consultor",t:"resp"},{l:"WhatsApp",t:"sistema"}]},
+        {type:"action",title:"Levantamento de Interesse",desc:"Datas, cidade (ORL/MIA/FLL), passageiros, categoria, orçamento. Pré-atendimento de qualidade — define se o cliente volta.",tags:[{l:"Consultor",t:"resp"},{l:"Kommo",t:"sistema"}]},
+        {type:"action",title:"Apresentar diferenciais FRC",desc:"Preço tudo incluso sem pegadinhas, sem taxas extras, reais sem IOF, parcelamento, seguro completo, SunPass, português, video call, pickup.",tags:[{l:"Consultor",t:"resp"}]},
+        {type:"decision",title:"Lead qualificado como MQL?",desc:"Tem datas, orçamento compatível, interesse real.",branches:{yes:"Avança para Orçamento (vira SQL).",no:"Vai para Cadência (Macro 4) com motivo registrado no Kommo."}},
+        {type:"end-ok",title:"Lead qualificado (SQL)",desc:"Pronto para receber orçamento."}
+      ],
+      penalties:["Sem levantamento completo no Kommo: advertência verbal","Sem apresentar diferenciais (auditoria): feedback corretivo","Lead parado > 24h sem contato: advertência verbal","Reincidência: advertência escrita"]},
+
+    {title:"Negociação e Fechamento (SQL → Venda)",desc:"Orçamento → negociação → regras de desconto → pagamento → Venda Ganha.",color:2,responsible:"Consultor",prazo:"Conforme cliente",
+      micro:[
+        {type:"action",title:"Enviar orçamento",desc:"Proposta detalhada com preço tudo incluso. Etapa Orçamento no funil.",tags:[{l:"Consultor",t:"resp"},{l:"Kommo",t:"sistema"}]},
+        {type:"action",title:"Negociação",desc:"Tirar dúvidas, ajustar datas, trabalhar objeções. Oferecer upsell (upgrade, Plus, dias extras).",tags:[{l:"Consultor",t:"resp"},{l:"WhatsApp",t:"sistema"}]},
+        {type:"decision",title:"Cliente quer desconto?",desc:"Consultor segue regras de desconto.",branches:{yes:"Desconto dentro do limite: aplicar. Acima: aprovação do supervisor.",no:"Prosseguir para fechamento."}},
+        {type:"decision",title:"Cliente fechou?",desc:"Decisão final do cliente.",branches:{yes:"Pagamento → Reserva confirmada → Venda Ganha.",no:"Registrar motivo → Enviar para Cadência (Macro 4)."}},
+        {type:"action",title:"Processar pagamento e confirmar",desc:"Pagamento em reais, confirmação, Kommo → Venda Ganha, registrar Dunas.",tags:[{l:"Consultor",t:"resp"},{l:"Kommo",t:"sistema"},{l:"Dunas",t:"sistema"}]},
+        {type:"end-ok",title:"Venda Ganha",desc:"Reserva confirmada e paga."}
+      ],
+      penalties:["Desconto acima do limite sem aprovação: advertência escrita + estorno comissão","Orçamento sem follow-up 24h: advertência verbal","Venda sem registro Kommo/Dunas: advertência verbal","Reincidência: advertência escrita + redução de leads"]},
+
+    {title:"Cadência e Reativação",desc:"Lead não fechou → funil Cadência → follow-up → se retorna, volta como Lead Retornou.",color:3,responsible:"Consultor + Automação",prazo:"Contínuo",
+      micro:[
+        {type:"action",title:"Lead entra no funil Cadência",desc:"Registrar motivo da não-conversão no Kommo antes de mover.",tags:[{l:"Consultor",t:"resp"},{l:"Kommo",t:"sistema"}]},
+        {type:"action",title:"Follow-up automático estruturado",desc:"Sequência de mensagens programadas. Manter relacionamento sem ser invasivo.",tags:[{l:"Automático",t:"sistema"},{l:"Kommo",t:"sistema"}]},
+        {type:"decision",title:"Lead respondeu/retornou?",desc:"Lead demonstrou interesse novamente.",branches:{yes:"Volta para Macro 1 como Lead Retornou → redistribuição.",no:"Continua na Cadência até próximo ciclo ou inativação."}}
+      ],
+      penalties:["Lead para Cadência sem motivo registrado: advertência verbal","Lead abandonado no funil principal (deveria estar em Cadência): advertência escrita"]},
+
+    {title:"Gestão do Funil e Automações",desc:"Funil limpo no Kommo → regra 24h → automações → uso eficiente do CRM.",color:5,responsible:"Time todo + Carlos",prazo:"Diário",
+      micro:[
+        {type:"action",title:"Revisão diária do funil",desc:"Cada consultor revisa: leads parados, próximos de 24h, sem próxima ação definida.",tags:[{l:"Consultor",t:"resp"},{l:"Kommo",t:"sistema"},{l:"Diário",t:"prazo"}]},
+        {type:"decision",title:"Lead há mais de 24h sem contato?",desc:"Regra crítica: após 24h perde acesso WhatsApp normal → só mensagens padrão Meta (custo).",branches:{yes:"Contatar IMEDIATAMENTE ou enviar para Cadência antes de estourar 24h.",no:"Funil saudável. Seguir trabalhando."}},
+        {type:"action",title:"Atualizar status de todos os leads",desc:"Mover entre etapas, registrar interações, Kommo limpo e atualizado.",tags:[{l:"Consultor",t:"resp"},{l:"Kommo",t:"sistema"}]},
+        {type:"action",title:"Sugerir e implementar automações",desc:"Time contribui com ideias. Carlos implementa: templates, alertas 24h, fluxos cadência.",tags:[{l:"Carlos",t:"resp"},{l:"Kommo",t:"sistema"}]},
+        {type:"end-ok",title:"Funil limpo e organizado",desc:"Sem leads travados, automações funcionando."}
+      ],
+      penalties:["Leads parados > 24h sem ação: advertência verbal","Lead perdeu acesso WhatsApp por inação: advertência escrita + custo Meta debitado","Funil desorganizado na auditoria semanal: feedback corretivo","Reincidência: advertência escrita + reunião performance"]},
+
+    {title:"Rotina de Performance",desc:"Check-in diário → KPIs → reunião semanal → ranking → promoção/penalidade.",color:6,responsible:"Supervisores + Thamires",prazo:"Diário/Semanal/Mensal",
+      micro:[
+        {type:"action",title:"Check-in diário supervisor-time",desc:"Alyson/André alinham com consultores: metas do dia, pendências, prioridades.",tags:[{l:"Supervisor",t:"resp"},{l:"Diário",t:"prazo"}]},
+        {type:"action",title:"Acompanhamento diário dos 3 KPIs",desc:"Conversão, receita líquida/vendedor, reativação base. Dashboard atualizado.",tags:[{l:"Carlos",t:"resp"},{l:"Dashboard",t:"sistema"},{l:"Diário",t:"prazo"}]},
+        {type:"action",title:"Reunião semanal de performance",desc:"Supervisor + consultores. KPIs da semana, ranking, suporte, celebração.",tags:[{l:"Supervisor",t:"resp"},{l:"Semanal",t:"prazo"}]},
+        {type:"decision",title:"Consultor abaixo da meta?",desc:"Verificação de performance individual.",branches:{yes:"Plano de ação corretivo com prazo. Supervisor acompanha.",no:"Reconhecimento. Manter ritmo."}},
+        {type:"action",title:"Ranking mensal e consequências",desc:"Ranking final. Top performers reconhecidos. Underperformers em plano.",tags:[{l:"Thamires",t:"resp"},{l:"Mensal",t:"prazo"}]},
+        {type:"end-ok",title:"Time com clareza de performance",desc:"Direção clara, metas acompanhadas."}
+      ],
+      penalties:["Supervisor sem check-in diário: advertência verbal","Consultor abaixo 2 meses consecutivos: plano de performance formal","3 meses consecutivos: remanejamento ou desligamento"]},
+
+    {title:"Processos da Gerência (Thamires)",desc:"Metas, reuniões, auditoria, gestão de pessoas, report CEO.",color:7,responsible:"Thamires",prazo:"Semanal/Mensal",
+      micro:[
+        {type:"action",title:"Definir metas mensais",desc:"Com base no target de receita, definir meta por supervisor e consultor. Validar com CEO.",tags:[{l:"Thamires",t:"resp"},{l:"Mensal",t:"prazo"}]},
+        {type:"action",title:"Reunião semanal com supervisores",desc:"Alyson e André reportam resultados, problemas. Thamires dá direcionamento.",tags:[{l:"Thamires",t:"resp"},{l:"Semanal",t:"prazo"}]},
+        {type:"action",title:"Auditoria de qualidade",desc:"Ouvir/ler atendimentos aleatórios. Verificar playbook, diferenciais, qualidade.",tags:[{l:"Thamires",t:"resp"},{l:"Semanal",t:"prazo"}]},
+        {type:"action",title:"Gestão de pessoas",desc:"Treinamento, conflitos, contratação/desligamento, cultura do time.",tags:[{l:"Thamires",t:"resp"},{l:"Contínuo",t:"prazo"}]},
+        {type:"action",title:"Report ao CEO",desc:"Resultado semanal/mensal, KPIs, planos de ação, necessidades.",tags:[{l:"Thamires",t:"resp"},{l:"Semanal",t:"prazo"}]},
+        {type:"end-ok",title:"Setor com direção estratégica",desc:"Metas definidas, time gerido, CEO informado."}
+      ],
+      penalties:["Meta não enviada até dia 25: advertência verbal","Reunião semanal não realizada: advertência verbal","Auditoria não feita 2 semanas: advertência escrita"]},
+
+    {title:"Processos Backoffice (Guilherme e Bruna)",desc:"Distribuição de leads, suporte administrativo, controle de qualidade.",color:5,responsible:"Backoffice",prazo:"Contínuo",
+      micro:[
+        {type:"action",title:"Distribuir leads conforme regras",desc:"Monitorar Kommo, distribuir igualitariamente, respeitar filas e horários, separar Novo/Retornou.",tags:[{l:"Backoffice",t:"resp"},{l:"Kommo",t:"sistema"},{l:"Contínuo",t:"prazo"}]},
+        {type:"action",title:"Suporte administrativo",desc:"Apoiar consultores: documentação, confirmações, ajustes de reserva.",tags:[{l:"Backoffice",t:"resp"},{l:"Contínuo",t:"prazo"}]},
+        {type:"action",title:"Controle de qualidade da distribuição",desc:"Verificar nenhum lead sem atribuição, equilíbrio entre consultores, reportar anomalias.",tags:[{l:"Backoffice",t:"resp"},{l:"Diário",t:"prazo"}]},
+        {type:"end-ok",title:"Leads distribuídos, operação fluindo",desc:"Zero lead sem dono, distribuição justa."}
+      ],
+      penalties:["Lead não distribuído 15 min: advertência verbal","Distribuição fora da regra (favorecimento): advertência escrita","Reincidência: reunião performance"]},
+
+    {title:"Processos Analista de Dados & IA (Carlos)",desc:"IA de filtro, Dashboard KPIs, relatórios, automações Kommo.",color:4,responsible:"Carlos",prazo:"Diário/Semanal",
+      micro:[
+        {type:"action",title:"Manter e otimizar IA de filtro",desc:"Garantir classificação correta (MQL vs. frio). Ajustar conforme resultados.",tags:[{l:"Carlos",t:"resp"},{l:"Contínuo",t:"prazo"}]},
+        {type:"action",title:"Dashboard de KPIs atualizado",desc:"3 KPIs em tempo real: conversão, receita líquida/vendedor, reativação base.",tags:[{l:"Carlos",t:"resp"},{l:"Dashboard",t:"sistema"},{l:"Diário",t:"prazo"}]},
+        {type:"action",title:"Análise semanal de performance",desc:"Relatórios para supervisores e gerência: ranking, tendências, gargalos.",tags:[{l:"Carlos",t:"resp"},{l:"Semanal",t:"prazo"}]},
+        {type:"action",title:"Implementar automações Kommo",desc:"Templates, alertas 24h, fluxos cadência, notificações.",tags:[{l:"Carlos",t:"resp"},{l:"Kommo",t:"sistema"}]},
+        {type:"end-ok",title:"Dados confiáveis, automações rodando",desc:"IA otimizada, Dashboard preciso, Kommo automatizado."}
+      ],
+      penalties:["Dashboard desatualizado > 1 dia: advertência verbal","IA com erro alto sem correção 7 dias: advertência escrita","Relatório semanal não entregue: advertência verbal"]},
+
+    {title:"Processos Supervisores (Alyson e André)",desc:"Check-in diário, monitorar funil, coaching, aprovar descontos, reportar.",color:1,responsible:"Supervisores",prazo:"Diário/Semanal",
+      micro:[
+        {type:"action",title:"Check-in diário com consultores",desc:"Alinhamento: funil, prioridades, onde precisa de ajuda.",tags:[{l:"Supervisor",t:"resp"},{l:"Diário",t:"prazo"}]},
+        {type:"action",title:"Monitorar funil dos consultores",desc:"Funis limpos, leads não parados, regra 24h cumprida.",tags:[{l:"Supervisor",t:"resp"},{l:"Kommo",t:"sistema"},{l:"Diário",t:"prazo"}]},
+        {type:"action",title:"Coaching e desenvolvimento",desc:"Ouvir atendimentos, feedback, técnicas de venda, playbook.",tags:[{l:"Supervisor",t:"resp"},{l:"Contínuo",t:"prazo"}]},
+        {type:"action",title:"Aprovar descontos acima do limite",desc:"Avaliar e decidir quando consultor precisa de desconto acima da faixa.",tags:[{l:"Supervisor",t:"resp"}]},
+        {type:"action",title:"Report semanal à gerência",desc:"Resultado do time, KPIs, problemas, sugestões. Reunião com Thamires.",tags:[{l:"Supervisor",t:"resp"},{l:"Semanal",t:"prazo"}]},
+        {type:"end-ok",title:"Time acompanhado e performando",desc:"Consultores com direção, funil limpo, performance monitorada."}
+      ],
+      penalties:["Sem check-in diário registrado: advertência verbal","Consultor com funil bagunçado 3+ dias sem ação: advertência escrita","Desconto aprovado fora da política: advertência escrita"]},
+
+    {title:"Processos dos Consultores",desc:"Revisar funil, atender leads, trabalhar base, playbook, Kommo atualizado.",color:0,responsible:"Consultores",prazo:"Diário",
+      micro:[
+        {type:"action",title:"Revisar funil no início do dia",desc:"Leads parados, próximos de 24h, pendências. Priorizar ações.",tags:[{l:"Consultor",t:"resp"},{l:"Kommo",t:"sistema"},{l:"Diário",t:"prazo"}]},
+        {type:"action",title:"Atender leads novos dentro do SLA",desc:"Lead atribuído → primeiro contato rápido. Qualidade no pré-atendimento.",tags:[{l:"Consultor",t:"resp"},{l:"WhatsApp",t:"sistema"}]},
+        {type:"action",title:"Trabalhar leads da base ativamente",desc:"Não esperar lead novo. Reativar antigos, remarketing, gerar oportunidades.",tags:[{l:"Consultor",t:"resp"},{l:"Kommo",t:"sistema"},{l:"Diário",t:"prazo"}]},
+        {type:"action",title:"Seguir playbook de atendimento",desc:"Apresentação → qualificação → diferenciais → orçamento → negociação → fechamento. Sem atalhos.",tags:[{l:"Consultor",t:"resp"}]},
+        {type:"action",title:"Manter Kommo atualizado",desc:"Toda interação registrada, leads na etapa correta, próxima ação definida.",tags:[{l:"Consultor",t:"resp"},{l:"Kommo",t:"sistema"},{l:"Contínuo",t:"prazo"}]},
+        {type:"action",title:"Check-in diário com supervisor",desc:"Reportar funil, pedir ajuda, receber feedback.",tags:[{l:"Consultor",t:"resp"},{l:"Diário",t:"prazo"}]},
+        {type:"end-ok",title:"Consultor organizado e performando",desc:"Funil limpo, base trabalhada, playbook seguido."}
+      ],
+      penalties:["Funil desorganizado na auditoria: advertência verbal","Lead perdeu acesso 24h por inação: advertência escrita + custo Meta","Sem check-in sem justificativa: advertência verbal","Abaixo da meta 2 meses: plano de performance","3 meses: remanejamento ou desligamento"]}
   ]
 },
-
-"MKT":emptyS("MKT"),
-"Operacional":emptyS("Operacional"),
-"Pós-venda":emptyS("Pós-venda"),
-"Suporte":emptyS("Suporte"),
-"Entrega/Devolução":emptyS("Entrega/Devolução"),
-"CS":emptyS("CS"),
-"Qualidade":emptyS("Qualidade"),
-"Pessoas/Cultura":emptyS("Pessoas/Cultura"),
-"Oficina":emptyS("Oficina"),
-"Update":emptyS("Update"),
-"COO":emptyS("COO"),
-"Financeiro":emptyS("Financeiro"),
-"Plus":emptyS("Plus"),
-"Cegonha":emptyS("Cegonha"),
-"Kommo":emptyS("Kommo"),
-"Dashboard":emptyS("Dashboard"),
-"Dunas":emptyS("Dunas"),
-"APN":emptyS("APN")
-
+"MKT":emptyS("MKT"),"Operacional":emptyS("Operacional"),"Pós-venda":emptyS("Pós-venda"),"Suporte":emptyS("Suporte"),
+"Entrega/Devolução":emptyS("Entrega/Devolução"),"CS":emptyS("CS"),"Qualidade":emptyS("Qualidade"),"Pessoas/Cultura":emptyS("Pessoas/Cultura"),
+"Oficina":emptyS("Oficina"),"Update":emptyS("Update"),"COO":emptyS("COO"),"Financeiro":emptyS("Financeiro"),
+"Plus":emptyS("Plus"),"Cegonha":emptyS("Cegonha"),"Kommo":emptyS("Kommo"),"Dashboard":emptyS("Dashboard"),
+"Dunas":emptyS("Dunas"),"APN":emptyS("APN")
 };
-
-// ================================================================
-// ENGINE - NÃO MEXER AQUI
-// ================================================================
 const SL=Object.keys(SECTORS);
 const CL=[{c:'var(--blue)',bg:'var(--blueg)'},{c:'var(--green)',bg:'var(--greeng)'},{c:'var(--yellow)',bg:'var(--yellowg)'},{c:'var(--orange)',bg:'var(--orangeg)'},{c:'var(--purple)',bg:'var(--purpleg)'},{c:'var(--cyan)',bg:'var(--cyang)'},{c:'var(--pink)',bg:'var(--pinkg)'},{c:'var(--red)',bg:'var(--redg)'}];
 const IC={action:'▸',decision:'◆','end-ok':'✓','end-fail':'✗',wait:'⏳'};
 let cS=SL[0],cT='fluxos',cM=null;
 function e(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML}
-
 function rTabs(){document.getElementById('stabs').innerHTML=SL.map(s=>'<button class="st'+(s===cS?' active':'')+'" onclick="go(\''+s+'\')">'+s+'</button>').join('')}
 function go(s){cS=s;cT='fluxos';cM=null;rTabs();R()}
 function tab(t){cT=t;cM=null;R()}
 function oM(i){cM=i;R()}
 function bk(){cM=null;R()}
-
-function uBC(){
-  const b=document.getElementById('bc');
-  if(cM!==null){const m=SECTORS[cS].macros[cM];b.innerHTML='<span onclick="bk()">'+cS+'</span><span class="sep">›</span><span onclick="bk()">Fluxos</span><span class="sep">›</span><span class="cur">'+e(m?.title||'')+'</span>'}
-  else{b.innerHTML='<span class="cur">'+cS+'</span>'}
-}
-
-function R(){
-  uBC();const S=SECTORS[cS],m=document.getElementById('main');
-  let h='<div class="sec-tabs">';
-  ['visao','org','kpis','fluxos'].forEach(t=>{
-    const lb={visao:'🎯 Visão',org:'👥 Organograma',kpis:'📊 Meta & KPIs',fluxos:'🔄 Fluxos'}[t];
-    h+='<button class="sect'+(cT===t?' active':'')+'" onclick="tab(\''+t+'\')">'+lb+'</button>';
-  });
-  h+='</div>';
-  if(cT==='visao')h+=rV(S);else if(cT==='org')h+=rO(S);else if(cT==='kpis')h+=rK(S);else h+=rF(S);
-  m.innerHTML=h;
-}
-
+function uBC(){const b=document.getElementById('bc');if(cM!==null){const m=SECTORS[cS].macros[cM];b.innerHTML='<span onclick="bk()">'+cS+'</span><span class="sep">›</span><span onclick="bk()">Fluxos</span><span class="sep">›</span><span class="cur">'+e(m?.title||'')+'</span>'}else{b.innerHTML='<span class="cur">'+cS+'</span>'}}
+function R(){uBC();const S=SECTORS[cS],m=document.getElementById('main');let h='<div class="sec-tabs">';['visao','org','kpis','fluxos'].forEach(t=>{const lb={visao:'🎯 Visão',org:'👥 Organograma',kpis:'📊 Meta & KPIs',fluxos:'🔄 Fluxos'}[t];h+='<button class="sect'+(cT===t?' active':'')+'" onclick="tab(\''+t+'\')">'+lb+'</button>'});h+='</div>';if(cT==='visao')h+=rV(S);else if(cT==='org')h+=rO(S);else if(cT==='kpis')h+=rK(S);else h+=rF(S);m.innerHTML=h}
 function rV(S){return'<div class="vcard"><h2>🎯 Visão: '+cS+'</h2><div class="vm">'+(e(S.vision)||'<em style="color:var(--t3)">Não definida.</em>')+'</div></div>'}
-
-function rO(S){
-  const o=S.org;if(!o||!o.leader)return'<div class="empty"><div class="ei">👥</div><p>Organograma não definido.</p></div>';
-  let h='<div class="org"><div class="org-lv"><div class="oc ld"><div class="on">'+e(o.leader.name)+'</div><div class="or">'+e(o.leader.role)+'</div></div></div>';
-  if(o.coords?.length){h+='<div class="org-cn"></div><div class="org-lv">';o.coords.forEach((c,i)=>{h+='<div class="oc co" style="animation-delay:'+i*.08+'s"><div class="on">'+e(c.name)+'</div><div class="or">'+e(c.role)+'</div></div>'});h+='</div>'}
-  if(o.team?.length){h+='<div class="org-cn"></div><div class="org-lv">';o.team.forEach((t,i)=>{h+='<div class="oc" style="animation-delay:'+i*.06+'s"><div class="on">'+e(t.name)+'</div><div class="or">'+e(t.role)+'</div></div>'});h+='</div>'}
-  return h+'</div>';
-}
-
-function rK(S){
-  let h='<div class="kg"><div class="kc mm"><div class="kl">🎯 META PRINCIPAL</div><div class="kv" style="font-size:1.2rem;color:var(--green)">'+e(S.meta?.title||'A definir')+'</div><div class="kd">'+e(S.meta?.desc||'')+'</div></div>';
-  (S.kpis||[]).forEach((k,i)=>{h+='<div class="kc" style="animation-delay:'+(i+1)*.08+'s"><div class="kl">KPI '+(i+1)+'</div><div class="kv" style="color:'+k.color+'">'+e(k.value)+'</div><div class="kd">'+e(k.label)+': '+e(k.desc)+'</div>'+(k.target>0?'<div class="kb"><div class="kf" style="width:'+k.target+'%;background:'+k.color+'"></div></div>':'')+'</div>'});
-  return h+'</div>';
-}
-
-function rF(S){
-  if(cM!==null)return rMi(S);
-  const ms=S.macros||[];
-  if(!ms.length)return'<div class="empty"><div class="ei">📋</div><p>Nenhum processo definido para este setor.</p></div>';
-  let h='<div class="mf">';
-  ms.forEach((m,i)=>{
-    const c=CL[(m.color||0)%CL.length],mc=m.micro?.length||0;
-    h+='<div class="mb" style="animation-delay:'+i*.06+'s" onclick="oM('+i+')"><div class="mc"><span class="mcn">'+mc+' etapas</span><span class="mn" style="background:'+c.bg+';color:'+c.c+'">MACRO '+(i+1)+'</span><h3>'+e(m.title)+'</h3><div class="md">'+e(m.desc)+'</div><div class="mts"><span class="mtg" style="background:var(--cyang);color:var(--cyan)">'+e(m.responsible)+'</span><span class="mtg" style="background:var(--yellowg);color:var(--yellow)">'+e(m.prazo)+'</span>'+(m.penalties?.length?'<span class="mtg" style="background:var(--redg);color:var(--red)">'+m.penalties.length+' pen.</span>':'')+'</div><div class="mh">Toque para ver micro →</div></div></div>';
-    if(i<ms.length-1)h+='<div class="mar">→</div>';
-  });
-  return h+'</div>';
-}
-
-function rMi(S){
-  const m=S.macros[cM];if(!m){cM=null;return rF(S)}
-  const c=CL[(m.color||0)%CL.length],st=m.micro||[];
-  let h='<button class="bb" onclick="bk()">← Voltar</button><div class="mp"><h3>'+e(m.title)+'</h3><div class="ms">'+e(m.desc)+'</div><div class="mpt"><span class="mtg" style="background:var(--cyang);color:var(--cyan);font-size:.65rem;padding:4px 10px">'+e(m.responsible)+'</span><span class="mtg" style="background:var(--yellowg);color:var(--yellow);font-size:.65rem;padding:4px 10px">'+e(m.prazo)+'</span></div><div class="mfl">';
-  st.forEach((s,i)=>{
-    const il=i===st.length-1,dt=s.type||'action';
-    let tg='';if(s.tags?.length)tg='<div class="sg">'+s.tags.map(t=>'<span class="tg '+(t.t||'resp')+'">'+e(t.l)+'</span>').join('')+'</div>';
-    let br='';if(s.branches)br='<div class="brs"><div class="bx yes"><div class="bl">✅ SIM</div><p>'+e(s.branches.yes)+'</p></div><div class="bx no"><div class="bl">❌ NÃO</div><p>'+e(s.branches.no)+'</p></div></div>';
-    h+='<div class="stp" style="animation-delay:'+i*.05+'s"><div class="tl"><div class="dt '+dt+'">'+(IC[dt]||i+1)+'</div>'+(!il?'<div class="ln"></div>':'')+'</div><div class="sc"><h4>'+e(s.title)+'</h4><div class="sd">'+e(s.desc||'')+'</div>'+tg+br+'</div></div>';
-  });
-  h+='</div>';
-  if(m.penalties?.length)h+='<div class="pen"><h5>⚠ PENALIDADES</h5><ul>'+m.penalties.map(p=>'<li>'+e(p)+'</li>').join('')+'</ul></div>';
-  return h+'</div>';
-}
-
+function rO(S){const o=S.org;if(!o||!o.leader)return'<div class="empty"><div class="ei">👥</div><p>Organograma não definido.</p></div>';let h='<div class="org"><div class="org-lv"><div class="oc ld"><div class="on">'+e(o.leader.name)+'</div><div class="or">'+e(o.leader.role)+'</div></div></div>';if(o.coords?.length){h+='<div class="org-cn"></div><div class="org-lv">';o.coords.forEach((c,i)=>{h+='<div class="oc co" style="animation-delay:'+i*.08+'s"><div class="on">'+e(c.name)+'</div><div class="or">'+e(c.role)+'</div></div>'});h+='</div>'}if(o.team?.length){h+='<div class="org-cn"></div><div class="org-lv">';o.team.forEach((t,i)=>{h+='<div class="oc" style="animation-delay:'+i*.06+'s"><div class="on">'+e(t.name)+'</div><div class="or">'+e(t.role)+'</div></div>'});h+='</div>'}return h+'</div>'}
+function rK(S){let h='<div class="kg"><div class="kc mm"><div class="kl">🎯 META PRINCIPAL</div><div class="kv" style="font-size:1.2rem;color:var(--green)">'+e(S.meta?.title||'A definir')+'</div><div class="kd">'+e(S.meta?.desc||'')+'</div></div>';(S.kpis||[]).forEach((k,i)=>{h+='<div class="kc" style="animation-delay:'+(i+1)*.08+'s"><div class="kl">KPI '+(i+1)+'</div><div class="kv" style="color:'+k.color+'">'+e(k.value)+'</div><div class="kd">'+e(k.label)+': '+e(k.desc)+'</div>'+(k.target>0?'<div class="kb"><div class="kf" style="width:'+k.target+'%;background:'+k.color+'"></div></div>':'')+'</div>'});return h+'</div>'}
+function rF(S){if(cM!==null)return rMi(S);const ms=S.macros||[];if(!ms.length)return'<div class="empty"><div class="ei">📋</div><p>Nenhum processo definido.</p></div>';let h='<div class="mf">';ms.forEach((m,i)=>{const c=CL[(m.color||0)%CL.length],mc=m.micro?.length||0;h+='<div class="mb" style="animation-delay:'+i*.06+'s" onclick="oM('+i+')"><div class="mc"><span class="mcn">'+mc+' etapas</span><span class="mn" style="background:'+c.bg+';color:'+c.c+'">MACRO '+(i+1)+'</span><h3>'+e(m.title)+'</h3><div class="md">'+e(m.desc)+'</div><div class="mts"><span class="mtg" style="background:var(--cyang);color:var(--cyan)">'+e(m.responsible)+'</span><span class="mtg" style="background:var(--yellowg);color:var(--yellow)">'+e(m.prazo)+'</span>'+(m.penalties?.length?'<span class="mtg" style="background:var(--redg);color:var(--red)">'+m.penalties.length+' pen.</span>':'')+'</div><div class="mh">Toque para ver micro →</div></div></div>';if(i<ms.length-1)h+='<div class="mar">→</div>'});return h+'</div>'}
+function rMi(S){const m=S.macros[cM];if(!m){cM=null;return rF(S)}const st=m.micro||[];let h='<button class="bb" onclick="bk()">← Voltar</button><div class="mp"><h3>'+e(m.title)+'</h3><div class="ms">'+e(m.desc)+'</div><div class="mpt"><span class="mtg" style="background:var(--cyang);color:var(--cyan);font-size:.65rem;padding:4px 10px">'+e(m.responsible)+'</span><span class="mtg" style="background:var(--yellowg);color:var(--yellow);font-size:.65rem;padding:4px 10px">'+e(m.prazo)+'</span></div><div class="mfl">';st.forEach((s,i)=>{const il=i===st.length-1,dt=s.type||'action';let tg='';if(s.tags?.length)tg='<div class="sg">'+s.tags.map(t=>'<span class="tg '+(t.t||'resp')+'">'+e(t.l)+'</span>').join('')+'</div>';let br='';if(s.branches)br='<div class="brs"><div class="bx yes"><div class="bl">✅ SIM</div><p>'+e(s.branches.yes)+'</p></div><div class="bx no"><div class="bl">❌ NÃO</div><p>'+e(s.branches.no)+'</p></div></div>';h+='<div class="stp" style="animation-delay:'+i*.05+'s"><div class="tl"><div class="dt '+dt+'">'+(IC[dt]||i+1)+'</div>'+(!il?'<div class="ln"></div>':'')+'</div><div class="sc"><h4>'+e(s.title)+'</h4><div class="sd">'+e(s.desc||'')+'</div>'+tg+br+'</div></div>'});h+='</div>';if(m.penalties?.length)h+='<div class="pen"><h5>⚠ PENALIDADES</h5><ul>'+m.penalties.map(p=>'<li>'+e(p)+'</li>').join('')+'</ul></div>';return h+'</div>'}
 rTabs();R();
 </script>
 </body>

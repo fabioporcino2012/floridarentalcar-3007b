@@ -706,41 +706,102 @@ function dlCR(id,i){var d=gS(id);d.comissao.regras.splice(i,1);D[id]=d;save();R(
 
 // ===== CEO: JORNADA DO CLIENTE =====
 var JOR_DEFAULT=[
-{ordem:1,etapa:"Descoberta",setor:"Marketing",desc:"Cliente vê anúncio ou indicação, entra no site/WhatsApp"},
-{ordem:2,etapa:"Primeiro Contato",setor:"Comercial",desc:"Lead chega no WhatsApp, vendedor faz abordagem"},
-{ordem:3,etapa:"Negociação",setor:"Comercial",desc:"Apresentação de opções, preços, condições"},
-{ordem:4,etapa:"Fechamento",setor:"Comercial / Kommo",desc:"Reserva confirmada, pagamento processado"},
-{ordem:5,etapa:"Pré-Entrega",setor:"Operacional / Frota",desc:"Separação do veículo, inspeção, limpeza"},
-{ordem:6,etapa:"Entrega",setor:"Ent/Devolução",desc:"Entrega aeroporto/hotel, vistoria, documentação"},
-{ordem:7,etapa:"Locação Ativa",setor:"Suporte / CS",desc:"Acompanhamento, atendimento problemas, extensões"},
-{ordem:8,etapa:"Devolução",setor:"Ent/Devolução",desc:"Recebimento veículo, vistoria final, checklist"},
-{ordem:9,etapa:"Pós-Locação",setor:"Pós-venda",desc:"Pesquisa satisfação, NPS, resolução pendências"},
-{ordem:10,etapa:"Fidelização",setor:"Sucesso Cliente",desc:"Fidelidade, ofertas recompra, indicação"}
+{ordem:1,etapa:"O Sonho",setor:"—",desc:"Cliente sonha: Disney, compras em Orlando, viagem em família, férias tranquilas nos EUA"},
+{ordem:2,etapa:"Pesquisa no Google",setor:"Marketing",desc:"Sonho vira planejamento. Cliente pesquisa opções de aluguel de carro"},
+{ordem:3,etapa:"Impacto do Tráfego",setor:"Marketing",desc:"Bombardeio estratégico — marketing da FRC impacta o lead em múltiplos canais"},
+{ordem:4,etapa:"IA Responde Rápido",setor:"IA",desc:"Primeiro atendimento é da IA. Resposta imediata ao lead"},
+{ordem:5,etapa:"Coleta Informações Básicas",setor:"IA",desc:"IA coleta dados iniciais do lead"},
+{ordem:6,etapa:"Datas / Local / Categoria",setor:"IA",desc:"IA identifica datas de viagem, local de retirada e categoria desejada"},
+{ordem:7,etapa:"Inicia Qualificação",setor:"IA / Comercial",desc:"Qualificação do lead para direcionamento ao consultor"},
+{ordem:8,etapa:"Aquece o Lead",setor:"IA / Comercial",desc:"Lead aquecido e preparado para transição ao vendedor"},
+{ordem:9,etapa:"Aguardando Contato (Novo Lead)",setor:"Comercial",desc:"Lead novo aguarda primeiro contato do consultor de vendas"},
+{ordem:10,etapa:"Aguardando Contato (Retorno)",setor:"Comercial",desc:"Lead de retorno aguarda reconexão com consultor"},
+{ordem:11,etapa:"Levantamento de Interesse",setor:"Comercial",desc:"Consultor entende necessidades: datas, destinos, tipo de veículo, orçamento"},
+{ordem:12,etapa:"Orçamento",setor:"Comercial",desc:"Apresentação de opções e valores personalizados"},
+{ordem:13,etapa:"Descontos",setor:"Comercial",desc:"Negociação de condições especiais, cupons, pagamento em reais"},
+{ordem:14,etapa:"Aguardando Pagamento",setor:"Comercial",desc:"Proposta aceita, aguardando confirmação de pagamento"},
+{ordem:15,etapa:"Venda Ganha",setor:"Comercial",desc:"Pagamento confirmado. Reserva fechada com sucesso"},
+{ordem:16,etapa:"Entrantes do Pós-venda",setor:"Pós-venda",desc:"Cliente entra no fluxo de pós-venda após confirmação"},
+{ordem:17,etapa:"Confirmando Dados",setor:"Pós-venda",desc:"Verificação de dados pessoais, CNH, voo, endereço"},
+{ordem:18,etapa:"Aguardando Ass. Contrato",setor:"Pós-venda",desc:"Envio e aguardo da assinatura do contrato digital"},
+{ordem:19,etapa:"10 Dias — Confirmação",setor:"Pós-venda",desc:"10 dias antes: confirmação de todos os detalhes da locação"},
+{ordem:20,etapa:"EXTRA+PLUS",setor:"Pós-venda / Plus",desc:"Oferta de extras: cadeirinha, GPS, chip, equipamentos Plus"},
+{ordem:21,etapa:"Vendas Pós-Venda",setor:"Pós-venda",desc:"Oportunidade de upsell e cross-sell durante confirmação"},
+{ordem:22,etapa:"Suporte Após Confirmação",setor:"Suporte",desc:"Atendimento de dúvidas pré-viagem após confirmação"},
+{ordem:23,etapa:"Futuras Entregas",setor:"Ent/Devolução",desc:"Agendamento e programação das entregas futuras"},
+{ordem:24,etapa:"Entregas Pendentes",setor:"Ent/Devolução",desc:"Entregas do dia/semana aguardando execução"},
+{ordem:25,etapa:"Enviados Fotos (Entrega)",setor:"Ent/Devolução",desc:"Registro fotográfico do veículo na entrega ao cliente"},
+{ordem:26,etapa:"Entrada (Suporte)",setor:"Suporte",desc:"Cliente abre chamado durante a locação"},
+{ordem:27,etapa:"Atendimento (Suporte)",setor:"Suporte",desc:"Resolução do problema via WhatsApp/videochamada"},
+{ordem:28,etapa:"Casos de Trocas",setor:"Suporte",desc:"Necessidade de troca de veículo durante locação"},
+{ordem:29,etapa:"Suporte F Plus",setor:"Suporte / Plus",desc:"Suporte específico para equipamentos e serviços Plus"},
+{ordem:30,etapa:"Futuras Devoluções",setor:"Ent/Devolução",desc:"Programação de devoluções agendadas"},
+{ordem:31,etapa:"Devoluções Pendentes",setor:"Ent/Devolução",desc:"Devoluções do dia/semana aguardando execução"},
+{ordem:32,etapa:"Devolução — Enviados Fotos",setor:"Ent/Devolução",desc:"Registro fotográfico do veículo na devolução"},
+{ordem:33,etapa:"Devolução (Transição SC)",setor:"Sucesso Cliente",desc:"Veículo devolvido, cliente entra no fluxo de sucesso"},
+{ordem:34,etapa:"Pronto para Avaliação",setor:"Sucesso Cliente",desc:"Cliente disponível para pesquisa de satisfação/NPS"},
+{ordem:35,etapa:"SC — Atendimento",setor:"Sucesso Cliente",desc:"Contato proativo do time de Sucesso do Cliente"},
+{ordem:36,etapa:"E-mail",setor:"Sucesso Cliente",desc:"Envio de pesquisa de satisfação e pedido de avaliação"},
+{ordem:37,etapa:"Reclame",setor:"Sucesso Cliente",desc:"Gestão de reclamações e feedbacks negativos"},
+{ordem:38,etapa:"Fornecedores (Financeiro)",setor:"Financeiro",desc:"Entrada de pendências financeiras com fornecedores"},
+{ordem:39,etapa:"Contato Inicial: Multa/Reembolso",setor:"Financeiro",desc:"Primeiro contato sobre multas ou reembolsos pendentes"},
+{ordem:40,etapa:"Em Atendimento (Financeiro)",setor:"Financeiro",desc:"Caso financeiro sendo tratado pela equipe"},
+{ordem:41,etapa:"Aguardando Pgto Multa",setor:"Financeiro",desc:"Multa identificada, aguardando pagamento do cliente"},
+{ordem:42,etapa:"Charge Back",setor:"Financeiro",desc:"Gestão de contestações de cartão de crédito"},
+{ordem:43,etapa:"Aguardando Comprovante",setor:"Financeiro",desc:"Aguardando comprovante do sistema para fechar caso"},
+];
+
+var JOR_PHASES=[
+{from:1,to:1,name:"O SONHO",color:"#FAAD14",icon:"✨"},
+{from:2,to:3,name:"MARKETING & TRÁFEGO",color:"#E87722",icon:"📣"},
+{from:4,to:8,name:"IA / FOLLOW-UP",color:"#13C2C2",icon:"🤖"},
+{from:9,to:15,name:"COMERCIAL EM ATENDIMENTO",color:"#D4380D",icon:"💰"},
+{from:16,to:22,name:"PÓS-VENDA & LOGÍSTICA",color:"#52C41A",icon:"📞"},
+{from:23,to:25,name:"LOGÍSTICA — ENTREGA",color:"#096DD9",icon:"🚗"},
+{from:26,to:29,name:"SUPORTE",color:"#389E0D",icon:"🆘"},
+{from:30,to:32,name:"LOGÍSTICA — DEVOLUÇÃO",color:"#096DD9",icon:"🚗"},
+{from:33,to:37,name:"SUCESSO DO CLIENTE",color:"#135200",icon:"⭐"},
+{from:38,to:43,name:"FINANCEIRO — REEMBOLSO",color:"#722ED1",icon:"🏦"},
 ];
 
 function rJornada(){
   var c=D._ceo;
-  if(!c.jornada||c.jornada.length===0){c.jornada=JOR_DEFAULT.map(function(j){return{id:gid(),ordem:j.ordem,etapa:j.etapa,setor:j.setor,desc:j.desc,acao:""}});D._ceo=c;save()}
+  if(!c.jornada||c.jornada.length<20){c.jornada=JOR_DEFAULT.map(function(j){return{id:gid(),ordem:j.ordem,etapa:j.etapa,setor:j.setor,desc:j.desc,acao:""}});D._ceo=c;save()}
   var items=c.jornada;
   var sorted=items.slice().sort(function(a,b){return(a.ordem||0)-(b.ordem||0)});
   var flow='';
-  for(var i=0;i<sorted.length;i++){
-    var s=sorted[i];
-    var secCol='var(--acc)';
-    for(var si=0;si<SECTORS.length;si++){if(s.setor&&s.setor.toLowerCase().indexOf(SECTORS[si].name.toLowerCase())>=0){secCol=SECTORS[si].color;break}}
-    flow+='<div class="jor-node"><div class="jor-num">'+s.ordem+'</div><div style="flex:1"><div style="font-size:13px;font-weight:700">'+s.etapa+'</div><div class="jor-setor" style="background:'+secCol+'22;color:'+secCol+'">'+s.setor+'</div>';
-    if(s.desc)flow+='<div style="font-size:11px;color:var(--tx2);margin-top:4px">'+s.desc+'</div>';
-    if(s.acao)flow+='<div style="font-size:11px;color:var(--grn);margin-top:2px">→ '+s.acao+'</div>';
-    flow+='</div><div style="display:flex;gap:3px"><button class="btn btn-g btn-s" onclick="edJor(\''+s.id+'\')">✏️</button><button class="btn btn-d btn-s" onclick="dlJor(\''+s.id+'\')">✕</button></div></div>';
-    if(i<sorted.length-1)flow+='<div class="jor-arrow">▼</div>';
+  for(var p=0;p<JOR_PHASES.length;p++){
+    var ph=JOR_PHASES[p];
+    var phItems=sorted.filter(function(s){return s.ordem>=ph.from&&s.ordem<=ph.to});
+    if(!phItems.length)continue;
+    flow+='<div style="margin-bottom:20px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 14px;background:'+ph.color+'15;border-left:4px solid '+ph.color+';border-radius:0 8px 8px 0"><span style="font-size:16px">'+ph.icon+'</span><span style="font-size:12px;font-weight:700;color:'+ph.color+';text-transform:uppercase;letter-spacing:1px">'+ph.name+'</span><span style="font-size:10px;color:var(--tx3);margin-left:auto">'+phItems.length+' etapas</span></div>';
+    for(var i=0;i<phItems.length;i++){
+      var s=phItems[i];
+      var secCol=ph.color;
+      for(var si=0;si<SECTORS.length;si++){if(s.setor&&s.setor.toLowerCase().indexOf(SECTORS[si].name.toLowerCase())>=0){secCol=SECTORS[si].color;break}}
+      flow+='<div class="jor-node" style="margin-left:20px"><div class="jor-num" style="background:'+ph.color+'">'+s.ordem+'</div><div style="flex:1"><div style="font-size:13px;font-weight:700">'+s.etapa+'</div><div class="jor-setor" style="background:'+secCol+'22;color:'+secCol+'">'+s.setor+'</div>';
+      if(s.desc)flow+='<div style="font-size:11px;color:var(--tx2);margin-top:4px">'+s.desc+'</div>';
+      if(s.acao)flow+='<div style="font-size:11px;color:var(--grn);margin-top:2px">→ '+s.acao+'</div>';
+      flow+='</div><div style="display:flex;gap:3px"><button class="btn btn-g btn-s" onclick="edJor(\''+s.id+'\')">✏️</button><button class="btn btn-d btn-s" onclick="dlJor(\''+s.id+'\')">✕</button></div></div>';
+      if(i<phItems.length-1)flow+='<div class="jor-arrow" style="margin-left:34px">▼</div>';
+    }
+    flow+='</div>';
   }
-  return '<div class="card"><div class="card-hd"><div class="card-tt">🗺️ Jornada do Cliente por Setores</div><span style="font-size:11px;color:var(--tx3)">'+items.length+' etapas</span></div>'+
+  // Orphans (items outside defined phases)
+  var orphans=sorted.filter(function(s){var inP=false;JOR_PHASES.forEach(function(ph){if(s.ordem>=ph.from&&s.ordem<=ph.to)inP=true});return!inP});
+  if(orphans.length){
+    flow+='<div style="margin-bottom:20px"><div style="font-size:10px;font-weight:700;color:var(--tx3);margin-bottom:8px">ETAPAS ADICIONAIS</div>';
+    for(var i=0;i<orphans.length;i++){var s=orphans[i];flow+='<div class="jor-node"><div class="jor-num">'+s.ordem+'</div><div style="flex:1"><div style="font-size:13px;font-weight:700">'+s.etapa+'</div><div class="jor-setor" style="background:var(--bg4);color:var(--tx2)">'+s.setor+'</div>';if(s.desc)flow+='<div style="font-size:11px;color:var(--tx2);margin-top:4px">'+s.desc+'</div>';flow+='</div><div style="display:flex;gap:3px"><button class="btn btn-g btn-s" onclick="edJor(\''+s.id+'\')">✏️</button><button class="btn btn-d btn-s" onclick="dlJor(\''+s.id+'\')">✕</button></div></div>'}
+    flow+='</div>';
+  }
+  return '<div class="card"><div class="card-hd"><div class="card-tt">🗺️ Jornada do Cliente — Florida Rental Car</div><span style="font-size:11px;color:var(--tx3)">'+items.length+' etapas • 10 fases</span></div>'+
     '<div style="padding:12px;background:var(--bg3);border-radius:8px;border:1px solid var(--bdr);margin-bottom:16px"><div class="fr">'+
     '<div class="ig"><div class="il">Ordem</div><input type="number" id="jr_o" value="'+(items.length+1)+'" style="width:60px" min="1"></div>'+
     '<div class="ig"><div class="il">Etapa *</div><input class="if" id="jr_e" placeholder="Nome da etapa..." style="min-width:150px"></div>'+
     '<div class="ig"><div class="il">Setor(es)</div><input id="jr_s" placeholder="Qual setor..." style="width:140px"></div>'+
     '<div class="ig"><div class="il">Descrição</div><input class="if" id="jr_d" placeholder="O que acontece..." style="min-width:180px"></div>'+
-    '<button class="btn btn-p" onclick="adJor()" style="align-self:end">+ Add</button></div></div>'+
+    '<button class="btn btn-p" onclick="adJor()" style="align-self:end">+ Add</button></div>'+
+    '<div style="margin-top:8px"><button class="btn btn-g btn-s" onclick="if(confirm(\'Resetar jornada para o padrão FRC?\')){D._ceo.jornada=[];save();R()}">🔄 Resetar Padrão</button></div></div>'+
     '<div class="jor-flow">'+flow+'</div></div>';
 }
 function adJor(){var c=D._ceo;var e=document.getElementById("jr_e").value.trim();if(!e){toast("⚠️ Preencha a etapa");return}c.jornada.push({id:gid(),ordem:parseInt(document.getElementById("jr_o").value)||c.jornada.length+1,etapa:e,setor:document.getElementById("jr_s").value,desc:document.getElementById("jr_d").value,acao:""});D._ceo=c;save();R()}

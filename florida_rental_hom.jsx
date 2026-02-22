@@ -1,0 +1,1014 @@
+import { useState, useEffect, useCallback, useRef } from "react";
+
+const MONTHS = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+const MONTHS_FULL = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const DAYS_IN_MONTH = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+const DEFAULT_UNIT = {
+  id: "mv1", name: "Magic Village #1", location: "Kissimmee, FL",
+  purchasePrice: 520000, downPayment: 250000, financed: 270000,
+  interestRate: 7.5, loanTermMonths: 360, purchaseDate: "2025-01", status: "Ativa"
+};
+
+const DEFAULT_SEASONS = [
+  { id: "altissima", name: "Altíssima (Natal/Ano Novo)", color: "#DC2626", rate: 350, ranges: [{ from: "12-20", to: "01-05" }] },
+  { id: "alta", name: "Alta (Férias Jul / Feriados)", color: "#F59E0B", rate: 280, ranges: [{ from: "06-25", to: "07-31" }, { from: "03-15", to: "03-31" }] },
+  { id: "media", name: "Média (Temporada Regular)", color: "#3B82F6", rate: 200, ranges: [{ from: "01-06", to: "03-14" }, { from: "08-01", to: "11-15" }] },
+  { id: "baixa", name: "Baixa (Baixa Temporada)", color: "#10B981", rate: 150, ranges: [{ from: "04-01", to: "06-24" }, { from: "11-16", to: "12-19" }] },
+];
+
+const DEFAULT_COST_CATEGORIES = [
+  { id: "mortgage", name: "Mortgage / Financiamento", type: "F", link: "", login: "", password: "" },
+  { id: "hoa", name: "HOA / Condomínio", type: "F", link: "", login: "", password: "" },
+  { id: "tax", name: "Property Tax (IPTU)", type: "F", link: "", login: "", password: "" },
+  { id: "insurance", name: "Seguro do Imóvel", type: "F", link: "", login: "", password: "" },
+  { id: "internet", name: "Internet / Utilities Base", type: "F", link: "", login: "", password: "" },
+  { id: "platforms", name: "Assinatura Plataformas", type: "F", link: "", login: "", password: "" },
+  { id: "electric", name: "Energia Elétrica", type: "V", link: "", login: "", password: "" },
+  { id: "water", name: "Água / Esgoto", type: "V", link: "", login: "", password: "" },
+  { id: "gas", name: "Gás", type: "V", link: "", login: "", password: "" },
+  { id: "cleaning", name: "Limpeza", type: "V", link: "", login: "", password: "" },
+  { id: "laundry", name: "Lavanderia", type: "V", link: "", login: "", password: "" },
+  { id: "maintenance", name: "Manutenção / Reparos", type: "V", link: "", login: "", password: "" },
+  { id: "supplies", name: "Suprimentos / Amenities", type: "V", link: "", login: "", password: "" },
+  { id: "pool", name: "Jardinagem / Pool", type: "V", link: "", login: "", password: "" },
+  { id: "commission_fp", name: "Comissão Florida Plus", type: "V", link: "", login: "", password: "" },
+  { id: "commission_plat", name: "Comissão Plataformas", type: "V", link: "", login: "", password: "" },
+  { id: "marketing", name: "Marketing / Mídia", type: "V", link: "", login: "", password: "" },
+  { id: "admin", name: "Gestão / Administração", type: "F", link: "", login: "", password: "" },
+  { id: "accounting", name: "Contador / Fiscal", type: "F", link: "", login: "", password: "" },
+  { id: "other", name: "Outros Custos", type: "V", link: "", login: "", password: "" },
+];
+
+const DEFAULT_TODOS = [
+  { id: 1, cat: "Limpeza", task: "Vistoria pré check-in", resp: "", due: "", status: "Pendente", priority: "Alta" },
+  { id: 2, cat: "Limpeza", task: "Vistoria pós check-out", resp: "", due: "", status: "Pendente", priority: "Alta" },
+  { id: 3, cat: "Manutenção", task: "Check AC / aquecimento", resp: "", due: "", status: "Pendente", priority: "Média" },
+  { id: 4, cat: "Financeiro", task: "Pagar HOA / condomínio", resp: "", due: "", status: "Pendente", priority: "Alta" },
+  { id: 5, cat: "Financeiro", task: "Pagar utilities", resp: "", due: "", status: "Pendente", priority: "Alta" },
+  { id: 6, cat: "Financeiro", task: "Fechamento DRE do mês", resp: "", due: "", status: "Pendente", priority: "Alta" },
+  { id: 7, cat: "Suprimentos", task: "Repor amenities", resp: "", due: "", status: "Pendente", priority: "Média" },
+  { id: 8, cat: "Comunicação", task: "Relatório ao proprietário", resp: "", due: "", status: "Pendente", priority: "Alta" },
+];
+
+async function loadData(key, fallback) {
+  try { const r = await window.storage.get(key); return r ? JSON.parse(r.value) : fallback; } catch { return fallback; }
+}
+async function saveData(key, data) {
+  try { await window.storage.set(key, JSON.stringify(data)); } catch (e) { console.error(e); }
+}
+
+const fmt = (v) => { const n = Number(v); if (isNaN(n)) return "$0"; return n.toLocaleString("en-US",{style:"currency",currency:"USD",minimumFractionDigits:0,maximumFractionDigits:0}); };
+const fmt2 = (v) => { const n = Number(v); if (isNaN(n)) return "$0.00"; return n.toLocaleString("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2}); };
+const pct = (v) => (Number(v)||0).toFixed(1)+"%";
+
+const Icon = ({d,size=20,color="currentColor"}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={d}/></svg>;
+const HomeIcon = () => <Icon d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z M9 22V12h6v10"/>;
+const CalIcon = () => <Icon d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2z M16 2v4 M8 2v4 M3 10h18"/>;
+const BookIcon = () => <Icon d="M4 19.5A2.5 2.5 0 016.5 17H20 M4 19.5V5a2 2 0 012-2h14v14H6.5A2.5 2.5 0 004 19.5z"/>;
+const DollarIcon = () => <Icon d="M12 1v22 M17 5H9.5a3.5 3.5 0 100 7h5a3.5 3.5 0 010 7H6"/>;
+const ChartIcon = () => <Icon d="M18 20V10 M12 20V4 M6 20v-6"/>;
+const CheckIcon = () => <Icon d="M22 11.08V12a10 10 0 11-5.93-9.14 M22 4L12 14.01l-3-3"/>;
+const TrendIcon = () => <Icon d="M23 6l-9.5 9.5-5-5L1 18"/>;
+const PlusIcon = () => <Icon d="M12 5v14 M5 12h14"/>;
+const TrashIcon = () => <Icon d="M3 6h18 M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>;
+const EditIcon = () => <Icon d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7 M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>;
+const EyeIcon = () => <Icon d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 100 6 3 3 0 000-6z"/>;
+const EyeOffIcon = () => <Icon d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24 M1 1l22 22"/>;
+const LinkIcon = () => <Icon d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71 M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>;
+const TagIcon = () => <Icon d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z M7 7h.01"/>;
+const LockIcon = () => <Icon d="M19 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2z M7 11V7a5 5 0 0110 0v4"/>;
+const UnlockIcon = () => <Icon d="M19 11H5a2 2 0 00-2 2v7a2 2 0 002 2h14a2 2 0 002-2v-7a2 2 0 00-2-2z M7 11V7a5 5 0 019.9-1"/>;
+const CopyIcon = () => <Icon d="M20 9h-9a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-9a2 2 0 00-2-2z M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>;
+
+function EditCell({value,onChange,type="text",placeholder="",className="",prefix="",step,disabled=false}) {
+  return (
+    <div className="relative">
+      {prefix && <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">{prefix}</span>}
+      <input type={type} value={value??""} onChange={e=>onChange(type==="number"?(e.target.value===""?"":Number(e.target.value)):e.target.value)}
+        placeholder={placeholder} step={step} disabled={disabled}
+        className={`w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-sky-500 focus:bg-sky-50/50 outline-none px-2 py-1.5 text-sm transition-all ${prefix?"pl-5":""} ${disabled?"opacity-50 cursor-not-allowed":""} ${className}`}/>
+    </div>
+  );
+}
+
+function SelectCell({value,onChange,options,className=""}) {
+  return <select value={value??""} onChange={e=>onChange(e.target.value)} className={`w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-sky-500 outline-none px-1 py-1.5 text-sm cursor-pointer ${className}`}>
+    {options.map(o=><option key={o} value={o}>{o}</option>)}
+  </select>;
+}
+
+function Badge({text,color}) {
+  const c = {green:"bg-emerald-100 text-emerald-700 ring-emerald-600/20",red:"bg-red-100 text-red-700 ring-red-600/20",yellow:"bg-amber-100 text-amber-700 ring-amber-600/20",blue:"bg-sky-100 text-sky-700 ring-sky-600/20",gray:"bg-slate-100 text-slate-600 ring-slate-500/20",purple:"bg-purple-100 text-purple-700 ring-purple-600/20",orange:"bg-orange-100 text-orange-700 ring-orange-600/20"};
+  return <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${c[color]||c.gray}`}>{text}</span>;
+}
+
+function StatCard({label,value,sub,icon,color="sky"}) {
+  const bg = {sky:"from-sky-500 to-sky-600",emerald:"from-emerald-500 to-emerald-600",amber:"from-amber-500 to-amber-600",purple:"from-purple-500 to-purple-600",red:"from-red-500 to-red-600",indigo:"from-indigo-500 to-indigo-600",orange:"from-orange-500 to-orange-600"};
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden hover:shadow-md transition-shadow">
+      <div className="p-5">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{label}</span>
+          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${bg[color]} flex items-center justify-center text-white`}>{icon}</div>
+        </div>
+        <div className="text-2xl font-bold text-slate-800 tracking-tight">{value}</div>
+        {sub && <div className="text-xs text-slate-400 mt-1">{sub}</div>}
+      </div>
+    </div>
+  );
+}
+
+// ─── Date helpers for seasons ───
+function parseMD(md) { const [m,d] = md.split("-").map(Number); return {m,d}; }
+
+function isDateInRange(month, day, from, to) {
+  const f = parseMD(from), t = parseMD(to);
+  const dateVal = month * 100 + day;
+  const fromVal = f.m * 100 + f.d;
+  const toVal = t.m * 100 + t.d;
+  if (fromVal <= toVal) return dateVal >= fromVal && dateVal <= toVal;
+  return dateVal >= fromVal || dateVal <= toVal;
+}
+
+function getSeasonForDate(month1, day, seasons) {
+  for (const s of seasons) {
+    for (const r of (s.ranges || [])) {
+      if (isDateInRange(month1, day, r.from, r.to)) return s;
+    }
+  }
+  return null;
+}
+
+function getRateForDate(dateStr, seasons) {
+  if (!dateStr) return 0;
+  const d = new Date(dateStr + "T12:00:00");
+  const m1 = d.getMonth() + 1;
+  const day = d.getDate();
+  const s = getSeasonForDate(m1, day, seasons);
+  return s ? s.rate : 0;
+}
+
+function getDaysBetween(from, to) {
+  if (!from || !to) return [];
+  const days = [];
+  const start = new Date(from + "T12:00:00");
+  const end = new Date(to + "T12:00:00");
+  const cur = new Date(start);
+  while (cur < end) {
+    days.push(new Date(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return days;
+}
+
+function isDateBooked(dateStr, reservations) {
+  const check = new Date(dateStr + "T12:00:00").getTime();
+  for (const r of reservations) {
+    if (!r.checkin || !r.checkout) continue;
+    const ci = new Date(r.checkin + "T12:00:00").getTime();
+    const co = new Date(r.checkout + "T12:00:00").getTime();
+    if (check >= ci && check < co) return r;
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════
+// MAIN APP
+// ═══════════════════════════════════════
+export default function App() {
+  const [page, setPage] = useState("dashboard");
+  const [units, setUnits] = useState([DEFAULT_UNIT]);
+  const [selectedUnit, setSelectedUnit] = useState("mv1");
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(2025);
+  const [reservations, setReservations] = useState({});
+  const [costs, setCosts] = useState({});
+  const [costCategories, setCostCategories] = useState({});
+  const [todos, setTodos] = useState({});
+  const [availability, setAvailability] = useState({});
+  const [seasons, setSeasons] = useState({});
+  const [loaded, setLoaded] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const saveTimer = useRef(null);
+
+  useEffect(() => {
+    (async () => {
+      const [u,r,c,cc,t,a,s] = await Promise.all([
+        loadData("frh-units",[DEFAULT_UNIT]), loadData("frh-reservations",{}),
+        loadData("frh-costs",{}), loadData("frh-cost-categories",{}),
+        loadData("frh-todos",{}), loadData("frh-availability",{}),
+        loadData("frh-seasons",{}),
+      ]);
+      setUnits(u); setReservations(r); setCosts(c); setCostCategories(cc);
+      setTodos(t); setAvailability(a); setSeasons(s);
+      setSelectedUnit(u[0]?.id||"mv1"); setLoaded(true);
+    })();
+  }, []);
+
+  const autoSave = useCallback(() => {
+    if (!loaded) return;
+    setSaving(true);
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      await Promise.all([
+        saveData("frh-units",units), saveData("frh-reservations",reservations),
+        saveData("frh-costs",costs), saveData("frh-cost-categories",costCategories),
+        saveData("frh-todos",todos), saveData("frh-availability",availability),
+        saveData("frh-seasons",seasons),
+      ]);
+      setSaving(false);
+    }, 800);
+  }, [units,reservations,costs,costCategories,todos,availability,seasons,loaded]);
+
+  useEffect(() => { autoSave(); }, [units,reservations,costs,costCategories,todos,availability,seasons]);
+
+  const unit = units.find(u => u.id === selectedUnit) || units[0] || DEFAULT_UNIT;
+  const monthKey = `${selectedUnit}-${selectedYear}-${selectedMonth}`;
+  const yearKey = `${selectedUnit}-${selectedYear}`;
+
+  function getReservations() { return reservations[yearKey] || []; }
+  function setUnitReservations(data) { setReservations(p => ({...p,[yearKey]:data})); }
+  function getAllUnitReservations() {
+    const all = [];
+    Object.entries(reservations).forEach(([k,v]) => { if (k.startsWith(selectedUnit+"-")) all.push(...v); });
+    return all;
+  }
+  function getCosts() { return costs[monthKey] || {}; }
+  function setUnitCosts(data) { setCosts(p => ({...p,[monthKey]:data})); }
+  function getCostCats() { return costCategories[selectedUnit] || DEFAULT_COST_CATEGORIES; }
+  function setCostCats(data) { setCostCategories(p => ({...p,[selectedUnit]:data})); }
+  function getTodos() { return todos[monthKey] || DEFAULT_TODOS; }
+  function setUnitTodos(data) { setTodos(p => ({...p,[monthKey]:data})); }
+  function getAvail() { return availability[monthKey] || {}; }
+  function setUnitAvail(data) { setAvailability(p => ({...p,[monthKey]:data})); }
+  function getSeasons() { return seasons[selectedUnit] || DEFAULT_SEASONS; }
+  function setUnitSeasons(data) { setSeasons(p => ({...p,[selectedUnit]:data})); }
+
+  function calcROI(u) {
+    let totalRevenue=0, totalCosts=0;
+    for (let m=0;m<12;m++) { const mk=`${u.id}-${selectedYear}-${m}`; const cs=costs[mk]||{}; Object.values(cs).forEach(v=>totalCosts+=Number(v)||0); }
+    const yr=reservations[`${u.id}-${selectedYear}`]||[];
+    yr.forEach(r=>totalRevenue+=Number(r.totalUSD)||0);
+    const netIncome=totalRevenue-totalCosts;
+    const roi=u.purchasePrice>0?(netIncome/u.purchasePrice)*100:0;
+    const capRate=u.purchasePrice>0?(netIncome/u.purchasePrice)*100:0;
+    const monthlyNet=netIncome/12;
+    const paybackMonths=monthlyNet>0?Math.ceil(u.downPayment/monthlyNet):0;
+    return {totalRevenue,totalCosts,netIncome,roi,capRate,monthlyNet,paybackMonths};
+  }
+
+  function getMonthCostTotal(uid,yr,m) { const mk=`${uid}-${yr}-${m}`; const cs=costs[mk]||{}; return Object.values(cs).reduce((s,v)=>s+(Number(v)||0),0); }
+  function getMonthRevenue(uid,yr,m) {
+    const yrRes=reservations[`${uid}-${yr}`]||[];
+    return yrRes.filter(r=>{if(!r.checkin)return false;return new Date(r.checkin+"T12:00:00").getMonth()===m;}).reduce((s,r)=>s+(Number(r.totalUSD)||0),0);
+  }
+
+  if (!loaded) return <div className="min-h-screen bg-slate-50 flex items-center justify-center"><div className="text-center"><div className="w-12 h-12 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"/><p className="text-slate-500 font-medium">Carregando sistema...</p></div></div>;
+
+  const navItems = [
+    {id:"dashboard",label:"Painel Geral",icon:<HomeIcon/>},
+    {id:"cotacao",label:"Cotação",icon:<TagIcon/>},
+    {id:"availability",label:"Disponibilidade",icon:<CalIcon/>},
+    {id:"reservations",label:"Reservas",icon:<BookIcon/>},
+    {id:"costs",label:"Custos & Pagamentos",icon:<DollarIcon/>},
+    {id:"dre",label:"DRE",icon:<ChartIcon/>},
+    {id:"roi",label:"ROI & Payback",icon:<TrendIcon/>},
+    {id:"todo",label:"To-Do & Auditoria",icon:<CheckIcon/>},
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex" style={{fontFamily:"'DM Sans','Segoe UI',sans-serif"}}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700&display=swap" rel="stylesheet"/>
+      <aside className="w-64 bg-slate-900 text-white flex flex-col shrink-0 sticky top-0 h-screen">
+        <div className="p-4 border-b border-slate-700/50">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center text-lg font-bold shrink-0">🏠</div>
+            <div><div className="font-bold text-sm leading-tight">Florida Rental Home</div><div className="text-[10px] text-slate-400">Sistema de Gestão</div></div>
+          </div>
+        </div>
+        <div className="px-3 pt-4 pb-2">
+          <label className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold px-2">Unidade</label>
+          <select value={selectedUnit} onChange={e=>setSelectedUnit(e.target.value)} className="w-full mt-1 bg-slate-800 text-white text-sm rounded-lg px-3 py-2 border border-slate-700 focus:border-sky-500 outline-none">
+            {units.map(u=><option key={u.id} value={u.id}>{u.name}</option>)}
+          </select>
+        </div>
+        <nav className="flex-1 px-2 py-2 space-y-0.5 overflow-y-auto">
+          {navItems.map(n=>(
+            <button key={n.id} onClick={()=>setPage(n.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${page===n.id?"bg-sky-500/20 text-sky-400 font-semibold":"text-slate-400 hover:text-white hover:bg-slate-800"}`}>
+              <span className="shrink-0">{n.icon}</span><span>{n.label}</span>
+            </button>
+          ))}
+        </nav>
+        <div className={`p-3 border-t border-slate-700/50 flex items-center gap-2 text-xs ${saving?"text-amber-400":"text-emerald-400"}`}>
+          {saving?<span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"/>:<span className="w-2 h-2 rounded-full bg-emerald-400"/>}
+          <span>{saving?"Salvando...":"Dados salvos"}</span>
+        </div>
+      </aside>
+
+      <main className="flex-1 overflow-y-auto">
+        <header className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-slate-200/60 px-6 py-3 flex items-center justify-between">
+          <div><h1 className="text-lg font-bold text-slate-800">{navItems.find(n=>n.id===page)?.label}</h1><p className="text-xs text-slate-400">{unit.name} — {unit.location}</p></div>
+          <div className="flex items-center gap-3">
+            <select value={selectedMonth} onChange={e=>setSelectedMonth(Number(e.target.value))} className="bg-slate-100 text-sm rounded-lg px-3 py-1.5 border-0 focus:ring-2 focus:ring-sky-500 outline-none font-medium">
+              {MONTHS_FULL.map((m,i)=><option key={i} value={i}>{m}</option>)}
+            </select>
+            <select value={selectedYear} onChange={e=>setSelectedYear(Number(e.target.value))} className="bg-slate-100 text-sm rounded-lg px-3 py-1.5 border-0 focus:ring-2 focus:ring-sky-500 outline-none font-medium">
+              {[2024,2025,2026,2027,2028].map(y=><option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+        </header>
+        <div className="p-6">
+          {page==="dashboard" && <Dashboard units={units} setUnits={setUnits} calcROI={calcROI} selectedYear={selectedYear} getMonthRevenue={getMonthRevenue} getMonthCostTotal={getMonthCostTotal}/>}
+          {page==="cotacao" && <Cotacao seasons={getSeasons()} setSeasons={setUnitSeasons} allReservations={getAllUnitReservations()} year={selectedYear} unitName={unit.name}/>}
+          {page==="availability" && <Availability avail={getAvail()} setAvail={setUnitAvail} month={selectedMonth} year={selectedYear}/>}
+          {page==="reservations" && <Reservations data={getReservations()} setData={setUnitReservations} month={selectedMonth} seasons={getSeasons()} allReservations={getAllUnitReservations()}/>}
+          {page==="costs" && <Costs costData={getCosts()} setCostData={setUnitCosts} categories={getCostCats()} setCategories={setCostCats} month={selectedMonth}/>}
+          {page==="dre" && <DRE getMonthRevenue={getMonthRevenue} getMonthCostTotal={getMonthCostTotal} unit={unit} year={selectedYear} costs={costs} reservations={reservations}/>}
+          {page==="roi" && <ROI unit={unit} setUnit={u=>setUnits(prev=>prev.map(p=>p.id===u.id?u:p))} calcROI={calcROI} year={selectedYear} getMonthRevenue={getMonthRevenue} getMonthCostTotal={getMonthCostTotal}/>}
+          {page==="todo" && <TodoAudit data={getTodos()} setData={setUnitTodos} month={selectedMonth} year={selectedYear}/>}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════
+// COTAÇÃO (NEW)
+// ═══════════════════════════════════════
+function Cotacao({ seasons, setSeasons, allReservations, year, unitName }) {
+  const [checkin, setCheckin] = useState("");
+  const [checkout, setCheckout] = useState("");
+  const [guestName, setGuestName] = useState("");
+  const [editingSeason, setEditingSeason] = useState(null);
+  const [showSeasonMgr, setShowSeasonMgr] = useState(false);
+  const [cotacaoResult, setCotacaoResult] = useState(null);
+  const [conflictDays, setConflictDays] = useState([]);
+  const [copied, setCopied] = useState(false);
+
+  function calcCotacao() {
+    if (!checkin || !checkout) return;
+    const days = getDaysBetween(checkin, checkout);
+    if (days.length === 0) return;
+
+    const conflicts = [];
+    const breakdown = [];
+    let total = 0;
+    let hasConflict = false;
+
+    for (const d of days) {
+      const ds = d.toISOString().split("T")[0];
+      const m1 = d.getMonth()+1;
+      const day = d.getDate();
+      const season = getSeasonForDate(m1, day, seasons);
+      const rate = season ? season.rate : 0;
+      const booked = isDateBooked(ds, allReservations);
+
+      if (booked) {
+        hasConflict = true;
+        conflicts.push({ date: ds, guest: booked.guest || "Cliente", reservation: booked });
+      }
+
+      breakdown.push({
+        date: ds,
+        dayOfWeek: d.toLocaleDateString("pt-BR",{weekday:"short"}),
+        formatted: d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"}),
+        season: season ? season.name : "Sem temporada",
+        seasonColor: season ? season.color : "#94a3b8",
+        rate,
+        booked: !!booked,
+        bookedGuest: booked?.guest || null,
+      });
+      total += rate;
+    }
+
+    setConflictDays(conflicts);
+    setCotacaoResult({ breakdown, total, nights: days.length, avgRate: total / days.length, hasConflict });
+  }
+
+  function copyQuote() {
+    if (!cotacaoResult) return;
+    const lines = [
+      `🏠 COTAÇÃO — ${unitName}`,
+      `👤 Cliente: ${guestName || "—"}`,
+      `📅 Check-in: ${checkin} | Check-out: ${checkout}`,
+      `🌙 ${cotacaoResult.nights} noites`,
+      ``,
+      `Detalhamento:`,
+      ...cotacaoResult.breakdown.map(b => `  ${b.formatted} (${b.dayOfWeek}) — ${b.season}: $${b.rate}`),
+      ``,
+      `💰 TOTAL: $${cotacaoResult.total.toFixed(2)}`,
+      `📊 Diária média: $${cotacaoResult.avgRate.toFixed(2)}`,
+    ];
+    navigator.clipboard.writeText(lines.join("\n"));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  function addSeason() {
+    setSeasons([...seasons, { id: "s"+Date.now(), name: "Nova Temporada", color: "#6366F1", rate: 0, ranges: [{ from: "01-01", to: "01-31" }] }]);
+  }
+
+  function updateSeason(id, field, value) {
+    setSeasons(seasons.map(s => s.id === id ? { ...s, [field]: value } : s));
+  }
+
+  function addRange(seasonId) {
+    setSeasons(seasons.map(s => s.id === seasonId ? { ...s, ranges: [...s.ranges, { from: "01-01", to: "01-31" }] } : s));
+  }
+
+  function updateRange(seasonId, idx, field, value) {
+    setSeasons(seasons.map(s => {
+      if (s.id !== seasonId) return s;
+      const newRanges = [...s.ranges];
+      newRanges[idx] = { ...newRanges[idx], [field]: value };
+      return { ...s, ranges: newRanges };
+    }));
+  }
+
+  function removeRange(seasonId, idx) {
+    setSeasons(seasons.map(s => {
+      if (s.id !== seasonId) return s;
+      return { ...s, ranges: s.ranges.filter((_, i) => i !== idx) };
+    }));
+  }
+
+  function removeSeason(id) { setSeasons(seasons.filter(s => s.id !== id)); }
+
+  // Calendar preview for current year
+  function renderYearCalendar() {
+    return (
+      <div className="grid grid-cols-3 gap-3">
+        {MONTHS_FULL.map((mName, mi) => {
+          const daysCount = DAYS_IN_MONTH[mi] + (mi === 1 && year % 4 === 0 ? 1 : 0);
+          return (
+            <div key={mi} className="bg-white rounded-xl border border-slate-200/60 p-3">
+              <div className="text-xs font-bold text-slate-600 mb-2 text-center">{mName}</div>
+              <div className="grid grid-cols-7 gap-px">
+                {["D","S","T","Q","Q","S","S"].map((d,i)=><div key={i} className="text-[8px] text-center text-slate-400 font-medium">{d}</div>)}
+                {Array.from({length:new Date(year,mi,1).getDay()}).map((_,i)=><div key={`e${i}`}/>)}
+                {Array.from({length:daysCount}).map((_,i)=>{
+                  const d = i+1;
+                  const s = getSeasonForDate(mi+1, d, seasons);
+                  const ds = `${year}-${String(mi+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+                  const booked = isDateBooked(ds, allReservations);
+                  return (
+                    <div key={d} className="h-5 flex items-center justify-center rounded text-[9px] font-medium relative" style={{backgroundColor: booked ? "#1e293b" : s ? s.color+"25" : "#f1f5f9", color: booked ? "#fff" : s ? s.color : "#94a3b8"}}>
+                      {d}
+                      {booked && <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full"/>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Quick quote form */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <h2 className="font-bold text-slate-800 flex items-center gap-2"><TagIcon/> Calculadora de Cotação</h2>
+            <p className="text-xs text-slate-400 mt-0.5">Selecione as datas para calcular automaticamente com base nas temporadas</p>
+          </div>
+          <button onClick={() => setShowSeasonMgr(!showSeasonMgr)} className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm px-4 py-2 rounded-xl font-medium transition-colors">
+            <CalIcon/> {showSeasonMgr ? "Fechar" : "Gerenciar"} Temporadas
+          </button>
+        </div>
+
+        <div className="p-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div>
+              <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Nome do Cliente</label>
+              <input value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="Nome do hóspede"
+                className="w-full bg-slate-50 rounded-xl px-4 py-2.5 text-sm border border-slate-200 outline-none focus:ring-2 focus:ring-sky-400 focus:bg-white"/>
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Check-in</label>
+              <input type="date" value={checkin} onChange={e => { setCheckin(e.target.value); setCotacaoResult(null); setConflictDays([]); }}
+                className="w-full bg-slate-50 rounded-xl px-4 py-2.5 text-sm border border-slate-200 outline-none focus:ring-2 focus:ring-sky-400 focus:bg-white"/>
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Check-out</label>
+              <input type="date" value={checkout} onChange={e => { setCheckout(e.target.value); setCotacaoResult(null); setConflictDays([]); }}
+                className="w-full bg-slate-50 rounded-xl px-4 py-2.5 text-sm border border-slate-200 outline-none focus:ring-2 focus:ring-sky-400 focus:bg-white"/>
+            </div>
+            <div className="flex items-end">
+              <button onClick={calcCotacao} disabled={!checkin||!checkout}
+                className="w-full bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-600 hover:to-indigo-600 disabled:opacity-40 text-white text-sm px-6 py-2.5 rounded-xl font-semibold transition-all shadow-lg shadow-sky-500/25">
+                Calcular Cotação
+              </button>
+            </div>
+          </div>
+
+          {/* Conflict warning */}
+          {conflictDays.length > 0 && (
+            <div className="mb-6 bg-red-50 border-2 border-red-200 rounded-2xl p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center text-white"><LockIcon/></div>
+                <div>
+                  <h3 className="font-bold text-red-800 text-base">⚠️ Datas com Reserva Existente</h3>
+                  <p className="text-xs text-red-600">As datas abaixo já possuem reserva confirmada e NÃO podem ser cotadas.</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {conflictDays.map((c, i) => (
+                  <div key={i} className="bg-red-100 rounded-lg px-3 py-2 flex items-center gap-2">
+                    <LockIcon/>
+                    <div>
+                      <div className="text-xs font-bold text-red-800">{new Date(c.date+"T12:00:00").toLocaleDateString("pt-BR")}</div>
+                      <div className="text-[10px] text-red-600">Reservado: {c.guest}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Cotacao result */}
+          {cotacaoResult && !cotacaoResult.hasConflict && (
+            <div className="bg-gradient-to-br from-emerald-50 to-sky-50 rounded-2xl border-2 border-emerald-200 overflow-hidden">
+              <div className="p-5 border-b border-emerald-200/50 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-sky-500 flex items-center justify-center text-white text-xl">💰</div>
+                  <div>
+                    <div className="text-2xl font-bold text-slate-800">{fmt2(cotacaoResult.total)}</div>
+                    <div className="text-xs text-slate-500">{cotacaoResult.nights} noites · Média {fmt2(cotacaoResult.avgRate)}/noite</div>
+                  </div>
+                </div>
+                <button onClick={copyQuote} className={`flex items-center gap-1.5 ${copied ? "bg-emerald-500" : "bg-slate-800 hover:bg-slate-700"} text-white text-sm px-4 py-2.5 rounded-xl font-medium transition-all`}>
+                  {copied ? <><CheckIcon/> Copiado!</> : <><CopyIcon/> Copiar Cotação</>}
+                </button>
+              </div>
+
+              {/* Breakdown */}
+              <div className="p-5">
+                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Detalhamento por Diária</h3>
+                <div className="space-y-1.5 max-h-64 overflow-y-auto pr-2">
+                  {cotacaoResult.breakdown.map((b, i) => (
+                    <div key={i} className="flex items-center gap-3 bg-white/70 rounded-xl px-4 py-2.5">
+                      <div className="w-2 h-8 rounded-full" style={{ backgroundColor: b.seasonColor }}/>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-slate-700">{b.formatted} <span className="text-slate-400">({b.dayOfWeek})</span></div>
+                        <div className="text-[10px] text-slate-400">{b.season}</div>
+                      </div>
+                      <div className="text-sm font-bold text-slate-800">{fmt2(b.rate)}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Summary by season */}
+                <div className="mt-4 pt-4 border-t border-emerald-200/50">
+                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Resumo por Temporada</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {(() => {
+                      const grouped = {};
+                      cotacaoResult.breakdown.forEach(b => {
+                        if (!grouped[b.season]) grouped[b.season] = { count: 0, total: 0, color: b.seasonColor };
+                        grouped[b.season].count++;
+                        grouped[b.season].total += b.rate;
+                      });
+                      return Object.entries(grouped).map(([name, data]) => (
+                        <div key={name} className="bg-white rounded-xl p-3 border" style={{ borderColor: data.color + "40" }}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: data.color }}/>
+                            <span className="text-[10px] font-semibold text-slate-600 truncate">{name}</span>
+                          </div>
+                          <div className="text-lg font-bold text-slate-800">{data.count} <span className="text-xs font-normal text-slate-400">noites</span></div>
+                          <div className="text-xs text-slate-500">{fmt2(data.total)}</div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {cotacaoResult && cotacaoResult.hasConflict && (
+            <div className="bg-amber-50 rounded-2xl border-2 border-amber-200 p-5 text-center">
+              <div className="text-4xl mb-2">🚫</div>
+              <h3 className="font-bold text-amber-800 text-lg">Cotação Bloqueada</h3>
+              <p className="text-sm text-amber-600 mt-1">Existem {conflictDays.length} dia(s) com reserva confirmada no período selecionado.</p>
+              <p className="text-xs text-amber-500 mt-2">Ajuste as datas para evitar conflitos com reservas existentes.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Season Manager */}
+      {showSeasonMgr && (
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <h2 className="font-bold text-slate-800">🗓️ Gerenciar Temporadas & Diárias</h2>
+              <p className="text-xs text-slate-400 mt-0.5">Defina os preços das diárias por temporada e período</p>
+            </div>
+            <button onClick={addSeason} className="flex items-center gap-1.5 bg-sky-500 hover:bg-sky-600 text-white text-sm px-4 py-2 rounded-xl font-medium transition-colors">
+              <PlusIcon/> Nova Temporada
+            </button>
+          </div>
+
+          <div className="p-6 space-y-4">
+            {seasons.map(s => (
+              <div key={s.id} className="rounded-xl border-2 overflow-hidden" style={{ borderColor: s.color + "40" }}>
+                <div className="flex items-center gap-3 px-5 py-3" style={{ backgroundColor: s.color + "10" }}>
+                  <input type="color" value={s.color} onChange={e => updateSeason(s.id, "color", e.target.value)}
+                    className="w-8 h-8 rounded-lg border-0 cursor-pointer"/>
+                  <input value={s.name} onChange={e => updateSeason(s.id, "name", e.target.value)}
+                    className="flex-1 bg-transparent text-sm font-semibold outline-none" style={{ color: s.color }}/>
+                  <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-1.5 shadow-sm">
+                    <span className="text-xs text-slate-400">Diária:</span>
+                    <span className="text-sm font-bold text-slate-500">$</span>
+                    <input type="number" value={s.rate} onChange={e => updateSeason(s.id, "rate", Number(e.target.value))}
+                      className="w-20 bg-transparent text-sm font-bold outline-none text-right" style={{ color: s.color }}/>
+                  </div>
+                  <button onClick={() => removeSeason(s.id)} className="p-1.5 text-slate-300 hover:text-red-500 transition-colors"><TrashIcon/></button>
+                </div>
+
+                <div className="px-5 py-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Períodos (MM-DD)</span>
+                    <button onClick={() => addRange(s.id)} className="text-xs text-sky-500 hover:text-sky-700 font-medium flex items-center gap-1"><PlusIcon/> Adicionar Período</button>
+                  </div>
+                  {(s.ranges || []).map((r, ri) => (
+                    <div key={ri} className="flex items-center gap-3 bg-slate-50 rounded-lg px-3 py-2">
+                      <span className="text-xs text-slate-500 font-medium">De:</span>
+                      <input value={r.from} onChange={e => updateRange(s.id, ri, "from", e.target.value)} placeholder="MM-DD"
+                        className="w-20 bg-white rounded px-2 py-1 text-sm border border-slate-200 outline-none focus:ring-1 focus:ring-sky-400 text-center font-mono"/>
+                      <span className="text-xs text-slate-500 font-medium">Até:</span>
+                      <input value={r.to} onChange={e => updateRange(s.id, ri, "to", e.target.value)} placeholder="MM-DD"
+                        className="w-20 bg-white rounded px-2 py-1 text-sm border border-slate-200 outline-none focus:ring-1 focus:ring-sky-400 text-center font-mono"/>
+                      <span className="flex-1 text-xs text-slate-400">
+                        {(() => {
+                          const f = parseMD(r.from), t = parseMD(r.to);
+                          return `${String(f.d).padStart(2,"0")}/${String(f.m).padStart(2,"0")} → ${String(t.d).padStart(2,"0")}/${String(t.m).padStart(2,"0")}`;
+                        })()}
+                      </span>
+                      {(s.ranges || []).length > 1 && (
+                        <button onClick={() => removeRange(s.id, ri)} className="text-slate-300 hover:text-red-500"><TrashIcon/></button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Year calendar preview */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="font-bold text-slate-800">Calendário Anual — {year}</h2>
+            <p className="text-xs text-slate-400 mt-0.5">Cores = temporadas · Dias escuros = reservados (🔒 bloqueados para cotação)</p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {seasons.map(s => (
+              <div key={s.id} className="flex items-center gap-1.5 text-xs">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: s.color }}/> 
+                <span className="text-slate-500">{s.name.split("(")[0].trim()}: <strong>${s.rate}</strong></span>
+              </div>
+            ))}
+            <div className="flex items-center gap-1.5 text-xs">
+              <div className="w-3 h-3 rounded-full bg-slate-800"/> <span className="text-slate-500">Reservado</span>
+            </div>
+          </div>
+        </div>
+        {renderYearCalendar()}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════
+function Dashboard({units,setUnits,calcROI,selectedYear,getMonthRevenue,getMonthCostTotal}) {
+  const [showAddUnit,setShowAddUnit]=useState(false);
+  const [newUnit,setNewUnit]=useState({name:"",location:"",purchasePrice:0,downPayment:0,financed:0,interestRate:0,loanTermMonths:360});
+  const totals=units.reduce((a,u)=>{const r=calcROI(u);a.revenue+=r.totalRevenue;a.costs+=r.totalCosts;a.net+=r.netIncome;a.invested+=u.purchasePrice;return a;},{revenue:0,costs:0,net:0,invested:0});
+  function addUnit(){const id="u"+Date.now();setUnits(p=>[...p,{...newUnit,id,status:"Ativa",purchaseDate:""}]);setShowAddUnit(false);setNewUnit({name:"",location:"",purchasePrice:0,downPayment:0,financed:0,interestRate:0,loanTermMonths:360});}
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="Unidades" value={units.length} sub="no portfólio" icon={<HomeIcon/>} color="indigo"/>
+        <StatCard label="Receita Anual" value={fmt(totals.revenue)} sub={selectedYear.toString()} icon={<TrendIcon/>} color="emerald"/>
+        <StatCard label="Custos Anual" value={fmt(totals.costs)} sub={selectedYear.toString()} icon={<DollarIcon/>} color="red"/>
+        <StatCard label="Resultado" value={fmt(totals.net)} sub={totals.net>=0?"positivo ✓":"negativo ✗"} icon={<ChartIcon/>} color={totals.net>=0?"emerald":"red"}/>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <h2 className="font-bold text-slate-800">Unidades do Portfólio</h2>
+          <button onClick={()=>setShowAddUnit(!showAddUnit)} className="flex items-center gap-1.5 bg-sky-500 hover:bg-sky-600 text-white text-sm px-4 py-2 rounded-xl font-medium transition-colors"><PlusIcon/> Nova Unidade</button>
+        </div>
+        {showAddUnit&&(<div className="px-6 py-4 bg-sky-50 border-b border-sky-100 grid grid-cols-2 md:grid-cols-4 gap-3">
+          <input placeholder="Nome" value={newUnit.name} onChange={e=>setNewUnit({...newUnit,name:e.target.value})} className="col-span-2 bg-white rounded-lg px-3 py-2 text-sm border border-sky-200 outline-none focus:ring-2 focus:ring-sky-400"/>
+          <input placeholder="Local" value={newUnit.location} onChange={e=>setNewUnit({...newUnit,location:e.target.value})} className="bg-white rounded-lg px-3 py-2 text-sm border border-sky-200 outline-none"/>
+          <input type="number" placeholder="Valor Compra" value={newUnit.purchasePrice||""} onChange={e=>setNewUnit({...newUnit,purchasePrice:Number(e.target.value)})} className="bg-white rounded-lg px-3 py-2 text-sm border border-sky-200 outline-none"/>
+          <input type="number" placeholder="Entrada" value={newUnit.downPayment||""} onChange={e=>setNewUnit({...newUnit,downPayment:Number(e.target.value)})} className="bg-white rounded-lg px-3 py-2 text-sm border border-sky-200 outline-none"/>
+          <input type="number" placeholder="Financiado" value={newUnit.financed||""} onChange={e=>setNewUnit({...newUnit,financed:Number(e.target.value)})} className="bg-white rounded-lg px-3 py-2 text-sm border border-sky-200 outline-none"/>
+          <button onClick={addUnit} className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors">Adicionar</button>
+        </div>)}
+        <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="bg-slate-50 text-left">
+          {["Unidade","Local","Compra","Entrada","Receita","Custos","Resultado","ROI","Status"].map(h=>(<th key={h} className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">{h}</th>))}
+        </tr></thead><tbody>{units.map(u=>{const r=calcROI(u);return(<tr key={u.id} className="border-t border-slate-100 hover:bg-slate-50/50">
+          <td className="px-4 py-3 font-semibold text-slate-800">{u.name}</td><td className="px-4 py-3 text-slate-500">{u.location}</td>
+          <td className="px-4 py-3 font-medium">{fmt(u.purchasePrice)}</td><td className="px-4 py-3">{fmt(u.downPayment)}</td>
+          <td className="px-4 py-3 font-medium text-emerald-600">{fmt(r.totalRevenue)}</td><td className="px-4 py-3 text-red-500">{fmt(r.totalCosts)}</td>
+          <td className={`px-4 py-3 font-bold ${r.netIncome>=0?"text-emerald-600":"text-red-600"}`}>{fmt(r.netIncome)}</td>
+          <td className="px-4 py-3"><Badge text={pct(r.roi)} color={r.roi>=0?"green":"red"}/></td>
+          <td className="px-4 py-3"><Badge text={u.status} color={u.status==="Ativa"?"green":"gray"}/></td>
+        </tr>);})}</tbody></table></div>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
+        <h2 className="font-bold text-slate-800 mb-4">Receita vs Custos — Mês a Mês ({selectedYear})</h2>
+        <div className="flex items-end gap-2 h-48">{MONTHS.map((m,i)=>{const rev=units.reduce((s,u)=>s+getMonthRevenue(u.id,selectedYear,i),0);const cost=units.reduce((s,u)=>s+getMonthCostTotal(u.id,selectedYear,i),0);const maxVal=Math.max(rev,cost,1);const scale=160;return(<div key={i} className="flex-1 flex flex-col items-center gap-1"><div className="flex gap-0.5 items-end h-40"><div className="w-3 bg-emerald-400 rounded-t" style={{height:`${(rev/Math.max(maxVal*1.2,1))*scale}px`}} title={`Receita: ${fmt(rev)}`}/><div className="w-3 bg-red-400 rounded-t" style={{height:`${(cost/Math.max(maxVal*1.2,1))*scale}px`}} title={`Custos: ${fmt(cost)}`}/></div><span className="text-[10px] text-slate-400 font-medium">{m}</span></div>);})}</div>
+        <div className="flex gap-6 mt-3 justify-center"><div className="flex items-center gap-1.5 text-xs text-slate-500"><div className="w-3 h-3 rounded bg-emerald-400"/>Receita</div><div className="flex items-center gap-1.5 text-xs text-slate-500"><div className="w-3 h-3 rounded bg-red-400"/>Custos</div></div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════
+// AVAILABILITY
+// ═══════════════════════════════════════
+function Availability({avail,setAvail,month,year}) {
+  const days=DAYS_IN_MONTH[month]+(month===1&&year%4===0?1:0);
+  const SC={available:"bg-white hover:bg-emerald-50",booked:"bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300",blocked:"bg-red-100 text-red-700 ring-1 ring-red-300",maintenance:"bg-amber-100 text-amber-700 ring-1 ring-amber-300"};
+  const SL={available:"Disponível",booked:"Ocupado",blocked:"Bloqueado",maintenance:"Manutenção"};
+  function toggleDay(d){const k=`d${d}`;const states=["available","booked","blocked","maintenance"];const cur=avail[k]?.status||"available";const next=states[(states.indexOf(cur)+1)%states.length];setAvail({...avail,[k]:{...avail[k],status:next}});}
+  const occ=Object.values(avail).filter(d=>d?.status==="booked").length;
+  const rate=days>0?((occ/days)*100):0;
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="Dias no Mês" value={days} icon={<CalIcon/>} color="sky"/>
+        <StatCard label="Dias Ocupados" value={occ} icon={<CheckIcon/>} color="emerald"/>
+        <StatCard label="Dias Disponíveis" value={days-occ} icon={<CalIcon/>} color="amber"/>
+        <StatCard label="Taxa Ocupação" value={pct(rate)} icon={<TrendIcon/>} color="purple"/>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
+        <h2 className="font-bold text-slate-800 mb-1">{MONTHS_FULL[month]} {year}</h2>
+        <p className="text-xs text-slate-400 mb-4">Clique nos dias para alternar o status</p>
+        <div className="grid grid-cols-7 gap-2">
+          {["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"].map(d=><div key={d} className="text-center text-xs font-semibold text-slate-400 py-2">{d}</div>)}
+          {Array.from({length:new Date(year,month,1).getDay()}).map((_,i)=><div key={`e${i}`}/>)}
+          {Array.from({length:days}).map((_,i)=>{const d=i+1;const dd=avail[`d${d}`]||{};const st=dd.status||"available";return(<button key={d} onClick={()=>toggleDay(d)} className={`h-16 rounded-xl text-sm font-medium flex flex-col items-center justify-center transition-all ${SC[st]} border border-slate-200/60 hover:shadow-sm`}><span className="text-lg font-semibold">{d}</span><span className="text-[9px] mt-0.5">{SL[st]}</span></button>);})}
+        </div>
+        <div className="flex gap-4 mt-4 pt-4 border-t border-slate-100">{Object.entries(SL).map(([k,v])=>(<div key={k} className="flex items-center gap-2 text-xs text-slate-500"><div className={`w-4 h-4 rounded ${SC[k]} border border-slate-200`}/>{v}</div>))}</div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════
+// RESERVATIONS (with lock check)
+// ═══════════════════════════════════════
+function Reservations({data,setData,month,seasons,allReservations}) {
+  function addReservation(){setData([...data,{id:Date.now(),guest:"",doc:"",email:"",phone:"",source:"Florida Plus",checkin:"",checkout:"",nights:0,totalUSD:0,exchangeRate:5.5,totalBRL:0,paymentMethod:"",paymentStatus:"Pendente",installments:1,commissionFP:0,notes:""}]);}
+  function updateRes(id,field,value){
+    setData(data.map(r=>{
+      if(r.id!==id)return r;
+      const u={...r,[field]:value};
+      if(field==="checkin"||field==="checkout"){
+        if(u.checkin&&u.checkout){
+          const diff=(new Date(u.checkout+"T12:00:00")-new Date(u.checkin+"T12:00:00"))/(1000*60*60*24);
+          u.nights=Math.max(0,diff);
+          // Auto-calc with seasons
+          const days=getDaysBetween(u.checkin,u.checkout);
+          let total=0;
+          days.forEach(d=>{const m1=d.getMonth()+1;const day=d.getDate();const s=getSeasonForDate(m1,day,seasons);total+=s?s.rate:0;});
+          u.totalUSD=total;
+          u.totalBRL=total*(Number(u.exchangeRate)||0);
+        }
+      }
+      if(field==="totalUSD"||field==="exchangeRate"){u.totalBRL=(Number(u.totalUSD)||0)*(Number(u.exchangeRate)||0);}
+      return u;
+    }));
+  }
+  function removeRes(id){setData(data.filter(r=>r.id!==id));}
+  const filtered=data.filter(r=>{if(!r.checkin)return true;return new Date(r.checkin+"T12:00:00").getMonth()===month;});
+  const totalUSD=filtered.reduce((s,r)=>s+(Number(r.totalUSD)||0),0);
+  const totalNights=filtered.reduce((s,r)=>s+(Number(r.nights)||0),0);
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="Reservas no Mês" value={filtered.length} icon={<BookIcon/>} color="sky"/>
+        <StatCard label="Noites Totais" value={totalNights} icon={<CalIcon/>} color="purple"/>
+        <StatCard label="Receita Mês (USD)" value={fmt(totalUSD)} icon={<DollarIcon/>} color="emerald"/>
+        <StatCard label="Diária Média" value={totalNights>0?fmt(totalUSD/totalNights):"$0"} icon={<TrendIcon/>} color="amber"/>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <h2 className="font-bold text-slate-800">Reservas — {MONTHS_FULL[month]}</h2>
+            <p className="text-xs text-slate-400 mt-0.5">Valores calculados automaticamente pelas temporadas ao preencher datas</p>
+          </div>
+          <button onClick={addReservation} className="flex items-center gap-1.5 bg-sky-500 hover:bg-sky-600 text-white text-sm px-4 py-2 rounded-xl font-medium transition-colors"><PlusIcon/> Nova Reserva</button>
+        </div>
+        {data.length===0?(<div className="p-12 text-center text-slate-400"><BookIcon/><p className="mt-2 font-medium">Nenhuma reserva cadastrada</p></div>):(
+          <div className="divide-y divide-slate-100">{data.map((r,idx)=>(
+            <div key={r.id} className="p-5 hover:bg-slate-50/50 transition-colors">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-slate-400">Reserva #{idx+1}</span>
+                  {r.checkin&&r.checkout&&<Badge text={`${r.nights} noites`} color="blue"/>}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge text={r.paymentStatus||"Pendente"} color={r.paymentStatus==="Pago"?"green":r.paymentStatus==="Parcial"?"yellow":"red"}/>
+                  <button onClick={()=>removeRes(r.id)} className="text-red-400 hover:text-red-600 transition-colors p-1"><TrashIcon/></button>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-4 gap-y-2">
+                {[
+                  ["Hóspede","guest","text","Nome completo"],
+                  ["CPF/Passaporte","doc","text","Documento"],
+                  ["Email","email","email","email@email.com"],
+                  ["Telefone","phone","text","+55 11..."],
+                  ["Fonte","source","select",["Florida Plus","Airbnb","Booking","VRBO","Direto","Indicação","Repeat"]],
+                  ["Check-in","checkin","date",""],
+                  ["Check-out","checkout","date",""],
+                  ["Noites","nights","readonly",""],
+                  ["Valor (USD)","totalUSD","number","0"],
+                  ["Câmbio","exchangeRate","number","5.50"],
+                  ["Valor (BRL)","totalBRL","readonly",""],
+                  ["Pagamento","paymentMethod","select",["PIX","Cartão","Transferência","Dinheiro","Parcelado"]],
+                  ["Status Pgto","paymentStatus","select",["Pendente","Parcial","Pago","Cancelado"]],
+                  ["Parcelas","installments","number","1"],
+                  ["Comissão FL+","commissionFP","number","0"],
+                  ["Observações","notes","text","Notas..."],
+                ].map(([label,field,type,ph])=>(<div key={field}><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">{label}</label>
+                  {type==="select"?<SelectCell value={r[field]} onChange={v=>updateRes(r.id,field,v)} options={ph}/>:
+                  type==="readonly"?<div className="text-sm font-medium text-slate-600 py-1.5 px-2 bg-slate-50 rounded">{field==="nights"?r.nights:field==="totalBRL"?`R$ ${(Number(r.totalBRL)||0).toFixed(2)}`:r[field]}</div>:
+                  <EditCell value={r[field]} onChange={v=>updateRes(r.id,field,v)} type={type} placeholder={ph}/>}
+                </div>))}
+              </div>
+            </div>
+          ))}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════
+// COSTS
+// ═══════════════════════════════════════
+function Costs({costData,setCostData,categories,setCategories,month}) {
+  const [showPasswords,setShowPasswords]=useState({});
+  const [editingCreds,setEditingCreds]=useState(null);
+  function updateCost(catId,value){setCostData({...costData,[catId]:Number(value)||0});}
+  function updateCatCreds(catId,field,value){setCategories(categories.map(c=>c.id===catId?{...c,[field]:value}:c));}
+  function addCategory(){setCategories([...categories,{id:"custom_"+Date.now(),name:"Novo Custo",type:"V",link:"",login:"",password:""}]);}
+  function removeCategory(id){setCategories(categories.filter(c=>c.id!==id));const nc={...costData};delete nc[id];setCostData(nc);}
+  const fixedCats=categories.filter(c=>c.type==="F"),varCats=categories.filter(c=>c.type==="V");
+  const totalFixed=fixedCats.reduce((s,c)=>s+(Number(costData[c.id])||0),0);
+  const totalVar=varCats.reduce((s,c)=>s+(Number(costData[c.id])||0),0);
+  const total=totalFixed+totalVar;
+  function CostRow({cat}){const isE=editingCreds===cat.id;return(<div className="group"><div className="flex items-center gap-2 py-2.5 px-4 hover:bg-slate-50 rounded-xl transition-colors"><div className="flex-1 min-w-0">{isE?<input value={cat.name} onChange={e=>updateCatCreds(cat.id,"name",e.target.value)} className="text-sm font-medium bg-sky-50 rounded px-2 py-1 outline-none border border-sky-200 w-full"/>:<span className="text-sm text-slate-700">{cat.name}</span>}</div><Badge text={cat.type==="F"?"Fixo":"Variável"} color={cat.type==="F"?"blue":"purple"}/><div className="w-32"><EditCell value={costData[cat.id]||""} onChange={v=>updateCost(cat.id,v)} type="number" prefix="$" placeholder="0.00"/></div><button onClick={()=>setEditingCreds(isE?null:cat.id)} className={`p-1.5 rounded-lg transition-colors ${isE?"bg-sky-100 text-sky-600":"text-slate-300 hover:text-slate-500 hover:bg-slate-100"}`}><EditIcon/></button>{!DEFAULT_COST_CATEGORIES.find(dc=>dc.id===cat.id)&&<button onClick={()=>removeCategory(cat.id)} className="p-1.5 text-slate-300 hover:text-red-500"><TrashIcon/></button>}</div>
+    {isE&&(<div className="ml-4 mr-4 mb-3 p-4 bg-gradient-to-r from-slate-50 to-sky-50 rounded-xl border border-slate-200/80 space-y-3"><p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">🔐 Credenciais de Pagamento</p><div className="grid grid-cols-1 md:grid-cols-3 gap-3"><div><label className="text-[10px] font-semibold text-slate-400 uppercase flex items-center gap-1"><LinkIcon/> Link</label><input value={cat.link||""} onChange={e=>updateCatCreds(cat.id,"link",e.target.value)} placeholder="https://..." className="w-full mt-1 bg-white rounded-lg px-3 py-2 text-sm border border-slate-200 outline-none focus:ring-2 focus:ring-sky-400"/>{cat.link&&<a href={cat.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-sky-500 hover:text-sky-700 mt-1 font-medium"><LinkIcon/> Abrir ↗</a>}</div><div><label className="text-[10px] font-semibold text-slate-400 uppercase">👤 Login</label><input value={cat.login||""} onChange={e=>updateCatCreds(cat.id,"login",e.target.value)} placeholder="usuario@email.com" className="w-full mt-1 bg-white rounded-lg px-3 py-2 text-sm border border-slate-200 outline-none focus:ring-2 focus:ring-sky-400"/></div><div><label className="text-[10px] font-semibold text-slate-400 uppercase">🔑 Senha</label><div className="relative mt-1"><input type={showPasswords[cat.id]?"text":"password"} value={cat.password||""} onChange={e=>updateCatCreds(cat.id,"password",e.target.value)} placeholder="••••••••" className="w-full bg-white rounded-lg px-3 py-2 pr-10 text-sm border border-slate-200 outline-none focus:ring-2 focus:ring-sky-400"/><button onClick={()=>setShowPasswords(p=>({...p,[cat.id]:!p[cat.id]}))} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">{showPasswords[cat.id]?<EyeOffIcon/>:<EyeIcon/>}</button></div></div></div></div>)}
+    </div>);}
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        <StatCard label="Custos Fixos" value={fmt(totalFixed)} sub={`${fixedCats.length} categorias`} icon={<DollarIcon/>} color="sky"/>
+        <StatCard label="Custos Variáveis" value={fmt(totalVar)} sub={`${varCats.length} categorias`} icon={<DollarIcon/>} color="purple"/>
+        <StatCard label="Total do Mês" value={fmt(total)} sub={MONTHS_FULL[month]} icon={<DollarIcon/>} color="red"/>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div><h2 className="font-bold text-slate-800">Custos & Pagamentos — {MONTHS_FULL[month]}</h2><p className="text-xs text-slate-400 mt-0.5">Clique no ✏️ para editar link, login e senha</p></div>
+          <button onClick={addCategory} className="flex items-center gap-1.5 bg-sky-500 hover:bg-sky-600 text-white text-sm px-4 py-2 rounded-xl font-medium transition-colors"><PlusIcon/> Novo Custo</button>
+        </div>
+        <div className="p-4">
+          <div className="mb-2 px-4 flex items-center gap-2"><span className="flex-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Custos Fixos</span><span className="text-xs font-bold text-slate-600">{fmt(totalFixed)}</span></div>
+          {fixedCats.map(c=><CostRow key={c.id} cat={c}/>)}
+          <div className="my-4 border-t border-slate-100"/>
+          <div className="mb-2 px-4 flex items-center gap-2"><span className="flex-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">Custos Variáveis</span><span className="text-xs font-bold text-slate-600">{fmt(totalVar)}</span></div>
+          {varCats.map(c=><CostRow key={c.id} cat={c}/>)}
+          <div className="mt-4 pt-4 border-t-2 border-slate-200 px-4 flex items-center justify-between"><span className="font-bold text-slate-800 text-lg">TOTAL</span><span className="font-bold text-2xl text-red-600">{fmt(total)}</span></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════
+// DRE
+// ═══════════════════════════════════════
+function DRE({getMonthRevenue,getMonthCostTotal,unit,year,costs,reservations}) {
+  const rows=MONTHS.map((m,i)=>{const revenue=getMonthRevenue(unit.id,year,i);const totalCost=getMonthCostTotal(unit.id,year,i);const ebitda=revenue-totalCost;const ml=unit.financed>0?(unit.financed*((unit.interestRate/100)/12))/(1-Math.pow(1+((unit.interestRate/100)/12),-(unit.loanTermMonths||360))):0;const interest=ml*0.6;const amort=ml*0.4;const netResult=ebitda-interest-amort;return{month:m,revenue,totalCost,ebitda,interest,amort,netResult,ml};});
+  const totals=rows.reduce((a,r)=>{a.revenue+=r.revenue;a.totalCost+=r.totalCost;a.ebitda+=r.ebitda;a.interest+=r.interest;a.amort+=r.amort;a.netResult+=r.netResult;return a;},{revenue:0,totalCost:0,ebitda:0,interest:0,amort:0,netResult:0});
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="Receita Anual" value={fmt(totals.revenue)} icon={<TrendIcon/>} color="emerald"/>
+        <StatCard label="Custos Anual" value={fmt(totals.totalCost)} icon={<DollarIcon/>} color="red"/>
+        <StatCard label="EBITDA" value={fmt(totals.ebitda)} icon={<ChartIcon/>} color="purple"/>
+        <StatCard label="Resultado Líquido" value={fmt(totals.netResult)} icon={<ChartIcon/>} color={totals.netResult>=0?"emerald":"red"}/>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100"><h2 className="font-bold text-slate-800">DRE — {year}</h2></div>
+        <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="bg-slate-800 text-white">{["Item",...MONTHS,"TOTAL"].map(h=><th key={h} className="px-3 py-3 text-xs font-semibold uppercase tracking-wider text-center whitespace-nowrap">{h}</th>)}</tr></thead><tbody>
+          {[{label:"Receita Bruta",key:"revenue",style:"font-medium text-emerald-700 bg-emerald-50"},{label:"(-) Custos",key:"totalCost",style:"text-red-600"},{label:"(=) EBITDA",key:"ebitda",style:"font-bold bg-slate-100"},{label:"(-) Juros",key:"interest",style:"text-red-500"},{label:"(-) Amortização",key:"amort",style:"text-red-500"},{label:"(=) RESULTADO",key:"netResult",style:"font-bold text-lg bg-slate-800 text-white"}].map(({label,key,style})=>(
+            <tr key={key} className={`border-t border-slate-100 ${style}`}><td className="px-3 py-2.5 whitespace-nowrap">{label}</td>{rows.map((r,i)=><td key={i} className="px-3 py-2.5 text-center">{fmt(r[key])}</td>)}<td className="px-3 py-2.5 text-center font-bold">{fmt(totals[key])}</td></tr>
+          ))}</tbody></table></div>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
+        <h2 className="font-bold text-slate-800 mb-4">Indicadores</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">{[{label:"Margem EBITDA",value:totals.revenue>0?((totals.ebitda/totals.revenue)*100).toFixed(1)+"%":"N/A"},{label:"Margem Líquida",value:totals.revenue>0?((totals.netResult/totals.revenue)*100).toFixed(1)+"%":"N/A"},{label:"Custo/Receita",value:totals.revenue>0?((totals.totalCost/totals.revenue)*100).toFixed(1)+"%":"N/A"},{label:"Parcela Mensal",value:fmt(rows[0]?.ml||0)}].map(({label,value})=><div key={label} className="text-center"><div className="text-2xl font-bold text-slate-800">{value}</div><div className="text-xs text-slate-400 mt-1">{label}</div></div>)}</div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════
+// ROI & PAYBACK
+// ═══════════════════════════════════════
+function ROI({unit,setUnit,calcROI,year,getMonthRevenue,getMonthCostTotal}) {
+  const roi=calcROI(unit);
+  const ml=unit.financed>0?(unit.financed*((unit.interestRate/100)/12))/(1-Math.pow(1+((unit.interestRate/100)/12),-(unit.loanTermMonths||360))):0;
+  const al=ml*12;const nad=roi.netIncome-al;
+  const coc=unit.downPayment>0?(nad/unit.downPayment)*100:0;
+  const cr=unit.purchasePrice>0?(roi.netIncome/unit.purchasePrice)*100:0;
+  const py=nad>0?(unit.downPayment/nad).toFixed(1):"∞";
+  const pm=nad>0?Math.ceil(unit.downPayment/(nad/12)):0;
+  function upd(f,v){setUnit({...unit,[f]:v});}
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="ROI Anual" value={pct(roi.roi)} sub="sobre valor total" icon={<TrendIcon/>} color={roi.roi>=0?"emerald":"red"}/>
+        <StatCard label="Cash-on-Cash" value={pct(coc)} sub="sobre entrada" icon={<DollarIcon/>} color={coc>=0?"emerald":"red"}/>
+        <StatCard label="Cap Rate" value={pct(cr)} sub="NOI / preço" icon={<ChartIcon/>} color="purple"/>
+        <StatCard label="Payback" value={pm>0?`${pm} meses`:"N/A"} sub={py!=="∞"?`~${py} anos`:"dados insuficientes"} icon={<CalIcon/>} color="amber"/>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
+        <h2 className="font-bold text-slate-800 mb-4">Dados do Investimento</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">{[["Valor de Compra","purchasePrice"],["Entrada","downPayment"],["Financiado","financed"],["Taxa Juros (%)","interestRate"],["Prazo (meses)","loanTermMonths"],["Data Compra","purchaseDate"]].map(([l,f])=><div key={f} className="bg-slate-50 rounded-xl p-3"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">{l}</label><input type={f==="purchaseDate"?"month":"number"} value={unit[f]??""} onChange={e=>upd(f,f==="purchaseDate"?e.target.value:Number(e.target.value))} className="w-full bg-white rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 border border-slate-200 outline-none focus:ring-2 focus:ring-sky-400"/></div>)}</div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6"><h2 className="font-bold text-slate-800 mb-4">Resumo Financeiro — {year}</h2><div className="space-y-3">{[["Receita Bruta Anual",fmt(roi.totalRevenue),"emerald"],["(-) Custos Operacionais",fmt(roi.totalCosts),"red"],["(=) NOI",fmt(roi.netIncome),roi.netIncome>=0?"emerald":"red"],["(-) Financiamento Anual",fmt(al),"red"],["(=) Resultado Após Dívida",fmt(nad),nad>=0?"emerald":"red"]].map(([l,v,c])=><div key={l} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0"><span className="text-sm text-slate-600">{l}</span><span className={`text-sm font-bold text-${c}-600`}>{v}</span></div>)}</div></div>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6"><h2 className="font-bold text-slate-800 mb-4">Indicadores de Retorno</h2><div className="space-y-4">{[["ROI Total",pct(roi.roi),"Resultado / Preço de Compra"],["Cash-on-Cash",pct(coc),"Resultado Após Dívida / Entrada"],["Cap Rate",pct(cr),"NOI / Preço de Compra"],["Parcela Mensal",fmt2(ml),"Mortgage estimado"],["Payback",pm>0?`${pm} meses (${py} anos)`:"Dados insuficientes","Tempo para recuperar entrada"]].map(([l,v,s])=><div key={l}><div className="flex items-center justify-between"><span className="text-sm font-medium text-slate-700">{l}</span><span className="text-sm font-bold text-slate-800">{v}</span></div><span className="text-[10px] text-slate-400">{s}</span></div>)}</div></div>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
+        <h2 className="font-bold text-slate-800 mb-4">Projeção Mês a Mês — {year}</h2>
+        <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="bg-slate-800 text-white">{["Mês","Receita","Custos","NOI","Mortgage","Resultado","Acumulado"].map(h=><th key={h} className="px-3 py-2.5 text-xs font-semibold uppercase tracking-wider text-center">{h}</th>)}</tr></thead><tbody>{(()=>{let acc=0;return MONTHS.map((m,i)=>{const rev=getMonthRevenue(unit.id,year,i);const cost=getMonthCostTotal(unit.id,year,i);const noi=rev-cost;const result=noi-ml;acc+=result;return(<tr key={i} className="border-t border-slate-100 hover:bg-slate-50"><td className="px-3 py-2 text-center font-medium">{m}</td><td className="px-3 py-2 text-center text-emerald-600">{fmt(rev)}</td><td className="px-3 py-2 text-center text-red-500">{fmt(cost)}</td><td className={`px-3 py-2 text-center font-medium ${noi>=0?"text-emerald-600":"text-red-600"}`}>{fmt(noi)}</td><td className="px-3 py-2 text-center text-slate-500">{fmt(ml)}</td><td className={`px-3 py-2 text-center font-bold ${result>=0?"text-emerald-600":"text-red-600"}`}>{fmt(result)}</td><td className={`px-3 py-2 text-center font-bold ${acc>=0?"text-emerald-700 bg-emerald-50":"text-red-700 bg-red-50"}`}>{fmt(acc)}</td></tr>);});})()}</tbody></table></div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════
+// TO-DO
+// ═══════════════════════════════════════
+function TodoAudit({data,setData,month,year}) {
+  function addTodo(){setData([...data,{id:Date.now(),cat:"",task:"",resp:"",due:"",status:"Pendente",priority:"Média"}]);}
+  function updateTodo(id,f,v){setData(data.map(t=>t.id===id?{...t,[f]:v}:t));}
+  function removeTodo(id){setData(data.filter(t=>t.id!==id));}
+  const completed=data.filter(t=>t.status==="Concluído").length;
+  const pending=data.filter(t=>t.status==="Pendente").length;
+  const progress=data.length>0?((completed/data.length)*100):0;
+  const PC={Alta:"bg-red-100 text-red-700",Média:"bg-amber-100 text-amber-700",Baixa:"bg-sky-100 text-sky-700"};
+  const SC={Pendente:"bg-amber-100 text-amber-700","Em Andamento":"bg-sky-100 text-sky-700",Concluído:"bg-emerald-100 text-emerald-700",Atrasado:"bg-red-100 text-red-700"};
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="Total" value={data.length} icon={<CheckIcon/>} color="sky"/>
+        <StatCard label="Concluídas" value={completed} icon={<CheckIcon/>} color="emerald"/>
+        <StatCard label="Pendentes" value={pending} icon={<CalIcon/>} color="amber"/>
+        <StatCard label="Progresso" value={pct(progress)} icon={<TrendIcon/>} color="purple"/>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-4"><div className="flex items-center justify-between mb-2"><span className="text-sm font-semibold text-slate-700">Progresso — {MONTHS_FULL[month]} {year}</span><span className="text-sm font-bold text-slate-800">{pct(progress)}</span></div><div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500" style={{width:`${progress}%`}}/></div></div>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between"><h2 className="font-bold text-slate-800">Tarefas & Rotinas</h2><button onClick={addTodo} className="flex items-center gap-1.5 bg-sky-500 hover:bg-sky-600 text-white text-sm px-4 py-2 rounded-xl font-medium transition-colors"><PlusIcon/> Nova Tarefa</button></div>
+        <div className="divide-y divide-slate-100">{data.map(t=>(
+          <div key={t.id} className={`px-5 py-3 flex items-center gap-3 hover:bg-slate-50 transition-colors ${t.status==="Concluído"?"opacity-60":""}`}>
+            <button onClick={()=>updateTodo(t.id,"status",t.status==="Concluído"?"Pendente":"Concluído")} className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all ${t.status==="Concluído"?"bg-emerald-500 border-emerald-500 text-white":"border-slate-300 hover:border-sky-400"}`}>{t.status==="Concluído"&&<span className="text-xs">✓</span>}</button>
+            <div className="flex-1 grid grid-cols-2 md:grid-cols-5 gap-2 items-center">
+              <input value={t.task} onChange={e=>updateTodo(t.id,"task",e.target.value)} placeholder="Tarefa..." className={`col-span-2 md:col-span-1 bg-transparent text-sm outline-none ${t.status==="Concluído"?"line-through":""}`}/>
+              <input value={t.cat} onChange={e=>updateTodo(t.id,"cat",e.target.value)} placeholder="Categoria" className="bg-transparent text-sm text-slate-500 outline-none"/>
+              <input value={t.resp} onChange={e=>updateTodo(t.id,"resp",e.target.value)} placeholder="Responsável" className="bg-transparent text-sm text-slate-500 outline-none"/>
+              <input type="date" value={t.due} onChange={e=>updateTodo(t.id,"due",e.target.value)} className="bg-transparent text-sm text-slate-500 outline-none"/>
+              <div className="flex items-center gap-2">
+                <select value={t.status} onChange={e=>updateTodo(t.id,"status",e.target.value)} className={`text-xs font-medium rounded-full px-2.5 py-1 outline-none cursor-pointer ${SC[t.status]||""}`}>{["Pendente","Em Andamento","Concluído","Atrasado"].map(s=><option key={s}>{s}</option>)}</select>
+                <select value={t.priority} onChange={e=>updateTodo(t.id,"priority",e.target.value)} className={`text-xs font-medium rounded-full px-2.5 py-1 outline-none cursor-pointer ${PC[t.priority]||""}`}>{["Alta","Média","Baixa"].map(p=><option key={p}>{p}</option>)}</select>
+              </div>
+            </div>
+            <button onClick={()=>removeTodo(t.id)} className="text-slate-300 hover:text-red-500 transition-colors shrink-0"><TrashIcon/></button>
+          </div>
+        ))}</div>
+      </div>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6">
+        <h2 className="font-bold text-slate-800 mb-4">🔍 Checklist de Auditoria Mensal</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">{["Receitas conferem com reservas?","Custos pagos e lançados?","DRE do mês fechado?","Comissões corretas?","Reservas no sistema?","Check-ins/outs registrados?","Fotos de vistoria?","Manutenções preventivas?","Reviews analisados?","Nota média calculada?","Licenças/seguros em dia?","Relatório enviado?"].map((item,i)=><label key={i} className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-3 cursor-pointer hover:bg-slate-100 transition-colors"><input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-emerald-500 focus:ring-emerald-400"/><span className="text-sm text-slate-700">{item}</span></label>)}</div>
+      </div>
+    </div>
+  );
+}

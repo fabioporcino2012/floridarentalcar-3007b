@@ -4,767 +4,452 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0a0a0c">
 <title>Fabinho Life System</title>
-<link rel="manifest" href="manifest.json">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{background:#0a0a0c;color:#e5e5e5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-input,textarea,button{font-family:inherit}
+input,textarea,button,select{font-family:inherit}
 ::-webkit-scrollbar{width:0;display:none}
-
 .app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:80px}
-.page{padding:16px 16px 0}
-
-/* Loading */
+.pg{padding:16px}
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}
-.loading-logo{width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#f5a623,#e8890c);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#000;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-
-/* Nav */
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(20,20,22,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid #1f1f23;padding-bottom:env(safe-area-inset-bottom,8px);z-index:100}
-.nav-inner{display:flex;justify-content:space-around;padding:6px 2px 4px}
-.nav-btn{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 2px;min-width:36px;transition:color .2s}
-.nav-btn span{font-size:8px;letter-spacing:.3px}
-.nav-btn svg{width:20px;height:20px}
-
-/* Cards */
-.card{background:#151517;border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #1f1f23}
-.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;cursor:pointer}
-.card-title{font-size:15px;font-weight:700;color:#fff}
-.card-title-accent{font-size:15px;font-weight:700;color:#f5a623;margin-bottom:12px}
-.card-sub{font-size:11px;color:#666;margin-top:2px}
-.card-link{font-size:12px;color:#f5a623;font-weight:600}
-
-/* Section Header */
-.sh{display:flex;align-items:center;gap:12px;padding:20px 0 16px}
+.ll{width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#f5a623,#e8890c);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#000;animation:pls 1.5s infinite}
+@keyframes pls{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(15,15,17,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid #1f1f23;padding-bottom:env(safe-area-inset-bottom,8px);z-index:100}
+.nv{display:flex;justify-content:space-around;padding:8px 4px 4px}
+.nb{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:2px;min-width:42px}
+.nb svg{width:20px;height:20px}.nb span{font-size:9px;letter-spacing:.2px}
+.c{background:#151517;border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #1f1f23}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ct{font-size:15px;font-weight:700;color:#fff}
+.ca{font-size:15px;font-weight:700;color:#f5a623;margin-bottom:12px}
+.cl{font-size:12px;color:#f5a623;font-weight:600;cursor:pointer}
+.sh{display:flex;align-items:center;gap:12px;padding:12px 0 16px}
 .sh h1{font-size:22px;font-weight:800;color:#fff;letter-spacing:-.5px}
 .sh p{font-size:13px;color:#888;margin-top:2px}
-.sh-icon{font-size:32px}
-
-/* Dashboard */
-.dash-header{display:flex;justify-content:space-between;align-items:center;padding:20px 0 16px}
-.dash-greeting{font-size:24px;font-weight:700;color:#fff;letter-spacing:-.5px}
-.dash-date{font-size:13px;color:#888;margin-top:2px}
-.dash-avatar{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#f5a623,#e8890c);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#000}
-
-/* Stats */
-.quick-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
-.stat-card{background:#151517;border-radius:16px;padding:16px 12px;text-align:center;cursor:pointer;border:1px solid #1f1f23;transition:transform .2s}
-.stat-card:active{transform:scale(.97)}
-.stat-value{font-size:20px;font-weight:700;color:#fff}
-.stat-label{font-size:11px;color:#888;margin-top:4px}
-
-/* Fields */
-.field-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1e;cursor:pointer}
-.field-label{font-size:13px;color:#888}
-.field-value{font-size:14px;color:#fff;font-weight:500}
-.edit-label{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:block}
-.edit-input{flex:1;background:#1a1a1e;border:1px solid #333;border-radius:8px;padding:8px 12px;color:#fff;font-size:14px;outline:none;width:100%}
-.edit-input:focus{border-color:#f5a623}
-
-/* Textarea */
-.ta{width:100%;background:#1a1a1e;border:1px solid #2a2a2e;border-radius:12px;padding:14px;color:#e5e5e5;font-size:14px;resize:vertical;outline:none;line-height:1.5}
+.ta{width:100%;background:#1a1a1e;border:1px solid #2a2a2e;border-radius:10px;padding:12px;color:#e5e5e5;font-size:14px;resize:vertical;outline:none;line-height:1.5}
 .ta:focus{border-color:#f5a623}
-
-/* Buttons */
-.btn-save{width:36px;height:36px;border-radius:10px;background:#22c55e;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:#000}
-.btn-add{width:32px;height:32px;border-radius:10px;background:transparent;border:1.5px solid #555;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#888}
-.btn-del{background:none;border:none;cursor:pointer;color:#555;padding:4px;flex-shrink:0;display:flex;align-items:center}
-.btn-primary{width:100%;padding:16px;border-radius:16px;background:linear-gradient(135deg,#f5a623,#e8890c);border:none;color:#000;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;transition:transform .2s}
-.btn-primary:active{transform:scale(.97)}
-.btn-secondary{padding:12px 20px;border-radius:12px;background:#2a2a2e;border:none;color:#ccc;font-size:14px;font-weight:600;cursor:pointer}
-.btn-arrow{background:none;border:1px solid #333;border-radius:8px;color:#fff;padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:4px}
-
-/* Score buttons */
-.score-btn{width:28px;height:28px;border-radius:7px;border:none;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.score-btn:active{transform:scale(.9)}
-
-/* Progress bar */
-.progress-bar{height:6px;background:#2a2a2e;border-radius:3px;overflow:hidden}
-.progress-fill{height:100%;border-radius:3px;transition:width .5s ease}
-
-/* Month grid */
-.month-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.month-btn{padding:10px 4px;border-radius:10px;border:1px solid;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;background:none;transition:transform .15s}
-.month-btn:active{transform:scale(.95)}
-
-/* Item rows */
-.item-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1a1a1e}
-.check-circle{width:22px;height:22px;border-radius:11px;border:2px solid;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;background:none;transition:all .2s}
-.check-square{width:22px;height:22px;border-radius:6px;border:2px solid;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;background:none;transition:all .2s}
-
-/* Bar chart */
-.bar-chart{display:flex;justify-content:space-around;margin-top:16px;gap:4px}
-.bar-col{display:flex;flex-direction:column;align-items:center;gap:4px}
-.bar-container{width:24px;height:80px;background:#2a2a2e;border-radius:6px;overflow:hidden;display:flex;align-items:flex-end}
-.bar-fill{width:100%;border-radius:6px;transition:height .5s ease}
-
-/* Type selector */
-.type-btn{padding:6px 12px;border-radius:20px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
-
-/* Journal */
-.journal-tag{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
-
-/* Sparkline */
-.sparkline{display:flex;gap:2px;margin-top:4px;align-items:flex-end;height:20px}
-.spark-bar{flex:1;border-radius:2px;min-height:2px;transition:height .3s}
-
-/* Feedback card */
-.feedback-msg{font-size:12px;color:#aaa;line-height:1.5;font-style:italic}
-.text-answer{margin-top:8px;padding:10px;background:#1a1a1e;border-radius:8px}
-.text-answer .label{font-size:11px;color:#666;margin-bottom:4px}
-.text-answer .value{font-size:13px;color:#ccc}
-
-/* Annual */
-.annual-highlight{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.highlight-card{text-align:center;padding:12px}
-.highlight-label{font-size:10px;font-weight:700;margin-bottom:4px}
-.highlight-score{font-size:20px;font-weight:800}
-.highlight-name{font-size:10px;color:#888}
-
-.quote-box{margin:12px 0 0;padding:10px 14px;background:#1a1a10;border-radius:8px;border-left:3px solid #f5a623}
-
-/* Utilities */
-.flex{display:flex}.flex-col{flex-direction:column}.gap-4{gap:4px}.gap-6{gap:6px}.gap-8{gap:8px}.gap-10{gap:10px}.gap-12{gap:12px}
-.items-center{align-items:center}.justify-between{justify-content:space-between}.flex-1{flex:1}.flex-wrap{flex-wrap:wrap}
-.text-center{text-align:center}.w-full{width:100%}.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}.mt-8{margin-top:8px}
-.hidden{display:none}
+.inp{width:100%;background:#1a1a1e;border:1px solid #333;border-radius:8px;padding:8px 12px;color:#fff;font-size:14px;outline:none}
+.inp:focus{border-color:#f5a623}
+.bp{width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#f5a623,#e8890c);border:none;color:#000;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px}
+.bp:active{transform:scale(.97)}
+.bs{padding:10px 18px;border-radius:10px;background:#2a2a2e;border:none;color:#ccc;font-size:13px;font-weight:600;cursor:pointer}
+.ba{width:30px;height:30px;border-radius:8px;background:transparent;border:1.5px solid #555;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#888;font-size:16px;flex-shrink:0}
+.bd{background:none;border:none;cursor:pointer;color:#555;padding:4px;flex-shrink:0}
+.sb{width:28px;height:28px;border-radius:7px;border:none;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sb:active{transform:scale(.9)}
+.pb{height:6px;background:#2a2a2e;border-radius:3px;overflow:hidden}
+.pf{height:100%;border-radius:3px;transition:width .5s}
+.mg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.mb{padding:10px 4px;border-radius:10px;border:1px solid;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;background:none}
+.ir{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1a1a1e}
+.ck{width:22px;height:22px;border-radius:11px;border:2px solid;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;background:none}
+.cks{width:22px;height:22px;border-radius:6px;border:2px solid;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;background:none}
+.tb{padding:6px 12px;border-radius:20px;border:none;font-size:12px;font-weight:600;cursor:pointer}
+.fr{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1e;cursor:pointer}
+.fl{font-size:13px;color:#888}.fv{font-size:14px;color:#fff;font-weight:500}
+.db{background:#1a1a1e;border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid}
+.bw{display:flex;gap:2px;align-items:flex-end;height:20px}
+.bb{flex:1;border-radius:2px;min-height:2px}
 </style>
 </head>
 <body>
 <div id="root"></div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
-
 <script type="text/babel">
-const { useState, useEffect, useCallback } = React;
+const{useState,useEffect,useCallback}=React;
+const SK="fabinho-life-v6";
+const MN=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const DN=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+const td=()=>new Date().toISOString().split("T")[0];
 
-const STORAGE_KEY = "fabinho-life-v5";
-const MONTH_NAMES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-const DAY_NAMES = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
-
-// ─── Assessment Categories ──────────────────────────────────
-const ASSESS_CATS = [
-  { id:"body", name:"Corpo & Saúde", icon:"💪", color:"#22c55e", questions:[
-    {id:"q1",text:"Fui consistente com exercícios físicos este mês?",type:"score"},
-    {id:"q2",text:"Minha alimentação foi equilibrada e controlada?",type:"score"},
-    {id:"q3",text:"Dormi bem e com qualidade na maioria dos dias?",type:"score"},
-    {id:"q4",text:"Meu nível de energia geral foi alto?",type:"score"},
-    {id:"q5",text:"O que fiz de melhor pela minha saúde?",type:"text"},
-    {id:"q6",text:"O que preciso melhorar no próximo mês?",type:"text"},
-  ]},
-  { id:"mind", name:"Mente & Crescimento", icon:"🧠", color:"#38bdf8", questions:[
-    {id:"q7",text:"Investi tempo em aprendizado e desenvolvimento pessoal?",type:"score"},
-    {id:"q8",text:"Li livros, ouvi podcasts ou fiz cursos?",type:"score"},
-    {id:"q9",text:"Consegui manter foco e clareza mental?",type:"score"},
-    {id:"q10",text:"Controlei meu estresse e ansiedade?",type:"score"},
-    {id:"q11",text:"Qual foi meu maior aprendizado este mês?",type:"text"},
-  ]},
-  { id:"emotions", name:"Emoções & Felicidade", icon:"❤️", color:"#f472b6", questions:[
-    {id:"q12",text:"Me senti genuinamente feliz e realizado?",type:"score"},
-    {id:"q13",text:"Pratiquei gratidão regularmente?",type:"score"},
-    {id:"q14",text:"Tive momentos de diversão e prazer autêntico?",type:"score"},
-    {id:"q15",text:"Me senti em paz e conectado com meu propósito?",type:"score"},
-    {id:"q16",text:"Qual momento me trouxe mais alegria?",type:"text"},
-  ]},
-  { id:"relationships", name:"Relacionamentos", icon:"👨‍👩‍👧‍👧", color:"#fb923c", questions:[
-    {id:"q17",text:"Dediquei tempo de qualidade à minha esposa?",type:"score"},
-    {id:"q18",text:"Estive presente e conectado com minhas filhas?",type:"score"},
-    {id:"q19",text:"Mantive contato com amigos importantes?",type:"score"},
-    {id:"q20",text:"Fortaleci relações profissionais estratégicas?",type:"score"},
-    {id:"q21",text:"Alguém que devo reconhecer ou agradecer?",type:"text"},
-  ]},
-  { id:"business", name:"Negócios & Carreira", icon:"🚀", color:"#f5a623", questions:[
-    {id:"q22",text:"A FRC avançou em direção às metas do ano?",type:"score"},
-    {id:"q23",text:"Tomei decisões estratégicas de alto impacto?",type:"score"},
-    {id:"q24",text:"Minha equipe executou conforme direcionamento?",type:"score"},
-    {id:"q25",text:"Avancei em novos projetos (Orlando Plus, Clube, etc.)?",type:"score"},
-    {id:"q26",text:"Qual foi minha maior conquista profissional?",type:"text"},
-    {id:"q27",text:"Qual decisão de negócio preciso tomar?",type:"text"},
-  ]},
-  { id:"finances", name:"Finanças & Patrimônio", icon:"💰", color:"#60a5fa", questions:[
-    {id:"q28",text:"Minha situação financeira pessoal melhorou?",type:"score"},
-    {id:"q29",text:"Controlei gastos e fui disciplinado financeiramente?",type:"score"},
-    {id:"q30",text:"Investi/poupei de forma consistente?",type:"score"},
-    {id:"q31",text:"Estou no caminho da liberdade financeira?",type:"score"},
-    {id:"q32",text:"Meta financeira para o próximo mês:",type:"text"},
-  ]},
-  { id:"spirituality", name:"Fé & Propósito", icon:"🙏", color:"#a78bfa", questions:[
-    {id:"q33",text:"Me conectei com Deus/espiritualidade regularmente?",type:"score"},
-    {id:"q34",text:"Agi com integridade em todas as situações?",type:"score"},
-    {id:"q35",text:"Contribuí para a vida de outras pessoas?",type:"score"},
-    {id:"q36",text:"Senti que estou vivendo meu propósito?",type:"score"},
-    {id:"q37",text:"Reflexão espiritual do mês:",type:"text"},
-  ]},
-  { id:"rpm", name:"RPM - Resultado, Propósito, Ação", icon:"⚡", color:"#ef4444", questions:[
-    {id:"q38",text:"Qual foi O RESULTADO mais importante que produzi?",type:"text"},
-    {id:"q39",text:"POR QUE esse resultado era importante para mim?",type:"text"},
-    {id:"q40",text:"Qual AÇÃO MASSIVA tomarei no próximo mês?",type:"text"},
-    {id:"q41",text:"De 0-10, quão alinhado estou com minha visão de vida?",type:"score"},
-    {id:"q42",text:"Se pudesse mudar UMA COISA no mês passado, qual seria?",type:"text"},
-  ]},
-  { id:"overall", name:"Avaliação Geral do Mês", icon:"⭐", color:"#fbbf24", questions:[
-    {id:"q43",text:"Satisfação geral com a vida este mês:",type:"score"},
-    {id:"q44",text:"Fui a pessoa que quero ser?",type:"score"},
-    {id:"q45",text:"Progredi em direção aos meus sonhos?",type:"score"},
-    {id:"q46",text:"Nota geral para o mês (considerando TUDO):",type:"score"},
-    {id:"q47",text:"Palavra que define este mês:",type:"text"},
-    {id:"q48",text:"Compromisso #1 para o próximo mês:",type:"text"},
-  ]},
+// ─── ASSESSMENT CATEGORIES ──────────────────────────────────
+const ACAT=[
+  {id:"body",nm:"Corpo & Saúde",ic:"💪",cl:"#22c55e",qs:[{id:"q1",t:"Consistente com exercícios?",tp:"score"},{id:"q2",t:"Alimentação equilibrada?",tp:"score"},{id:"q3",t:"Sono de qualidade?",tp:"score"},{id:"q4",t:"Energia alta?",tp:"score"},{id:"q5",t:"Melhor coisa pela saúde:",tp:"text"},{id:"q6",t:"O que melhorar:",tp:"text"}]},
+  {id:"mind",nm:"Mente & Crescimento",ic:"🧠",cl:"#38bdf8",qs:[{id:"q7",t:"Investi em aprendizado?",tp:"score"},{id:"q8",t:"Li/ouvi/estudei?",tp:"score"},{id:"q9",t:"Foco e clareza?",tp:"score"},{id:"q10",t:"Controlei estresse?",tp:"score"},{id:"q11",t:"Maior aprendizado:",tp:"text"}]},
+  {id:"emo",nm:"Emoções & Felicidade",ic:"❤️",cl:"#f472b6",qs:[{id:"q12",t:"Feliz e realizado?",tp:"score"},{id:"q13",t:"Pratiquei gratidão?",tp:"score"},{id:"q14",t:"Diversão autêntica?",tp:"score"},{id:"q15",t:"Paz e propósito?",tp:"score"},{id:"q16",t:"Maior alegria:",tp:"text"}]},
+  {id:"rel",nm:"Relacionamentos",ic:"👨‍👩‍👧‍👧",cl:"#fb923c",qs:[{id:"q17",t:"Tempo com esposa?",tp:"score"},{id:"q18",t:"Presente com filhas?",tp:"score"},{id:"q19",t:"Contato com amigos?",tp:"score"},{id:"q20",t:"Relações profissionais?",tp:"score"},{id:"q21",t:"Reconhecer alguém:",tp:"text"}]},
+  {id:"biz",nm:"Negócios & Carreira",ic:"🚀",cl:"#f5a623",qs:[{id:"q22",t:"FRC avançou?",tp:"score"},{id:"q23",t:"Decisões estratégicas?",tp:"score"},{id:"q24",t:"Equipe executou?",tp:"score"},{id:"q25",t:"Novos projetos?",tp:"score"},{id:"q26",t:"Maior conquista:",tp:"text"}]},
+  {id:"fin",nm:"Finanças",ic:"💰",cl:"#60a5fa",qs:[{id:"q28",t:"Situação melhorou?",tp:"score"},{id:"q29",t:"Disciplina financeira?",tp:"score"},{id:"q30",t:"Investi/poupei?",tp:"score"},{id:"q31",t:"Caminho liberdade?",tp:"score"},{id:"q32",t:"Meta próximo mês:",tp:"text"}]},
+  {id:"faith",nm:"Fé & Propósito",ic:"🙏",cl:"#a78bfa",qs:[{id:"q33",t:"Conectei com Deus?",tp:"score"},{id:"q34",t:"Integridade?",tp:"score"},{id:"q35",t:"Contribuí para outros?",tp:"score"},{id:"q36",t:"Vivendo propósito?",tp:"score"},{id:"q37",t:"Reflexão espiritual:",tp:"text"}]},
+  {id:"rpm",nm:"RPM — Resultado/Propósito/Ação",ic:"⚡",cl:"#ef4444",qs:[{id:"q38",t:"RESULTADO mais importante:",tp:"text"},{id:"q39",t:"POR QUE importava:",tp:"text"},{id:"q40",t:"AÇÃO MASSIVA próximo mês:",tp:"text"},{id:"q41",t:"Alinhamento com visão (0-10):",tp:"score"},{id:"q42",t:"Se mudasse UMA coisa:",tp:"text"}]},
+  {id:"ov",nm:"Avaliação Geral",ic:"⭐",cl:"#fbbf24",qs:[{id:"q43",t:"Satisfação geral:",tp:"score"},{id:"q44",t:"Fui quem quero ser?",tp:"score"},{id:"q45",t:"Progredi nos sonhos?",tp:"score"},{id:"q46",t:"Nota geral do mês:",tp:"score"},{id:"q47",t:"Palavra do mês:",tp:"text"},{id:"q48",t:"Compromisso #1:",tp:"text"}]},
 ];
 
-// ─── Default Data ───────────────────────────────────────────
-const DEFAULT = {
-  profile:{name:"Fabinho",birthdate:"1990-04-26",role:"CEO - Florida Rental Car",wakeUp:"06:00",sleep:"22:00"},
-  pilares:[
-    {id:"saude",icon:"💪",name:"Saúde",score:7,notes:"Academia dom-sex, Mounjaro, Oura Ring. Meta: 75kg 20% gordura",color:"#22c55e"},
-    {id:"religiao",icon:"🙏",name:"Fé",score:0,notes:"Ler Bíblia + versículos + GPT. Orar todos os dias",color:"#a78bfa"},
-    {id:"familia",icon:"👨‍👩‍👧‍👧",name:"Família",score:0,notes:"Casado, 3 filhas. 4 viagens família EUA + 2 internacionais",color:"#f472b6"},
-    {id:"trabalho",icon:"🏢",name:"Trabalho",score:0,notes:"CEO FRC. Meta 1000 carros 2026. Fluxo caixa 400k",color:"#38bdf8"},
-    {id:"conjugue",icon:"❤️",name:"Cônjuge",score:0,notes:"Thereza. Escalade nova (sonho)",color:"#fb923c"},
-    {id:"amigos",icon:"🤝",name:"Amigos",score:0,notes:"Networking intencional. Novos ambientes",color:"#facc15"},
-    {id:"hobby",icon:"🎯",name:"Hobbies",score:0,notes:"Poker WSOP. Coleção relógios/tênis/perfumes",color:"#34d399"},
-    {id:"financas",icon:"💰",name:"Finanças",score:0,notes:"Cofre 200k até 11/2026. Reserva emergência. Quitar investidores",color:"#60a5fa"},
+// ─── 12 PILARES ─────────────────────────────────────────────
+const PDEF=[
+  {id:"sf",ic:"💪",nm:"Saúde Física",cl:"#22c55e",q:"Meu corpo está forte, com energia e disciplina nos treinos?",ds:"Academia 6x, alimentação, sono, hidratação 3L, Oura Ring"},
+  {id:"sm",ic:"🧠",nm:"Saúde Mental",cl:"#38bdf8",q:"Estou com clareza, foco e controle emocional?",ds:"Estresse, ansiedade, meditação, equilíbrio emocional"},
+  {id:"fe",ic:"🙏",nm:"Fé",cl:"#a78bfa",q:"Estou conectado com Deus e vivendo Sua vontade?",ds:"Bíblia diária, oração, versículos, permissão divina"},
+  {id:"cj",ic:"❤️",nm:"Cônjuge",cl:"#f472b6",q:"Estou sendo o melhor marido para Thereza?",ds:"Tempo de qualidade, presença, amor, Escalade"},
+  {id:"fm",ic:"👨‍👩‍👧‍👧",nm:"Família",cl:"#fb923c",q:"Estou presente e construindo memórias com minhas filhas?",ds:"3 filhas, viagens família, Painho, estar presente"},
+  {id:"am",ic:"🤝",nm:"Amigos / Networking",cl:"#facc15",q:"Estou cercado das pessoas certas e gerando valor?",ds:"Networking intencional, novos ambientes, branding pessoal"},
+  {id:"tb",ic:"🏢",nm:"Trabalho / Negócio",cl:"#f59e0b",q:"FRC cresce e minha equipe executa com excelência?",ds:"FRC 1000 carros, equipe, planejamento estratégico"},
+  {id:"fn",ic:"💰",nm:"Finanças",cl:"#60a5fa",q:"Estou construindo riqueza e liberdade financeira?",ds:"Cofre 200k, quitar investidores, MICA, reserva"},
+  {id:"di",ic:"📚",nm:"Desenv. Intelectual",cl:"#818cf8",q:"Estou estudando, lendo e evoluindo?",ds:"3 livros/ano, GPT, cursos, podcasts"},
+  {id:"hb",ic:"🎯",nm:"Hobbies / Prazer",cl:"#34d399",q:"Estou aproveitando a vida e tendo prazer autêntico?",ds:"WSOP poker, relógios, viagens, desfrute"},
+  {id:"lb",ic:"✈️",nm:"Liberdade / Estilo de Vida",cl:"#06b6d4",q:"Vivo a vida que escolhi, com controle do meu tempo?",ds:"Viagens, rotinas fortes, não viver no limite"},
+  {id:"lg",ic:"🏛️",nm:"Legado / Impacto",cl:"#d97706",q:"Estou deixando marca e transbordando para outros?",ds:"Família, comunidade, provedor, propósito"},
+];
+
+// ─── ROTINA COMPLETA (hacks integrados) ─────────────────────
+const RTPL=[
+  {tm:"05:00",tk:"Acordar",ct:"m",tp:"Levante imediatamente. Não negocie com o travesseiro.",ic:"🌅"},
+  {tm:"05:10",tk:"Vitaminas + Sol",ct:"m",tp:"Luz natural 10min regula ritmo circadiano.",ic:"☀️"},
+  {tm:"05:30",tk:"Academia + Aeróbico 30min",ct:"m",tp:"Corpo forte = mente forte. Produtividade pós-treino.",ic:"🏋️"},
+  {tm:"06:45",tk:"Sauna / Banho gelado",ct:"m",tp:"Desconforto controlado gera resiliência mental.",ic:"🧊"},
+  {tm:"07:15",tk:"Banho + Preparação",ct:"m",tp:"Vista-se como a pessoa que quer ser.",ic:"🚿"},
+  {tm:"07:45",tk:"Café da manhã (proteína)",ct:"h",tp:"Proteína toda refeição. Sem açúcar refinado.",ic:"🥚"},
+  {tm:"08:00",tk:"PLADIN — Planejar o dia",ct:"w",tp:"Pense, Leia missão, Atribua, Defina agenda, Imprevistos, Mentalize.",ic:"📋"},
+  {tm:"08:30",tk:"Bloco foco #1 — Alto Impacto",ct:"w",tp:"90min sem celular. Só o que REALMENTE importa. Pareto 80/20.",ic:"🎯"},
+  {tm:"10:00",tk:"Reuniões / Alinhamento",ct:"w",tp:"Pauta → Plano de ação → Quem faz → Prazo → Entrega.",ic:"👥"},
+  {tm:"11:30",tk:"Conferir relatórios / Cobrar",ct:"w",tp:"GPS semanal. Números não mentem. Antecipação é poder.",ic:"📊"},
+  {tm:"12:00",tk:"Almoço (proteína + sem açúcar)",ct:"h",tp:"Prep meal. Mounjaro. Água 3L/dia. Nutrólogo.",ic:"🥗"},
+  {tm:"13:00",tk:"Bloco foco #2 — Estratégico",ct:"w",tp:"Comprar carros, treinar time, redução custo = Pareto.",ic:"⚡"},
+  {tm:"15:00",tk:"Giro rápido / Operacional",ct:"w",tp:"Só faça o que SÓ VOCÊ pode fazer. Delegue o resto.",ic:"🔄"},
+  {tm:"17:00",tk:"Inbox zero + Pendências",ct:"w",tp:"2x/dia. Regra 2min: se leva <2min, faça agora.",ic:"📧"},
+  {tm:"18:00",tk:"Presente com família",ct:"f",tp:"Celular longe. Olho no olho. Qualidade > quantidade.",ic:"👨‍👩‍👧‍👧"},
+  {tm:"19:30",tk:"Jantar leve",ct:"h",tp:"Nada pesado pós 20h. Impacta direto no sono.",ic:"🍽️"},
+  {tm:"20:00",tk:"Bíblia / Livro / Meditação",ct:"g",tp:"30min. Consistência intelectual + espiritual.",ic:"📖"},
+  {tm:"20:30",tk:"Água (completar 3L)",ct:"h",tp:"Hidratação total antes de dormir.",ic:"💧"},
+  {tm:"21:00",tk:"Revisão dia + Planejar amanhã",ct:"g",tp:"O que fiz bem? O que melhorar? Gratidão.",ic:"📝"},
+  {tm:"21:30",tk:"Desligar telas",ct:"h",tp:"Sem telas 1h antes. Quarto frio 18-20°C. Magnésio.",ic:"📵"},
+  {tm:"22:00",tk:"Dormir",ct:"h",tp:"Escurecer total. Oura Ring. Meta 7-8h.",ic:"😴"},
+];
+const CC={"m":"#f5a623","w":"#38bdf8","h":"#22c55e","f":"#f472b6","g":"#a78bfa"};
+const CL={"m":"Manhã","w":"Trabalho","h":"Saúde","f":"Família","g":"Crescimento"};
+
+// ─── DEFAULT DATA ───────────────────────────────────────────
+const DEF={
+  profile:{name:"Fabinho"},
+  gratitude:["GC recebido","450 carros na frota","WSOP Aria","Cybertruck quitada","App Turo ativo","Florida Clube ativo","Zerou Fort Motors / Rodrigo / Justino / Flavinho"],
+  vision:[
+    "Toda honra e glória ao Senhor. Deus, que sua palavra se cumpra.",
+    "Só busque o que vai te levar para o próximo nível. Antecipação é poder.",
+    "Se apaixone pela rotina, resultado é consequência.",
+    "Enriquecer é a maestria do que você faz para outras pessoas.",
+    "Quem dá mais, recebe mais. Foco em ganhar e em não perder."
   ],
-  conquistas2025:[
-    {text:"GC recebido ✅",done:true},
-    {text:"450 carros na frota ✅",done:true},
-    {text:"WSOP Aria ✅",done:true},
-    {text:"Cybertruck quitada ✅",done:true},
-    {text:"App Turo ativo ✅",done:true},
-    {text:"Florida Clube ativo ✅",done:true},
-    {text:"Zerou Fort Motors / Rodrigo / Justino / Flavinho (saldo devedor) ✅",done:true},
-  ],
+  pilares:PDEF.map(p=>({...p,score:0,notes:""})),
   dreams:{
-    shortTerm:[
-      {text:"FRC 1.000 carros (2026/27)",done:false},
-      {text:"Las Vegas 40 dias WSOP over 100k prize",done:false},
-      {text:"Cofre aplicação 200k até 10/11/2026",done:false},
-      {text:"75kg e 20% gordura corporal",done:false},
-      {text:"Superar 15% crescimento FRC sobre ativos e faturamento",done:false},
-      {text:"4 viagens família EUA",done:false},
-      {text:"2 viagens internacionais",done:false},
-      {text:"Evento Tony Robbins",done:false},
-      {text:"Fluxo de caixa FRC bi-semanal 400k",done:false},
-      {text:"Grupo Porcino resolvido",done:false},
-      {text:"Quitar investidores restantes (Flavinho/Justino/Lake Bessie/Solara)",done:false},
-      {text:"Estudar mais GPT (livros, pensamentos e cursos)",done:false},
-      {text:"Ler Bíblia + livro versículos",done:false},
-      {text:"Meditação 150x no ano",done:false},
-      {text:"3 livros lidos no ano",done:false},
-    ],
-    mediumTerm:[
-      {text:"Ferrari Puro Sangue (26/04/2027)",done:false},
-      {text:"RM 6702 Branco com Azul (01/01/2028)",done:false},
-      {text:"FRC Trust 2.000 carros",done:false},
-      {text:"Financiar galeria",done:false},
-      {text:"Painho com casa dele + inventário resolvido",done:false},
-      {text:"Thereza Escalade nova",done:false},
-      {text:"I-140 aprovado / Green Card completo",done:false},
-      {text:"Casa: Spa, Garagem, Escritório, Quarto, Deck perfeitos",done:false},
-      {text:"Amex Centurion sem limite",done:false},
-      {text:"Relógios: Rolex Platinum Day-Date, AP Skeleton, Patek Philippe Rosé",done:false},
-    ],
-    longTerm:[
-      {text:"Viver de rendas / Liberdade financeira total",done:false},
-      {text:"Casa Quintas do Lago (Portugal)",done:false},
-      {text:"Gulfstream G800",done:false},
-      {text:"Cullinan Rolls Royce",done:false},
-      {text:"Faculdade das 3 filhas paga",done:false},
-      {text:"Reserva emergência: aplicação que renda mais que custo fixo",done:false},
-      {text:"Fundo compra carros locadores e investidores (31/12/2029)",done:false},
-      {text:"Viagens: Israel, Egito, Arezzo Itália, Napa Valley",done:false},
-      {text:"Móveis projetados casa inteira",done:false},
-      {text:"Times de estudo pessoal",done:false},
-      {text:"Ser provedor financeiro em pequenas empresas",done:false},
-      {text:"Transbordar: família, pessoas ao redor, necessitados",done:false},
-    ],
-    visionBoard:"Toda honra e glória ao Senhor.\n\nPermissão divina, decidir, desejar, observar, morrer lutando.\nSó busque o que vai te levar para o próximo nível.\n\nEnriquecer é a maestria do que você faz para outras pessoas, dinheiro é consequência.\nQuem dá mais, recebe mais.\n\nFoco em ganhar e em não perder. Antecipação é poder, reação é fraqueza.\nSe apaixone pela rotina, resultado é consequência.\n\nDeus, que sua palavra se cumpra!"
+    shortTerm:[{t:"FRC 1.000 carros (2026/27)",d:false},{t:"WSOP 40 dias over 100k prize",d:false},{t:"Cofre 200k até 10/11/2026",d:false},{t:"75kg e 20% gordura",d:false},{t:"Superar 15% crescimento FRC",d:false},{t:"4 viagens família EUA",d:false},{t:"2 viagens internacionais",d:false},{t:"Tony Robbins evento",d:false},{t:"Fluxo caixa FRC 400k",d:false},{t:"Grupo Porcino resolvido",d:false},{t:"Quitar investidores restantes",d:false},{t:"Meditação 150x / 3 livros",d:false}],
+    mediumTerm:[{t:"Ferrari Puro Sangue (04/2027)",d:false},{t:"RM 6702 Branco+Azul (01/2028)",d:false},{t:"Trust 2.000 carros",d:false},{t:"Thereza Escalade nova",d:false},{t:"Casa perfeita: Spa/Garagem/Deck",d:false},{t:"Amex Centurion",d:false},{t:"Rolex/AP Skeleton/Patek Rosé",d:false},{t:"Painho com casa dele",d:false}],
+    longTerm:[{t:"Viver de rendas total",d:false},{t:"Gulfstream G800",d:false},{t:"Cullinan Rolls Royce",d:false},{t:"Casa Quintas do Lago",d:false},{t:"Faculdade 3 filhas",d:false},{t:"Israel/Egito/Arezzo/Napa",d:false},{t:"Transbordar: família e comunidade",d:false},{t:"Fundo carros investidores (2029)",d:false}],
   },
-  health:{medications:[{name:"Mounjaro",dose:"",frequency:"Controle de apetite"}],ouraRing:{sleepScore:"",readiness:"",activity:""},bioImpedance:{weight:"",bodyFat:"",muscleMass:""},waterIntake:0,sleepHours:"",goals:{targetWeight:"75",targetFat:"20",targetMuscle:"60"}},
-  routines:{
-    morning:[
-      {time:"05:00",task:"Acordar",done:false},
-      {time:"05:10",task:"Tomar vitaminas com sol",done:false},
-      {time:"05:30",task:"Academia + Aeróbico",done:false},
-      {time:"06:45",task:"Sauna / Banho gelado",done:false},
-      {time:"07:15",task:"Banho + Preparação",done:false},
-      {time:"07:45",task:"Café da manhã (proteína)",done:false},
-      {time:"08:00",task:"Planejar dia (PLADIN)",done:false},
-      {time:"08:30",task:"Bloco de foco #1 - Tarefas alto impacto",done:false},
-    ],
-    evening:[
-      {time:"18:00",task:"Estar presente com família",done:false},
-      {time:"19:30",task:"Jantar leve",done:false},
-      {time:"20:00",task:"Ler / Bíblia / Meditação",done:false},
-      {time:"21:00",task:"Revisão do dia + Planejar amanhã",done:false},
-      {time:"21:30",task:"Desligar telas",done:false},
-      {time:"22:00",task:"Dormir",done:false},
-    ],
-    weekly:[
-      {day:"Dom",tasks:["Academia","Igreja","Família","Weekly Review"]},
-      {day:"Seg",tasks:["Academia","FRC Full Day","Reuniões alinhamento"]},
-      {day:"Ter",tasks:["Academia","FRC Full Day","Treinamentos equipe"]},
-      {day:"Qua",tasks:["Academia","FRC Full Day","Conferir relatórios"]},
-      {day:"Qui",tasks:["Academia","FRC Full Day","Cobrar resultados"]},
-      {day:"Sex",tasks:["Academia","FRC Full Day","Planejamento estratégico"]},
-      {day:"Sáb",tasks:["Esporte/Lazer","Família","Projeto novo"]},
-    ],
-  },
-  hacks:{
-    sleep:["Sem telas 1h antes de dormir","Quarto frio (18-20°C)","Escurecer quarto completamente","Magnésio antes de dormir","Horário fixo (22h-6h)","Oura Ring para monitorar","Sauna + banho gelado ajudam sono"],
-    food:["Mounjaro conforme prescrição","Proteína em toda refeição","Prep meal semanal","Evitar açúcar refinado","Hidratar 3L/dia","Jantar leve até 20h","Nutrólogo para acompanhar"],
-    productivity:["Bloco de foco: 90min sem interrupção","Regra 2 min: faça agora","Time blocking no calendário","Inbox zero 2x/dia","Weekly review domingo noite","Antecipação é poder, reação é fraqueza","Produtivo: manhã pós-treino, frente PC, remédio tomado","Quem foca em tudo não foca em nada (Pareto 80/20)"],
-    exercise:["Dom-Sex academia + aeróbico 30min 6x","Variar treinos A/B/C","Alongar pós-treino","Medir progresso mensal bioimpedância","Sauna + vácuo","Banho de gelo pós-treino"],
-    mica:["M - MERECIMENTO: Aproveitar o fruto do seu resultado. Dar o máximo em tudo","I - INVESTIR: Criar ou aumentar fontes de renda. 20% poupar sempre","C - CONTAS: Pagar contas fixas e organizar. Controle financeiro Excel","A - APRENDER: Buscar evolução em inteligência emocional e técnica"],
-    pladin:["P - PENSE em uma lista de tudo que precisa fazer","L - LEIA sua missão e propósito","A - ATRIBUA importância (priorize alto impacto)","D - DEFINA onde entra na agenda (time blocking)","I - IMPREVISTOS: reserve espaço para eles","N - MENTALIZE o resultado do dia completo"],
-    delegation:["Delegar emails, contabilidade, contas de casa","Delegar Capital One e cartões","Delegar análises dos grupos","Terceirizar: financeiro números e controle ADM","Sempre perguntar se entendeu e pedir para explicar","Acompanhar preciso: pessoas percebem quando cobro","Parar de cobrar vendas diariamente (delegar)"],
-    pareto:["Comprar carros semanal (alto impacto)","Treinar meu time (alto impacto)","Redução de custo (alto impacto)","Estudar e produzir ideias","Planejamento estratégico","Fugir: coisas que não levam ao objetivo"],
-  },
+  health:{meds:[{name:"Mounjaro",dose:"",notes:"Controle apetite"}],oura:{sleep:"",readiness:"",activity:"",hrv:"",rhr:"",temp:""},bio:{weight:"",fat:"",muscle:"",water:"",bone:"",metAge:"",viscFat:""},targets:{weight:"75",fat:"20",muscle:"60"},notes:"",lastAnalysis:""},
   finances:{
-    frc:{description:"Florida Rental Car",balance:"",revenue2025:"10000000",projection2026:"14000000",notes:"Meta: 1000 carros. Fluxo caixa 400k bi-semanal"},
-    personal:{description:"Conta Pessoal",balance:"",income:"",expenses:"",notes:"Reserva emergência 5 meses custo vida = 100k USD"},
-    patrimonio:{description:"Patrimônio Total",realEstate:"",vehicles:"",investments:"",other:"",notes:"Meta: aplicação 200k até 11/2026"},
-    porcino:{description:"Grupo Porcino",balance:"",notes:"Em andamento - resolver"},
-    contaCorrente:{description:"Conta Corrente Geral",balance:"",notes:"Afeta todas contas. Meta: sobra, não viver no limite"},
+    frc:{desc:"Florida Rental Car",bal:"",rev25:"10000000",proj26:"14000000",notes:"Meta 1000 carros. Fluxo 400k"},
+    personal:{desc:"Conta Pessoal",bal:"",income:"",expenses:"",notes:"Emergência 5 meses = 100k"},
+    patrimonio:{desc:"Patrimônio Total",realEstate:"",vehicles:"",investments:"",notes:"Cofre 200k 11/2026"},
+    porcino:{desc:"Grupo Porcino",bal:"",notes:"Em andamento"},
+    cc:{desc:"Conta Corrente",bal:"",notes:"Sobra, não limite"},
   },
-  investidores:{
-    status:"Parcialmente quitados",
-    items:[
-      {name:"Flavinho",valor:"450000",status:"Parcial"},
-      {name:"Justino",valor:"350000",status:"Parcial"},
-      {name:"Lake Bessie",valor:"",status:"Pendente"},
-      {name:"Solara",valor:"",status:"Pendente"},
-    ]
-  },
-  journal:[],
-  assessments:{},
-  checkDates:[
-    {type:"Check-up Sangue",lastDate:"2025-02-01",nextDate:"",interval:"6 meses"},
-    {type:"Dentista",lastDate:"2025-10-01",nextDate:"",interval:"6 meses"},
-    {type:"Dermatologista",lastDate:"",nextDate:"",interval:"12 meses"},
-    {type:"Oftalmologista",lastDate:"",nextDate:"",interval:"12 meses"},
-    {type:"Bio Impedância",lastDate:"",nextDate:"",interval:"3 meses"},
-    {type:"Nutrólogo",lastDate:"",nextDate:"",interval:"3 meses"},
-  ],
+  investidores:[{name:"Flavinho",val:"450000",st:"Parcial"},{name:"Justino",val:"350000",st:"Parcial"},{name:"Lake Bessie",val:"",st:"Pendente"},{name:"Solara",val:"",st:"Pendente"}],
+  rc:{},journal:[],assessments:{},
+  checkDates:[{tp:"Check-up Sangue",last:"2025-02-01",next:"",iv:"6 meses"},{tp:"Dentista",last:"2025-10-01",next:"",iv:"6 meses"},{tp:"Dermatologista",last:"",next:"",iv:"12 meses"},{tp:"Oftalmologista",last:"",next:"",iv:"12 meses"},{tp:"Bio Impedância",last:"",next:"",iv:"3 meses"},{tp:"Nutrólogo",last:"",next:"",iv:"3 meses"}],
 };
 
-// ─── Helpers ────────────────────────────────────────────────
-const LS = {
-  get(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch(e) { return null; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} },
-};
+// ─── HELPERS ────────────────────────────────────────────────
+const LS={g(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}},s(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+function dm(t,s){const r={...t};for(const k in s){if(s[k]&&typeof s[k]==="object"&&!Array.isArray(s[k]))r[k]=dm(t[k]||{},s[k]);else r[k]=s[k]}return r}
+const dU=d=>{if(!d)return null;return Math.ceil((new Date(d)-new Date())/864e5)};
+const sCol=d=>{if(d===null)return"#555";if(d<0)return"#ef4444";if(d<30)return"#f59e0b";return"#22c55e"};
 
-function deepMerge(t, s) {
-  const r = {...t};
-  for (const k of Object.keys(s)) {
-    if (s[k] && typeof s[k]==="object" && !Array.isArray(s[k])) r[k]=deepMerge(t[k]||{},s[k]);
-    else r[k]=s[k];
-  }
-  return r;
-}
+function gFb(a,cid){const qs=ACAT.find(c=>c.id===cid)?.qs.filter(q=>q.tp==="score")||[];const sc=qs.map(q=>a[q.id]||0).filter(s=>s>0);if(!sc.length)return{av:0,lv:"—",msg:"",em:"❓"};const av=sc.reduce((a,b)=>a+b,0)/sc.length;if(av>=9)return{av,lv:"Extraordinário",msg:"Excelência! Mantenha e inspire.",em:"🏆"};if(av>=7)return{av,lv:"Forte",msg:"Dobre nos 20% que geram 80%.",em:"💪"};if(av>=5)return{av,lv:"Progresso",msg:"Foque em 1-2 melhorias específicas.",em:"📈"};if(av>=3)return{av,lv:"Atenção",msg:"UMA ação. Comece HOJE.",em:"⚠️"};return{av,lv:"Crítico",msg:"Priorize esta área urgente.",em:"🚨"}}
 
-const formatCurrency = v => { if(!v) return "—"; const n=parseFloat(v); return isNaN(n)?"—":new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(n); };
-const daysUntil = d => { if(!d) return null; return Math.ceil((new Date(d)-new Date())/864e5); };
-const statusColor = d => { if(d===null) return "#6b7280"; if(d<0) return "#ef4444"; if(d<30) return "#f59e0b"; return "#22c55e"; };
-
-function getFeedback(answers, catId) {
-  const qs = ASSESS_CATS.find(c=>c.id===catId)?.questions.filter(q=>q.type==="score")||[];
-  const scores = qs.map(q=>answers[q.id]||0).filter(s=>s>0);
-  if(!scores.length) return {avg:0,level:"Não avaliado",msg:"Preencha para receber feedback.",emoji:"❓"};
-  const avg = scores.reduce((a,b)=>a+b,0)/scores.length;
-  if(avg>=9) return {avg,level:"Extraordinário",msg:"Nível de excelência! Mantenha e inspire outros.",emoji:"🏆"};
-  if(avg>=7) return {avg,level:"Forte",msg:"Ótimo progresso! Identifique os 20% de ações que geraram 80% dos resultados.",emoji:"💪"};
-  if(avg>=5) return {avg,level:"Em Progresso",msg:"No caminho, mas pode mais. Foque em 1-2 melhorias específicas.",emoji:"📈"};
-  if(avg>=3) return {avg,level:"Atenção",msg:"Área precisa de atenção urgente. Defina UMA ação e comece HOJE.",emoji:"⚠️"};
-  return {avg,level:"Crítico",msg:"Alerta vermelho. Priorize esta área. Pequenas ações diárias mudam o jogo.",emoji:"🚨"};
-}
-
-function getAnnualReview(assessments, year) {
-  const months = Object.entries(assessments||{}).filter(([k])=>k.startsWith(year)).sort();
-  if(months.length<2) return null;
-  const catScores = {};
-  ASSESS_CATS.forEach(cat => {
-    const sqs = cat.questions.filter(q=>q.type==="score");
-    const mas = [];
-    months.forEach(([,d]) => { const sc=sqs.map(q=>d[q.id]||0).filter(s=>s>0); if(sc.length) mas.push(sc.reduce((a,b)=>a+b,0)/sc.length); });
-    if(mas.length) { const avg=mas.reduce((a,b)=>a+b,0)/mas.length; catScores[cat.id]={avg:avg.toFixed(1),trend:mas.length>=2?mas[mas.length-1]-mas[0]:0,mas,name:cat.name,icon:cat.icon,color:cat.color}; }
-  });
-  const avgs = Object.values(catScores).map(c=>parseFloat(c.avg));
-  const oAvg = avgs.length?(avgs.reduce((a,b)=>a+b,0)/avgs.length).toFixed(1):0;
-  const sorted = Object.values(catScores).sort((a,b)=>b.avg-a.avg);
-  return {catScores,overallAvg:oAvg,best:sorted[0],worst:sorted[sorted.length-1],improved:Object.values(catScores).sort((a,b)=>b.trend-a.trend)[0],monthCount:months.length};
-}
+function gAR(as,yr){const ms=Object.entries(as||{}).filter(([k])=>k.startsWith(yr)).sort();if(ms.length<2)return null;const cs={};ACAT.forEach(cat=>{const sqs=cat.qs.filter(q=>q.tp==="score");const ma=[];ms.forEach(([,d])=>{const sc=sqs.map(q=>d[q.id]||0).filter(s=>s>0);if(sc.length)ma.push(sc.reduce((a,b)=>a+b,0)/sc.length)});if(ma.length){const av=ma.reduce((a,b)=>a+b,0)/ma.length;cs[cat.id]={av:av.toFixed(1),tr:ma.length>=2?ma[ma.length-1]-ma[0]:0,ma,nm:cat.nm,ic:cat.ic,cl:cat.cl}}});const avs=Object.values(cs).map(c=>+c.av);const oA=avs.length?(avs.reduce((a,b)=>a+b,0)/avs.length).toFixed(1):0;const so=Object.values(cs).sort((a,b)=>b.av-a.av);return{cs,oA,best:so[0],worst:so[so.length-1],imp:Object.values(cs).sort((a,b)=>b.tr-a.tr)[0],mc:ms.length}}
 
 // ═══════════════════════════════════════════════════════════
-// MAIN APP
+// APP
 // ═══════════════════════════════════════════════════════════
-function App() {
-  const [data, setData] = useState(DEFAULT);
-  const [tab, setTab] = useState("dashboard");
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    const saved = LS.get(STORAGE_KEY);
-    if(saved) setData(deepMerge(DEFAULT, saved));
-    setReady(true);
-  }, []);
-
-  const save = useCallback((nd) => { setData(nd); LS.set(STORAGE_KEY, nd); }, []);
-
-  const upd = (path, val) => {
-    const nd = JSON.parse(JSON.stringify(data));
-    const ks = path.split("."); let o=nd;
-    for(let i=0;i<ks.length-1;i++) o=o[ks[i]];
-    o[ks[ks.length-1]]=val; save(nd);
-  };
-
-  if(!ready) return <div className="loading"><div className="loading-logo">F</div><p style={{color:"#888",fontSize:14,marginTop:16}}>Carregando...</p></div>;
-
-  const tabs = [
-    {id:"dashboard",label:"Home",svg:"M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"},
-    {id:"dreams",label:"Sonhos",svg:"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"},
-    {id:"pilares",label:"Pilares",svg:"M4 21V7l8-4 8 4v14M8 21V11M12 21V7M16 21V11"},
-    {id:"health",label:"Saúde",svg:"M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"},
-    {id:"money",label:"Finanças",svg:"M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"},
-    {id:"routine",label:"Rotina",svg:"M12 2a10 10 0 100 20 10 10 0 000-20zM12 6v6l4 2"},
-    {id:"hacks",label:"Hacks",svg:"M13 2L3 14h9l-1 8 10-12h-9l1-8z"},
-    {id:"assess",label:"Mensal",svg:"M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 14l2 2 4-4"},
-    {id:"journal",label:"Diário",svg:"M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"},
+function App(){
+  const[data,setData]=useState(DEF);const[tab,setTab]=useState("home");const[ok,setOk]=useState(false);
+  useEffect(()=>{const s=LS.g(SK);if(s)setData(dm(DEF,s));setOk(true)},[]);
+  const sv=useCallback(nd=>{setData(nd);LS.s(SK,nd)},[]);
+  const up=(p,v)=>{const nd=JSON.parse(JSON.stringify(data));const ks=p.split(".");let o=nd;for(let i=0;i<ks.length-1;i++)o=o[ks[i]];o[ks[ks.length-1]]=v;sv(nd)};
+  if(!ok)return<div className="loading"><div className="ll">F</div></div>;
+  const tabs=[
+    {id:"home",l:"Home",d:"M3 12l9-8 9 8M5 10v10h4v-6h6v6h4V10"},
+    {id:"dreams",l:"Sonhos",d:"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"},
+    {id:"pilares",l:"Pilares",d:"M4 21V7l8-4 8 4v14M8 21V11M12 21V7M16 21V11"},
+    {id:"health",l:"Saúde",d:"M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"},
+    {id:"money",l:"Finanças",d:"M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"},
+    {id:"routine",l:"Rotina",d:"M13 2L3 14h9l-1 8 10-12h-9l1-8z"},
+    {id:"journal",l:"Diário",d:"M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"},
   ];
-
-  const pages = {
-    dashboard: <Dashboard data={data} go={setTab}/>,
-    dreams: <Dreams data={data} save={save} upd={upd}/>,
-    pilares: <Pilares data={data} save={save}/>,
-    health: <Health data={data} save={save} upd={upd}/>,
-    money: <Finances data={data} save={save} upd={upd}/>,
-    routine: <Routines data={data} save={save}/>,
-    hacks: <Hacks data={data} save={save}/>,
-    assess: <Assessment data={data} save={save}/>,
-    journal: <Journal data={data} save={save}/>,
-  };
-
-  return (
-    <div className="app">
-      {pages[tab]||pages.dashboard}
-      <nav className="nav">
-        <div className="nav-inner">
-          {tabs.map(t => (
-            <button key={t.id} className="nav-btn" onClick={()=>setTab(t.id)} style={{color:tab===t.id?"#f5a623":"#8e8e93"}}>
-              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" style={{opacity:tab===t.id?1:.5}}><path d={t.svg}/></svg>
-              <span style={{fontWeight:tab===t.id?700:400}}>{t.label}</span>
-            </button>
-          ))}
-        </div>
-      </nav>
-    </div>
-  );
+  const P={home:<Home d={data} go={setTab}/>,dreams:<Sonhos d={data} sv={sv} up={up}/>,pilares:<Pilares d={data} sv={sv}/>,health:<Saude d={data} sv={sv} up={up}/>,money:<Fin d={data} sv={sv} up={up}/>,routine:<Rotina d={data} sv={sv}/>,journal:<Diario d={data} sv={sv}/>};
+  return<div className="app">{P[tab]||P.home}<nav className="nav"><div className="nv">{tabs.map(t=><button key={t.id} className="nb" onClick={()=>setTab(t.id)} style={{color:tab===t.id?"#f5a623":"#8e8e93"}}><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" style={{opacity:tab===t.id?1:.5}}><path d={t.d}/></svg><span style={{fontWeight:tab===t.id?700:400}}>{t.l}</span></button>)}</div></nav></div>;
 }
 
-// ─── Reusable ───────────────────────────────────────────────
-function SH({title,sub,icon}) {
-  return <div className="sh"><span className="sh-icon">{icon}</span><div><h1>{title}</h1>{sub&&<p>{sub}</p>}</div></div>;
-}
-
-function EF({label,value,onSave,type="text",suffix="",prefix=""}) {
-  const [ed,setEd]=useState(false);
-  const [tmp,setTmp]=useState(value||"");
-  const sv=()=>{onSave(tmp);setEd(false);};
-  if(ed) return <div className="mb-8"><label className="edit-label">{label}</label><div className="flex gap-8"><input type={type} value={tmp} onChange={e=>setTmp(e.target.value)} className="edit-input" autoFocus onKeyDown={e=>e.key==="Enter"&&sv()}/><button className="btn-save" onClick={sv}>✓</button></div></div>;
-  return <div className="field-row" onClick={()=>{setTmp(value||"");setEd(true);}}><span className="field-label">{label}</span><span className="field-value">{prefix}{value||"Toque para editar"}{suffix}</span></div>;
+// ─── EDITABLE FIELD ─────────────────────────────────────────
+function EF({label,value,onSave,type="text",suffix=""}){
+  const[ed,setEd]=useState(false);const[tmp,setTmp]=useState(value||"");
+  const s=()=>{onSave(tmp);setEd(false)};
+  if(ed)return<div style={{marginBottom:6}}><div style={{fontSize:10,color:"#666",textTransform:"uppercase",letterSpacing:.5,marginBottom:3}}>{label}</div><div style={{display:"flex",gap:6}}><input type={type} value={tmp} onChange={e=>setTmp(e.target.value)} className="inp" autoFocus onKeyDown={e=>e.key==="Enter"&&s()}/><button style={{width:30,height:30,borderRadius:8,background:"#22c55e",border:"none",color:"#000",cursor:"pointer",fontWeight:700,flexShrink:0}} onClick={s}>✓</button></div></div>;
+  return<div className="fr" onClick={()=>{setTmp(value||"");setEd(true)}}><span className="fl">{label}</span><span className="fv">{value?`${value}${suffix}`:"Editar"}</span></div>;
 }
 
 // ═══════════════════════════════════════════════════════════
-// DASHBOARD
+// HOME
 // ═══════════════════════════════════════════════════════════
-function Dashboard({data,go}) {
-  const t=new Date();
-  const pilarAvg = data.pilares.filter(p=>p.score>0).length>0?(data.pilares.reduce((a,b)=>a+b.score,0)/data.pilares.filter(p=>p.score>0).length).toFixed(1):"—";
-  const ac = Object.keys(data.assessments||{}).length;
-  return <div className="page">
-    <div className="dash-header"><div><div className="dash-greeting">Olá, {data.profile.name} 👋</div><div className="dash-date">{DAY_NAMES[t.getDay()]}, {t.getDate()} de {MONTH_NAMES[t.getMonth()]}</div></div><div className="dash-avatar">F</div></div>
-    <div className="quick-stats">
-      <div className="stat-card" onClick={()=>go("pilares")}><div className="stat-value">{pilarAvg}</div><div className="stat-label">Pilares</div></div>
-      <div className="stat-card" onClick={()=>go("health")}><div className="stat-value">{data.health.ouraRing.sleepScore||"—"}</div><div className="stat-label">Sleep</div></div>
-      <div className="stat-card" onClick={()=>go("assess")}><div className="stat-value">{ac}</div><div className="stat-label">Avaliações</div></div>
+function Home({d,go}){
+  const t=new Date();const day=td();
+  const ch=d.rc?.[day]||{};const dn=Object.values(ch).filter(Boolean).length;const tot=RTPL.length;const pct=tot?Math.round(dn/tot*100):0;
+  const sc=d.pilares.filter(p=>p.score>0);const avg=sc.length?(sc.reduce((a,b)=>a+b.score,0)/sc.length).toFixed(1):"—";
+  const vi=d.vision||[];const rv=vi[t.getMinutes()%vi.length]||"";
+  // streak
+  let streak=0;for(let i=0;i<90;i++){const dt=new Date(t);dt.setDate(dt.getDate()-i);const dk=dt.toISOString().split("T")[0];const c=d.rc?.[dk];if(c&&Object.values(c).filter(Boolean).length>=tot*.5)streak++;else if(i>0)break}
+
+  return<div className="pg">
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 0 10px"}}><div><div style={{fontSize:22,fontWeight:700,color:"#fff"}}>Olá, {d.profile.name} 👋</div><div style={{fontSize:13,color:"#888"}}>{DN[t.getDay()]}, {t.getDate()} de {MN[t.getMonth()]}</div></div><div style={{width:44,height:44,borderRadius:14,background:"linear-gradient(135deg,#f5a623,#e8890c)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,fontWeight:800,color:"#000"}}>F</div></div>
+
+    {rv&&<div className="c" style={{borderColor:"#2a2a1a",background:"linear-gradient(135deg,#1a1a10,#151517)",padding:14}}><p style={{fontSize:14,color:"#f5a623",fontStyle:"italic",lineHeight:1.6,textAlign:"center"}}>"{rv}"</p></div>}
+
+    <div className="c" onClick={()=>go("routine")} style={{cursor:"pointer"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}><div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:28,fontWeight:800,color:pct>=80?"#22c55e":pct>=50?"#f5a623":"#888"}}>{pct}%</span><div><div style={{fontSize:13,fontWeight:600,color:"#fff"}}>{dn}/{tot} tarefas hoje</div>{streak>0&&<div style={{fontSize:11,color:"#f5a623"}}>🔥 {streak} dias seguidos</div>}</div></div><span className="cl">Abrir →</span></div>
+      <div className="pb" style={{height:8}}><div className="pf" style={{width:`${pct}%`,background:pct>=80?"#22c55e":pct>=50?"#f5a623":"#ef4444"}}/></div>
     </div>
-    <div className="card"><div className="card-header" onClick={()=>go("pilares")}><h3 className="card-title">Pilares da Vida</h3><span className="card-link">Ver →</span></div>
-      {data.pilares.map(p=><div key={p.id} className="flex items-center gap-10" style={{marginBottom:6}}><span>{p.icon}</span><div style={{flex:1,height:6,background:"#2a2a2e",borderRadius:3}}><div style={{height:"100%",width:`${p.score*10}%`,background:p.color,borderRadius:3}}/></div><span style={{fontSize:12,color:"#888",width:20,textAlign:"right"}}>{p.score||"—"}</span></div>)}
+
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
+      <div className="c" style={{textAlign:"center",padding:12,cursor:"pointer"}} onClick={()=>go("pilares")}><div style={{fontSize:20,fontWeight:700,color:"#f5a623"}}>{avg}</div><div style={{fontSize:10,color:"#888"}}>Pilares</div></div>
+      <div className="c" style={{textAlign:"center",padding:12,cursor:"pointer"}} onClick={()=>go("health")}><div style={{fontSize:20,fontWeight:700,color:"#22c55e"}}>{d.health?.oura?.sleep||"—"}</div><div style={{fontSize:10,color:"#888"}}>Sleep</div></div>
+      <div className="c" style={{textAlign:"center",padding:12,cursor:"pointer"}} onClick={()=>go("health")}><div style={{fontSize:20,fontWeight:700,color:"#38bdf8"}}>{d.health?.bio?.weight?d.health.bio.weight+"kg":"—"}</div><div style={{fontSize:10,color:"#888"}}>Peso</div></div>
     </div>
-    <div className="card" onClick={()=>go("assess")} style={{cursor:"pointer"}}><h3 className="card-title" style={{color:"#f5a623",marginBottom:8}}>📋 Avaliação Mensal</h3><p style={{fontSize:13,color:"#aaa",margin:0}}>Questionário Tony Robbins + Wheel of Life + RPM. Preencha mensalmente para revisão anual!</p></div>
-    <div className="card"><div className="card-header"><h3 className="card-title" style={{color:"#22c55e"}}>🏆 Conquistas 2025</h3><span style={{fontSize:12,color:"#22c55e",fontWeight:700}}>{(data.conquistas2025||[]).length} ✓</span></div>
-      {(data.conquistas2025||[]).slice(0,4).map((c,i)=><div key={i} style={{fontSize:13,color:"#8fce8f",padding:"4px 0"}}>{c.text}</div>)}
-      {(data.conquistas2025||[]).length>4&&<div style={{fontSize:11,color:"#666",marginTop:4}}>+{(data.conquistas2025||[]).length-4} mais</div>}
+
+    <div className="c" onClick={()=>go("pilares")} style={{cursor:"pointer"}}><div className="ch"><h3 className="ct">⚖️ 12 Pilares</h3><span className="cl">Ver →</span></div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:3}}>{d.pilares.map(p=><div key={p.id} style={{textAlign:"center"}}><div style={{fontSize:12}}>{p.ic}</div><div style={{height:32,background:"#2a2a2e",borderRadius:3,display:"flex",alignItems:"flex-end",margin:"3px auto",width:12}}><div style={{width:"100%",height:`${p.score*10}%`,background:p.cl,borderRadius:3,minHeight:p.score?2:0}}/></div><div style={{fontSize:8,color:"#666"}}>{p.score||"—"}</div></div>)}</div>
     </div>
-    <div className="card"><div className="card-header" onClick={()=>go("health")}><h3 className="card-title">Check-ups</h3><span className="card-link">Ver →</span></div>
-      {data.checkDates.slice(0,3).map((c,i)=>{const d=daysUntil(c.nextDate);return <div key={i} className="flex justify-between" style={{padding:"6px 0",borderBottom:"1px solid #1f1f23"}}><span style={{fontSize:13,color:"#ccc"}}>{c.type}</span><span style={{fontSize:12,color:statusColor(d),fontWeight:700}}>{c.nextDate?(d>0?d+"d":d===0?"Hoje":Math.abs(d)+"d atrás"):"Agendar"}</span></div>;})}
+
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+      <div className="c" onClick={()=>go("dreams")} style={{cursor:"pointer",padding:12}}><h3 style={{fontSize:13,fontWeight:700,color:"#22c55e",marginBottom:6}}>🙏 Gratidão</h3>{(d.gratitude||[]).slice(0,3).map((g,i)=><div key={i} style={{fontSize:11,color:"#8fce8f",padding:"1px 0"}}>✅ {g.length>18?g.slice(0,18)+"…":g}</div>)}<div style={{fontSize:10,color:"#666",marginTop:3}}>{(d.gratitude||[]).length} itens →</div></div>
+      <div className="c" onClick={()=>go("money")} style={{cursor:"pointer",padding:12}}><h3 style={{fontSize:13,fontWeight:700,color:"#60a5fa",marginBottom:6}}>💰 Investidores</h3>{(d.investidores||[]).map((inv,i)=><div key={i} style={{fontSize:11,padding:"1px 0"}}><span style={{color:inv.st==="Quitado"?"#22c55e":inv.st==="Parcial"?"#f5a623":"#ef4444"}}>●</span> <span style={{color:"#ccc"}}>{inv.name}</span></div>)}</div>
     </div>
-    <div className="card"><div className="card-header" onClick={()=>go("routine")}><h3 className="card-title">Rotina de Hoje</h3><span className="card-link">Ver →</span></div>
-      {data.routines.morning.slice(0,3).map((r,i)=><div key={i} className="flex gap-8" style={{padding:"6px 0"}}><span style={{fontSize:12,color:"#f5a623",width:42}}>{r.time}</span><span style={{fontSize:13,color:"#ccc"}}>{r.task}</span></div>)}
-    </div>
-    <div style={{height:100}}/>
+
+    <div className="c" onClick={()=>go("journal")} style={{cursor:"pointer"}}><div className="ch"><h3 className="ct">📋 Avaliação Mensal</h3><span className="cl">{Object.keys(d.assessments||{}).length} feitas →</span></div><p style={{fontSize:12,color:"#888",margin:0}}>Tony Robbins + Wheel of Life + RPM</p></div>
+    <div style={{height:90}}/>
   </div>;
 }
 
 // ═══════════════════════════════════════════════════════════
-// MONTHLY ASSESSMENT
+// SONHOS — Gratidão + Visão + Metas
 // ═══════════════════════════════════════════════════════════
-function Assessment({data,save}) {
-  const now=new Date();
-  const [yr,setYr]=useState(now.getFullYear());
-  const [mo,setMo]=useState(now.getMonth());
-  const [view,setView]=useState("menu");
-  const [catIdx,setCatIdx]=useState(0);
-  const [ans,setAns]=useState({});
+function Sonhos({d,sv,up}){
+  const[nw,setNw]=useState("");const[at,setAt]=useState(null);const[gO,setGO]=useState(false);const[gN,setGN]=useState("");const[gE,setGE]=useState(-1);const[gT,setGT]=useState("");
+  const addG=()=>{if(!gN.trim())return;const nd=JSON.parse(JSON.stringify(d));if(!nd.gratitude)nd.gratitude=[];nd.gratitude.push(gN.trim());sv(nd);setGN("")};
+  const rmG=i=>{const nd=JSON.parse(JSON.stringify(d));nd.gratitude.splice(i,1);sv(nd)};
+  const svG=(i,v)=>{const nd=JSON.parse(JSON.stringify(d));nd.gratitude[i]=v;sv(nd);setGE(-1)};
+  const svV=(i,v)=>{const nd=JSON.parse(JSON.stringify(d));nd.vision[i]=v;sv(nd)};
+  const add=c=>{if(!nw.trim())return;const nd=JSON.parse(JSON.stringify(d));nd.dreams[c].push({t:nw.trim(),d:false});sv(nd);setNw("");setAt(null)};
+  const tog=(c,i)=>{const nd=JSON.parse(JSON.stringify(d));nd.dreams[c][i].d=!nd.dreams[c][i].d;sv(nd)};
+  const rm=(c,i)=>{const nd=JSON.parse(JSON.stringify(d));nd.dreams[c].splice(i,1);sv(nd)};
+  const secs=[{k:"shortTerm",t:"🎯 Curto Prazo",s:"2025-2026",c:"#22c55e"},{k:"mediumTerm",t:"🚀 Médio Prazo",s:"2027-2028",c:"#f5a623"},{k:"longTerm",t:"🌟 Longo Prazo",s:"5+ anos",c:"#a78bfa"}];
 
-  const mk=`${yr}-${String(mo+1).padStart(2,"0")}`;
-  const existing=data.assessments?.[mk];
-  const filledM=Object.keys(data.assessments||{}).filter(k=>k.startsWith(String(yr))).length;
-  const annual=getAnnualReview(data.assessments||{},String(yr));
-
-  const startFill=()=>{setAns(existing||{});setCatIdx(0);setView("fill");};
-  const saveFill=()=>{const nd=JSON.parse(JSON.stringify(data));if(!nd.assessments)nd.assessments={};nd.assessments[mk]={...ans,completedAt:new Date().toISOString()};save(nd);setView("review");};
-
-  if(view==="menu") return <div className="page">
-    <SH title="Avaliação Mensal" sub="Tony Robbins + Métodos Validados" icon="📋"/>
-    <div className="card">
-      <div className="flex items-center justify-between mb-12">
-        <button className="btn-arrow" onClick={()=>setYr(y=>y-1)}>◀</button>
-        <span style={{fontSize:18,fontWeight:800,color:"#fff"}}>{yr}</span>
-        <button className="btn-arrow" onClick={()=>setYr(y=>y+1)}>▶</button>
-      </div>
-      <div className="month-grid">
-        {MONTH_NAMES.map((m,i)=>{const done=!!data.assessments?.[`${yr}-${String(i+1).padStart(2,"0")}`];const cur=i===mo;
-          return <button key={i} className="month-btn" style={{background:done?"#1a3a1a":cur?"#2a2a1a":"#1a1a1e",borderColor:done?"#22c55e":cur?"#f5a623":"#2a2a2e"}} onClick={()=>{setMo(i);if(done){setAns(data.assessments[`${yr}-${String(i+1).padStart(2,"0")}`]);setView("review");}}}><span style={{fontSize:11,fontWeight:600,color:done?"#22c55e":cur?"#f5a623":"#888"}}>{m.substring(0,3)}</span>{done&&<span style={{fontSize:10}}>✅</span>}</button>;
-        })}
-      </div>
+  return<div className="pg">
+    <div className="sh"><span style={{fontSize:32}}>🌟</span><div><h1>Sonhos & Visão</h1><p>Gratidão, direção, conquistas</p></div></div>
+    <div className="c" style={{borderColor:gO?"#22c55e":"#1f1f23"}}>
+      <div style={{cursor:"pointer",display:"flex",alignItems:"center",gap:8,paddingBottom:gO?10:0}} onClick={()=>setGO(!gO)}><span style={{color:"#22c55e",transition:"transform .2s",display:"inline-block",transform:gO?"rotate(90deg)":"none"}}>▶</span><h3 className="ct" style={{color:"#22c55e"}}>🙏 Gratidão ({(d.gratitude||[]).length})</h3></div>
+      {gO&&<div>{(d.gratitude||[]).map((g,i)=><div key={i} className="ir">{gE===i?<><input value={gT} onChange={e=>setGT(e.target.value)} className="inp" style={{flex:1}} autoFocus onKeyDown={e=>e.key==="Enter"&&svG(i,gT)}/><button style={{width:28,height:28,borderRadius:7,background:"#22c55e",border:"none",color:"#000",cursor:"pointer",fontWeight:700,flexShrink:0}} onClick={()=>svG(i,gT)}>✓</button></>:<><span style={{color:"#22c55e"}}>✅</span><span style={{flex:1,fontSize:14,color:"#ccc",cursor:"pointer"}} onClick={()=>{setGE(i);setGT(g)}}>{g}</span><button className="bd" onClick={()=>rmG(i)}>✕</button></>}</div>)}
+        <div style={{display:"flex",gap:8,marginTop:8}}><input value={gN} onChange={e=>setGN(e.target.value)} placeholder="Adicionar gratidão..." className="inp" style={{flex:1}} onKeyDown={e=>e.key==="Enter"&&addG()}/><button style={{width:30,height:30,borderRadius:8,background:"#22c55e",border:"none",color:"#000",cursor:"pointer",fontSize:16,fontWeight:700,flexShrink:0}} onClick={addG}>+</button></div>
+      </div>}
     </div>
-    <button className="btn-primary" onClick={startFill}>{existing?"✏️ Editar ":"📝 Preencher "}{MONTH_NAMES[mo]}</button>
-    {filledM>=2&&<button className="btn-primary" onClick={()=>setView("annual")} style={{background:"linear-gradient(135deg,#a78bfa,#7c3aed)"}}>📊 Revisão Anual {yr} ({filledM} meses)</button>}
-    <div className="card" style={{marginTop:4}}>
-      <h3 className="card-title-accent">📖 Metodologia</h3>
-      <div style={{fontSize:13,color:"#aaa",lineHeight:1.6}}>
-        <p className="mb-8">Combina <strong style={{color:"#f5a623"}}>4 frameworks validados</strong>:</p>
-        <p style={{margin:"0 0 4px"}}>🎯 <strong style={{color:"#fff"}}>Wheel of Life</strong> — Pontuação 0-10 por pilar</p>
-        <p style={{margin:"0 0 4px"}}>⚡ <strong style={{color:"#fff"}}>RPM</strong> — Resultado, Propósito, Ação Massiva</p>
-        <p style={{margin:"0 0 4px"}}>📊 <strong style={{color:"#fff"}}>SWLS</strong> — Escala validada cientificamente</p>
-        <p style={{margin:"0 0 4px"}}>🔥 <strong style={{color:"#fff"}}>6 Human Needs</strong> — Certeza, crescimento, contribuição</p>
-        <p style={{margin:"12px 0 0",fontStyle:"italic",color:"#888"}}>"Progresso = Felicidade" — Tony Robbins</p>
-      </div>
+    <div className="c"><h3 className="ca">✨ Minhas 5 Direções</h3><p style={{fontSize:11,color:"#666",marginBottom:10}}>Leia todo dia. Estas frases guiam suas decisões.</p>
+      {(d.vision||[]).map((v,i)=><div key={i} style={{marginBottom:8}}><div style={{fontSize:10,color:"#f5a623",fontWeight:700,marginBottom:3}}>DIREÇÃO {i+1}</div><textarea value={v} onChange={e=>svV(i,e.target.value)} className="ta" rows={2} style={{fontSize:13,background:"#0f0f11",borderColor:"#2a2a1a"}}/></div>)}
     </div>
-    {filledM>0&&<div className="card"><h3 className="card-title-accent">📈 Progresso {yr}</h3><div className="flex" style={{justifyContent:"space-around",textAlign:"center"}}><div><div style={{fontSize:28,fontWeight:800,color:"#22c55e"}}>{filledM}</div><div style={{fontSize:11,color:"#888"}}>Preenchidos</div></div><div><div style={{fontSize:28,fontWeight:800,color:"#f5a623"}}>{12-filledM}</div><div style={{fontSize:11,color:"#888"}}>Restantes</div></div><div><div style={{fontSize:28,fontWeight:800,color:"#38bdf8"}}>{Math.round(filledM/12*100)}%</div><div style={{fontSize:11,color:"#888"}}>Completo</div></div></div></div>}
-    <div style={{height:100}}/>
-  </div>;
-
-  if(view==="fill") {
-    const cat=ASSESS_CATS[catIdx];
-    const prog=((catIdx+1)/ASSESS_CATS.length)*100;
-    return <div className="page">
-      <div style={{padding:"16px 0 8px"}}>
-        <div className="flex justify-between mb-8">
-          <button className="btn-arrow" onClick={()=>catIdx>0?setCatIdx(c=>c-1):setView("menu")}>← {catIdx===0?"Sair":"Voltar"}</button>
-          <span style={{fontSize:12,color:"#888"}}>{catIdx+1} de {ASSESS_CATS.length}</span>
-        </div>
-        <div className="progress-bar"><div className="progress-fill" style={{width:`${prog}%`,background:cat.color}}/></div>
-      </div>
-      <div className="text-center" style={{padding:"16px 0"}}><div style={{fontSize:40,marginBottom:8}}>{cat.icon}</div><h2 style={{fontSize:20,fontWeight:800,color:cat.color}}>{cat.name}</h2><p style={{fontSize:12,color:"#888",marginTop:4}}>{MONTH_NAMES[mo]} {yr}</p></div>
-      {cat.questions.map(q=><div className="card" key={q.id}>
-        <p style={{fontSize:14,color:"#e5e5e5",marginBottom:12,lineHeight:1.5}}>{q.text}</p>
-        {q.type==="score"?<div className="flex gap-4 flex-wrap">{[1,2,3,4,5,6,7,8,9,10].map(s=><button key={s} className="score-btn" style={{background:s<=(ans[q.id]||0)?cat.color:"#2a2a2e",color:s<=(ans[q.id]||0)?"#000":"#666"}} onClick={()=>setAns(p=>({...p,[q.id]:s}))}>{s}</button>)}</div>
-        :<textarea value={ans[q.id]||""} onChange={e=>setAns(p=>({...p,[q.id]:e.target.value}))} placeholder="Escreva sua resposta..." className="ta" rows={3}/>}
-      </div>)}
-      <div className="flex gap-8 mt-8">
-        {catIdx>0&&<button className="btn-secondary" style={{flex:1}} onClick={()=>setCatIdx(c=>c-1)}>← Anterior</button>}
-        {catIdx<ASSESS_CATS.length-1?<button className="btn-primary" style={{flex:2,marginBottom:0}} onClick={()=>setCatIdx(c=>c+1)}>Próximo → {ASSESS_CATS[catIdx+1].icon}</button>
-        :<button className="btn-primary" style={{flex:2,marginBottom:0,background:"linear-gradient(135deg,#22c55e,#16a34a)"}} onClick={saveFill}>✅ Finalizar Avaliação</button>}
-      </div>
-      <div style={{height:100}}/>
-    </div>;
-  }
-
-  if(view==="review") {
-    const ma=existing||ans;
-    return <div className="page">
-      <div className="flex items-center gap-8" style={{padding:"16px 0"}}><button className="btn-arrow" onClick={()=>setView("menu")}>←</button><h1 style={{fontSize:20,fontWeight:800,color:"#fff"}}>Resultado - {MONTH_NAMES[mo]} {yr}</h1></div>
-      {ASSESS_CATS.map(cat=>{const fb=getFeedback(ma,cat.id);if(fb.avg===0)return null;return <div className="card" key={cat.id}>
-        <div className="flex justify-between items-center mb-8"><div className="flex items-center gap-8"><span style={{fontSize:24}}>{cat.icon}</span><div><div style={{fontSize:14,fontWeight:700,color:cat.color}}>{cat.name}</div><div style={{fontSize:12,color:"#888"}}>{fb.level}</div></div></div><div style={{textAlign:"right"}}><div style={{fontSize:24,fontWeight:800,color:cat.color}}>{fb.avg.toFixed(1)}</div><div style={{fontSize:18}}>{fb.emoji}</div></div></div>
-        <div className="progress-bar mb-8"><div className="progress-fill" style={{width:`${fb.avg*10}%`,background:cat.color}}/></div>
-        <p className="feedback-msg">{fb.msg}</p>
-        {cat.questions.filter(q=>q.type==="text"&&ma[q.id]).map(q=><div key={q.id} className="text-answer"><div className="label">{q.text}</div><div className="value">{ma[q.id]}</div></div>)}
-      </div>;})}
-      <button className="btn-secondary w-full" onClick={startFill}>✏️ Editar Respostas</button>
-      <div style={{height:100}}/>
-    </div>;
-  }
-
-  if(view==="annual"&&annual) {
-    const {catScores,overallAvg,best,worst,improved,monthCount}=annual;
-    return <div className="page">
-      <div className="flex items-center gap-8" style={{padding:"16px 0"}}><button className="btn-arrow" onClick={()=>setView("menu")}>←</button><h1 style={{fontSize:20,fontWeight:800,color:"#fff"}}>Revisão Anual {yr}</h1></div>
-      <div className="card text-center" style={{padding:24}}><div style={{fontSize:60,fontWeight:900,color:"#f5a623",lineHeight:1}}>{overallAvg}</div><div style={{fontSize:14,color:"#888",marginTop:4}}>Nota Geral do Ano</div><div style={{fontSize:12,color:"#666",marginTop:4}}>{monthCount} meses avaliados</div></div>
-      <div className="annual-highlight">
-        {best&&<div className="card highlight-card"><div className="highlight-label" style={{color:"#22c55e"}}>MELHOR</div><div style={{fontSize:20}}>{best.icon}</div><div className="highlight-score" style={{color:"#22c55e"}}>{best.avg}</div><div className="highlight-name">{best.name}</div></div>}
-        {worst&&<div className="card highlight-card"><div className="highlight-label" style={{color:"#ef4444"}}>ATENÇÃO</div><div style={{fontSize:20}}>{worst.icon}</div><div className="highlight-score" style={{color:"#ef4444"}}>{worst.avg}</div><div className="highlight-name">{worst.name}</div></div>}
-        {improved&&<div className="card highlight-card"><div className="highlight-label" style={{color:"#38bdf8"}}>EVOLUIU</div><div style={{fontSize:20}}>{improved.icon}</div><div className="highlight-score" style={{color:"#38bdf8"}}>{improved.trend>0?"+":""}{improved.trend.toFixed(1)}</div><div className="highlight-name">{improved.name}</div></div>}
-      </div>
-      <div className="card"><h3 className="card-title-accent">📊 Por Área</h3>
-        {Object.values(catScores).sort((a,b)=>b.avg-a.avg).map(c=><div key={c.name} className="mb-12">
-          <div className="flex justify-between items-center" style={{marginBottom:4}}><span style={{fontSize:13,color:"#fff"}}>{c.icon} {c.name}</span><div className="flex items-center gap-6"><span style={{fontSize:14,fontWeight:700,color:c.color}}>{c.avg}</span><span style={{fontSize:11,color:c.trend>0?"#22c55e":c.trend<0?"#ef4444":"#888"}}>{c.trend>0?"↑":c.trend<0?"↓":"→"}{Math.abs(c.trend).toFixed(1)}</span></div></div>
-          <div className="progress-bar"><div className="progress-fill" style={{width:`${parseFloat(c.avg)*10}%`,background:c.color}}/></div>
-          {c.mas.length>1&&<div className="sparkline">{c.mas.map((v,i)=><div key={i} className="spark-bar" style={{height:`${v*10}%`,background:c.color,opacity:.6+(i/c.mas.length)*.4}}/>)}</div>}
-        </div>)}
-      </div>
-      <div className="card" style={{borderColor:"#f5a623"}}>
-        <h3 className="card-title-accent" style={{fontSize:16}}>🏆 Feedback do Ano</h3>
-        <div style={{fontSize:13,color:"#ccc",lineHeight:1.7}}>
-          {parseFloat(overallAvg)>=8&&<p className="mb-8">🌟 <strong>Ano extraordinário!</strong> Nível de excelência na maioria das áreas. Desafio: manter e elevar o que ficou abaixo de 8.</p>}
-          {parseFloat(overallAvg)>=6&&parseFloat(overallAvg)<8&&<p className="mb-8">💪 <strong>Bom ano com espaço para mais.</strong> Base sólida. Foque nas 2-3 áreas mais fracas.</p>}
-          {parseFloat(overallAvg)<6&&<p className="mb-8">⚡ <strong>Ano de aprendizado.</strong> "O que se mede, se melhora." Priorize as 2 áreas com menor nota.</p>}
-          {best&&<p className="mb-8">✅ <strong>Fortaleza: {best.name}</strong> ({best.avg}/10). Use essa energia para as outras áreas.</p>}
-          {worst&&<p className="mb-8">⚠️ <strong>{worst.name}</strong> precisa de atenção ({worst.avg}/10). "O que aconteceria se dedicasse 30 min/dia?"</p>}
-          <div className="quote-box"><p style={{margin:0}}>💡 <em>"O segredo do sucesso é constância de propósito." Continue medindo mês a mês.</em></p></div>
-        </div>
-      </div>
-      <div style={{height:100}}/>
-    </div>;
-  }
-
-  return <div className="page"><SH title="Avaliação" icon="📋"/><p style={{color:"#888"}}>Preencha 2+ meses para revisão anual.</p></div>;
-}
-
-// ═══════════════════════════════════════════════════════════
-// DREAMS
-// ═══════════════════════════════════════════════════════════
-function Dreams({data,save,upd}) {
-  const [nw,setNw]=useState("");const [at,setAt]=useState(null);
-  const add=(c)=>{if(!nw.trim())return;const nd=JSON.parse(JSON.stringify(data));nd.dreams[c].push({text:nw.trim(),done:false});save(nd);setNw("");setAt(null);};
-  const tog=(c,i)=>{const nd=JSON.parse(JSON.stringify(data));nd.dreams[c][i].done=!nd.dreams[c][i].done;save(nd);};
-  const rm=(c,i)=>{const nd=JSON.parse(JSON.stringify(data));nd.dreams[c].splice(i,1);save(nd);};
-  const secs=[{k:"shortTerm",t:"🎯 Curto Prazo",s:"0-12 meses",c:"#22c55e"},{k:"mediumTerm",t:"🚀 Médio Prazo",s:"1-3 anos",c:"#f5a623"},{k:"longTerm",t:"🌟 Longo Prazo",s:"5-10 anos",c:"#a78bfa"}];
-  return <div className="page"><SH title="Quadro dos Sonhos" sub="Visualize, planeje, conquiste" icon="🌟"/>
-    {(data.conquistas2025||[]).length>0&&<div className="card" style={{borderColor:"#22c55e"}}><h3 className="card-title" style={{color:"#22c55e",marginBottom:8}}>🏆 Conquistas 2025</h3>{(data.conquistas2025||[]).map((c,i)=><div key={i} style={{fontSize:13,color:"#8fce8f",padding:"3px 0"}}>✅ {c.text.replace(" ✅","")}</div>)}</div>}
-    <div className="card"><h3 className="card-title-accent">✨ Minha Visão de Vida</h3><textarea value={data.dreams.visionBoard} onChange={e=>upd("dreams.visionBoard",e.target.value)} placeholder="Descreva sua vida ideal..." className="ta" rows={4}/></div>
-    {secs.map(s=><div className="card" key={s.k}><div className="card-header"><div><h3 className="card-title" style={{color:s.c}}>{s.t}</h3><div className="card-sub">{s.s}</div></div><button className="btn-add" style={{borderColor:s.c,color:s.c}} onClick={()=>setAt(s.k)}>+</button></div>
-      {data.dreams[s.k].map((d,i)=><div key={i} className="item-row"><button className="check-circle" style={{borderColor:s.c,background:d.done?s.c:"transparent"}} onClick={()=>tog(s.k,i)}>{d.done&&<span style={{color:"#000",fontSize:12}}>✓</span>}</button><span style={{flex:1,fontSize:14,color:"#ccc",textDecoration:d.done?"line-through":"none",opacity:d.done?.5:1}}>{d.text}</span><button className="btn-del" onClick={()=>rm(s.k,i)}>✕</button></div>)}
-      {at===s.k&&<div className="flex gap-8 mt-8"><input value={nw} onChange={e=>setNw(e.target.value)} placeholder="Novo sonho..." className="edit-input" autoFocus onKeyDown={e=>e.key==="Enter"&&add(s.k)}/><button className="btn-save" style={{background:s.c}} onClick={()=>add(s.k)}>✓</button></div>}
+    {secs.map(s=><div className="c" key={s.k}><div className="ch"><div><h3 className="ct" style={{color:s.c}}>{s.t}</h3><div style={{fontSize:11,color:"#666"}}>{s.s}</div></div><button className="ba" style={{borderColor:s.c,color:s.c}} onClick={()=>setAt(s.k)}>+</button></div>
+      {d.dreams[s.k].map((x,i)=><div key={i} className="ir"><button className="ck" style={{borderColor:s.c,background:x.d?s.c:"transparent"}} onClick={()=>tog(s.k,i)}>{x.d&&<span style={{color:"#000",fontSize:12}}>✓</span>}</button><span style={{flex:1,fontSize:14,color:"#ccc",textDecoration:x.d?"line-through":"none",opacity:x.d?.5:1}}>{x.t}</span><button className="bd" onClick={()=>rm(s.k,i)}>✕</button></div>)}
+      {at===s.k&&<div style={{display:"flex",gap:8,marginTop:8}}><input value={nw} onChange={e=>setNw(e.target.value)} placeholder="Nova meta..." className="inp" style={{flex:1}} autoFocus onKeyDown={e=>e.key==="Enter"&&add(s.k)}/><button style={{width:30,height:30,borderRadius:8,background:s.c,border:"none",color:"#000",cursor:"pointer",fontWeight:700,flexShrink:0}} onClick={()=>add(s.k)}>✓</button></div>}
     </div>)}
-    <div style={{height:100}}/>
+    <div style={{height:90}}/>
   </div>;
 }
 
 // ═══════════════════════════════════════════════════════════
-// PILARES
+// PILARES — 12 pillars
 // ═══════════════════════════════════════════════════════════
-function Pilares({data,save}) {
-  const up=(id,s)=>{const nd=JSON.parse(JSON.stringify(data));const p=nd.pilares.find(x=>x.id===id);if(p)p.score=s;save(nd);};
-  const un=(id,n)=>{const nd=JSON.parse(JSON.stringify(data));const p=nd.pilares.find(x=>x.id===id);if(p)p.notes=n;save(nd);};
-  const avg=data.pilares.filter(p=>p.score>0).length>0?(data.pilares.reduce((a,b)=>a+b.score,0)/data.pilares.filter(p=>p.score>0).length).toFixed(1):0;
-  return <div className="page"><SH title="Pilares da Vida" sub="Avalie cada área de 0 a 10" icon="⚖️"/>
-    <div className="card text-center" style={{padding:20}}><div style={{fontSize:36,fontWeight:800,color:"#f5a623"}}>{avg}</div><div style={{fontSize:12,color:"#888"}}>Média Geral</div>
-      <div className="bar-chart">{data.pilares.map(p=><div key={p.id} className="bar-col"><div className="bar-container"><div className="bar-fill" style={{height:`${p.score*10}%`,background:p.color}}/></div><span style={{fontSize:16}}>{p.icon}</span><span style={{fontSize:10,color:"#888"}}>{p.score||"—"}</span></div>)}</div>
+function Pilares({d,sv}){
+  const upS=(id,s)=>{const nd=JSON.parse(JSON.stringify(d));const p=nd.pilares.find(x=>x.id===id);if(p)p.score=s;sv(nd)};
+  const upN=(id,n)=>{const nd=JSON.parse(JSON.stringify(d));const p=nd.pilares.find(x=>x.id===id);if(p)p.notes=n;sv(nd)};
+  const sc=d.pilares.filter(p=>p.score>0);const avg=sc.length?(sc.reduce((a,b)=>a+b.score,0)/sc.length).toFixed(1):0;
+  return<div className="pg">
+    <div className="sh"><span style={{fontSize:32}}>⚖️</span><div><h1>12 Pilares</h1><p>Avalie cada área de 1 a 10</p></div></div>
+    <div className="c" style={{textAlign:"center",padding:20}}><div style={{fontSize:40,fontWeight:800,color:"#f5a623"}}>{avg}</div><div style={{fontSize:12,color:"#888"}}>Média Geral</div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:3,marginTop:14}}>{d.pilares.map(p=><div key={p.id} style={{textAlign:"center"}}><div style={{fontSize:12}}>{p.ic}</div><div style={{height:40,background:"#2a2a2e",borderRadius:3,display:"flex",alignItems:"flex-end",margin:"3px auto",width:12}}><div style={{width:"100%",height:`${p.score*10}%`,background:p.cl,borderRadius:3,minHeight:p.score?2:0}}/></div><div style={{fontSize:8,color:"#666"}}>{p.score||"—"}</div></div>)}</div>
     </div>
-    {data.pilares.map(p=><div className="card" key={p.id}><div className="flex gap-12" style={{alignItems:"flex-start",marginBottom:8}}><span style={{fontSize:28}}>{p.icon}</span><div style={{flex:1}}><div style={{fontSize:16,fontWeight:700,color:p.color,marginBottom:6}}>{p.name}</div><div className="flex gap-4 flex-wrap">{[1,2,3,4,5,6,7,8,9,10].map(s=><button key={s} className="score-btn" style={{background:s<=p.score?p.color:"#2a2a2e",color:s<=p.score?"#000":"#666"}} onClick={()=>up(p.id,s)}>{s}</button>)}</div></div></div><textarea value={p.notes} onChange={e=>un(p.id,e.target.value)} placeholder="Notas..." className="ta" rows={2}/></div>)}
-    <div style={{height:100}}/>
-  </div>;
-}
-
-// ═══════════════════════════════════════════════════════════
-// HEALTH
-// ═══════════════════════════════════════════════════════════
-function Health({data,save,upd}) {
-  return <div className="page"><SH title="Saúde & Autocuidado" sub="Corpo, mente e bem-estar" icon="❤️"/>
-    <div className="card"><h3 className="card-title-accent">⭕ Oura Ring</h3><EF label="Sleep Score" value={data.health.ouraRing.sleepScore} onSave={v=>upd("health.ouraRing.sleepScore",v)}/><EF label="Readiness" value={data.health.ouraRing.readiness} onSave={v=>upd("health.ouraRing.readiness",v)}/><EF label="Activity" value={data.health.ouraRing.activity} onSave={v=>upd("health.ouraRing.activity",v)}/></div>
-    <div className="card"><h3 className="card-title-accent">⚖️ Bioimpedância</h3><EF label="Peso (kg)" value={data.health.bioImpedance.weight} onSave={v=>upd("health.bioImpedance.weight",v)} suffix=" kg"/><EF label="% Gordura" value={data.health.bioImpedance.bodyFat} onSave={v=>upd("health.bioImpedance.bodyFat",v)} suffix="%"/><EF label="Massa Muscular" value={data.health.bioImpedance.muscleMass} onSave={v=>upd("health.bioImpedance.muscleMass",v)} suffix=" kg"/></div>
-    <div className="card"><h3 className="card-title-accent">💊 Medicamentos</h3>{data.health.medications.map((m,i)=><div key={i}><EF label="Nome" value={m.name} onSave={v=>{const nd=JSON.parse(JSON.stringify(data));nd.health.medications[i].name=v;save(nd);}}/><EF label="Dose" value={m.dose} onSave={v=>{const nd=JSON.parse(JSON.stringify(data));nd.health.medications[i].dose=v;save(nd);}}/></div>)}</div>
-    <div className="card"><h3 className="card-title-accent">📅 Check-ups</h3>
-      {data.checkDates.map((c,i)=>{const d=daysUntil(c.nextDate);return <div key={i} className="flex gap-12" style={{padding:"12px 0",borderBottom:"1px solid #1f1f23"}}><div style={{width:4,borderRadius:2,minHeight:40,background:statusColor(d)}}/><div style={{flex:1}}><div style={{fontSize:14,fontWeight:600,color:"#fff"}}>{c.type}</div><div style={{fontSize:11,color:"#888"}}>A cada {c.interval}</div><EF label="Último" value={c.lastDate} type="date" onSave={v=>{const nd=JSON.parse(JSON.stringify(data));nd.checkDates[i].lastDate=v;save(nd);}}/><EF label="Próximo" value={c.nextDate} type="date" onSave={v=>{const nd=JSON.parse(JSON.stringify(data));nd.checkDates[i].nextDate=v;save(nd);}}/></div></div>;})}
-    </div>
-    <div style={{height:100}}/>
-  </div>;
-}
-
-// ═══════════════════════════════════════════════════════════
-// FINANCES
-// ═══════════════════════════════════════════════════════════
-function Finances({data,save,upd}) {
-  const accs=[{k:"frc",i:"🚗",c:"#38bdf8"},{k:"personal",i:"👤",c:"#22c55e"},{k:"patrimonio",i:"🏠",c:"#f5a623"},{k:"porcino",i:"🐷",c:"#a78bfa"},{k:"contaCorrente",i:"🏦",c:"#fb923c"}];
-  return <div className="page"><SH title="Finanças Pessoais" sub="FRC • Pessoal • Patrimônio • Porcino • CC" icon="💰"/>
-    {accs.map(a=>{const f=data.finances[a.k];return <div className="card" key={a.k}><div className="flex items-center gap-12 mb-12"><span style={{fontSize:28}}>{a.i}</span><h3 style={{fontSize:16,fontWeight:700,color:a.c}}>{f.description}</h3></div>
-      <EF label="Saldo" value={f.balance} onSave={v=>upd(`finances.${a.k}.balance`,v)} prefix="$ "/>
-      {a.k==="frc"&&<><EF label="Revenue 2025" value={f.revenue2025} onSave={v=>upd("finances.frc.revenue2025",v)} prefix="$ "/><EF label="Projeção 2026" value={f.projection2026} onSave={v=>upd("finances.frc.projection2026",v)} prefix="$ "/></>}
-      {a.k==="personal"&&<><EF label="Renda" value={f.income} onSave={v=>upd("finances.personal.income",v)} prefix="$ "/><EF label="Gastos" value={f.expenses} onSave={v=>upd("finances.personal.expenses",v)} prefix="$ "/></>}
-      {a.k==="patrimonio"&&<><EF label="Imóveis" value={f.realEstate} onSave={v=>upd("finances.patrimonio.realEstate",v)} prefix="$ "/><EF label="Investimentos" value={f.investments} onSave={v=>upd("finances.patrimonio.investments",v)} prefix="$ "/></>}
-      <EF label="Notas" value={f.notes} onSave={v=>upd(`finances.${a.k}.notes`,v)}/>
-    </div>;})}
-    {data.investidores&&<div className="card"><h3 className="card-title-accent">📊 Quitação Investidores</h3><div style={{fontSize:12,color:"#f59e0b",marginBottom:12}}>Status: {data.investidores.status}</div>
-      {(data.investidores.items||[]).map((inv,i)=><div key={i} className="flex justify-between items-center" style={{padding:"8px 0",borderBottom:"1px solid #1a1a1e"}}><div><div style={{fontSize:14,fontWeight:600,color:"#fff"}}>{inv.name}</div>{inv.valor&&<div style={{fontSize:12,color:"#888"}}>${parseInt(inv.valor).toLocaleString()}</div>}</div><span style={{fontSize:11,padding:"3px 10px",borderRadius:12,fontWeight:600,background:inv.status==="Quitado"?"#1a3a1a":inv.status==="Parcial"?"#3a3a1a":"#3a1a1a",color:inv.status==="Quitado"?"#22c55e":inv.status==="Parcial"?"#f5a623":"#ef4444"}}>{inv.status}</span></div>)}
-    </div>}
-    <div style={{height:100}}/>
-  </div>;
-}
-
-// ═══════════════════════════════════════════════════════════
-// ROUTINES
-// ═══════════════════════════════════════════════════════════
-function Routines({data,save}) {
-  const [nw,setNw]=useState("");const [at,setAt]=useState(null);
-  const tog=(p,i)=>{const nd=JSON.parse(JSON.stringify(data));nd.routines[p][i].done=!nd.routines[p][i].done;save(nd);};
-  const add=(p)=>{if(!nw.trim())return;const nd=JSON.parse(JSON.stringify(data));nd.routines[p].push({time:"",task:nw.trim(),done:false});save(nd);setNw("");setAt(null);};
-  const rm=(p,i)=>{const nd=JSON.parse(JSON.stringify(data));nd.routines[p].splice(i,1);save(nd);};
-  const RList=({period,title,color})=><div className="card"><div className="card-header"><h3 className="card-title" style={{color}}>{title}</h3><button className="btn-add" onClick={()=>setAt(period)}>+</button></div>
-    {data.routines[period].map((r,i)=><div key={i} className="item-row"><span style={{fontSize:12,color:"#f5a623",fontWeight:600,width:45}}>{r.time}</span><span style={{flex:1,fontSize:14,color:"#ccc"}}>{r.task}</span><button className="check-square" style={{borderColor:r.done?"#22c55e":"#555",background:r.done?"#22c55e":"transparent"}} onClick={()=>tog(period,i)}>{r.done&&<span style={{color:"#000",fontSize:11}}>✓</span>}</button><button className="btn-del" onClick={()=>rm(period,i)}>✕</button></div>)}
-    {at===period&&<div className="flex gap-8 mt-8"><input value={nw} onChange={e=>setNw(e.target.value)} placeholder="Nova tarefa..." className="edit-input" autoFocus onKeyDown={e=>e.key==="Enter"&&add(period)}/><button className="btn-save" onClick={()=>add(period)}>✓</button></div>}
-  </div>;
-  return <div className="page"><SH title="Rotinas" sub="Consistência gera resultados" icon="⏰"/>
-    <RList period="morning" title="🌅 Matinal" color="#f5a623"/>
-    <RList period="evening" title="🌙 Noturna" color="#818cf8"/>
-    <div className="card"><h3 className="card-title" style={{color:"#22c55e",marginBottom:12}}>📆 Semanal</h3>{data.routines.weekly.map((d,i)=><div key={i} className="item-row"><span style={{fontSize:13,fontWeight:700,color:"#f5a623",width:32}}>{d.day}</span><div className="flex flex-wrap gap-4">{d.tasks.map((t,j)=><span key={j} style={{fontSize:11,background:"#2a2a2e",color:"#aaa",padding:"3px 8px",borderRadius:6}}>{t}</span>)}</div></div>)}</div>
-    <div style={{height:100}}/>
-  </div>;
-}
-
-// ═══════════════════════════════════════════════════════════
-// HACKS
-// ═══════════════════════════════════════════════════════════
-function Hacks({data,save}) {
-  const [nw,setNw]=useState("");const [at,setAt]=useState(null);
-  const add=(c)=>{if(!nw.trim())return;const nd=JSON.parse(JSON.stringify(data));nd.hacks[c].push(nw.trim());save(nd);setNw("");setAt(null);};
-  const rm=(c,i)=>{const nd=JSON.parse(JSON.stringify(data));nd.hacks[c].splice(i,1);save(nd);};
-  const cats=[{k:"sleep",t:"😴 Sono",c:"#818cf8"},{k:"food",t:"🍽️ Alimentação",c:"#22c55e"},{k:"productivity",t:"⚡ Produtividade",c:"#f5a623"},{k:"exercise",t:"🏋️ Exercício",c:"#ef4444"},{k:"mica",t:"💎 MICA",c:"#f472b6"},{k:"pladin",t:"📋 PLADIN",c:"#38bdf8"},{k:"delegation",t:"🤝 Delegação",c:"#fb923c"},{k:"pareto",t:"📊 Pareto 80/20",c:"#a78bfa"}];
-  return <div className="page"><SH title="Hacks" sub="Atalhos para vida otimizada" icon="⚡"/>
-    {cats.map(c=><div className="card" key={c.k}><div className="card-header"><h3 className="card-title" style={{color:c.c}}>{c.t}</h3><button className="btn-add" style={{borderColor:c.c,color:c.c}} onClick={()=>setAt(c.k)}>+</button></div>
-      {data.hacks[c.k].map((h,i)=><div key={i} className="item-row"><div style={{width:6,height:6,borderRadius:3,background:c.c,flexShrink:0}}/><span style={{flex:1,fontSize:14,color:"#ccc"}}>{h}</span><button className="btn-del" onClick={()=>rm(c.k,i)}>✕</button></div>)}
-      {at===c.k&&<div className="flex gap-8 mt-8"><input value={nw} onChange={e=>setNw(e.target.value)} placeholder="Novo hack..." className="edit-input" autoFocus onKeyDown={e=>e.key==="Enter"&&add(c.k)}/><button className="btn-save" style={{background:c.c}} onClick={()=>add(c.k)}>✓</button></div>}
+    {d.pilares.map(p=><div className="c" key={p.id}><div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}><span style={{fontSize:22}}>{p.ic}</span><div style={{flex:1}}><div style={{fontSize:15,fontWeight:700,color:p.cl}}>{p.nm}</div><div style={{fontSize:11,color:"#888"}}>{p.ds}</div></div><div style={{fontSize:22,fontWeight:800,color:p.score?p.cl:"#333"}}>{p.score||"—"}</div></div>
+      <p style={{fontSize:13,color:"#aaa",margin:"8px 0",fontStyle:"italic",lineHeight:1.4}}>"{p.q}"</p>
+      <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>{[1,2,3,4,5,6,7,8,9,10].map(s=><button key={s} className="sb" style={{background:s<=p.score?p.cl:"#2a2a2e",color:s<=p.score?"#000":"#666"}} onClick={()=>upS(p.id,s)}>{s}</button>)}</div>
+      <textarea value={p.notes} onChange={e=>upN(p.id,e.target.value)} placeholder="Meta, reflexão, ação..." className="ta" rows={2} style={{marginTop:8,fontSize:13}}/>
     </div>)}
-    <div style={{height:100}}/>
+    <div style={{height:90}}/>
   </div>;
 }
 
 // ═══════════════════════════════════════════════════════════
-// JOURNAL
+// SAÚDE
 // ═══════════════════════════════════════════════════════════
-function Journal({data,save}) {
-  const [nw,setNw]=useState("");const [nt,setNt]=useState("reflection");const [show,setShow]=useState(false);
-  const add=()=>{if(!nw.trim())return;const nd=JSON.parse(JSON.stringify(data));nd.journal.unshift({date:new Date().toISOString().split("T")[0],time:new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),type:nt,text:nw.trim()});save(nd);setNw("");setShow(false);};
-  const rm=(i)=>{const nd=JSON.parse(JSON.stringify(data));nd.journal.splice(i,1);save(nd);};
+function Saude({d,sv,up}){
+  return<div className="pg">
+    <div className="sh"><span style={{fontSize:32}}>❤️</span><div><h1>Saúde & Dados</h1><p>Analise no Claude → traga os dados aqui</p></div></div>
+    <div className="c"><h3 className="ca">🎯 Metas Corporais</h3>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,textAlign:"center"}}>
+        {[{k:"weight",l:"Peso",u:"kg",c:"#22c55e",bk:"weight"},{k:"fat",l:"Gordura",u:"%",c:"#f5a623",bk:"fat"},{k:"muscle",l:"Músculo",u:"kg",c:"#38bdf8",bk:"muscle"}].map(m=><div key={m.k} style={{padding:10,background:"#1a1a1e",borderRadius:10}}><div style={{fontSize:10,color:"#888",marginBottom:3}}>{m.l}</div><div style={{fontSize:22,fontWeight:800,color:m.c}}>{d.health?.targets?.[m.k]||"—"}<span style={{fontSize:11}}>{m.u}</span></div><div style={{fontSize:11,color:"#666"}}>Atual: {d.health?.bio?.[m.bk]||"—"}{m.u}</div></div>)}
+      </div>
+      <div style={{marginTop:10}}>
+        {[{k:"weight",l:"Meta Peso"},{k:"fat",l:"Meta Gordura %"},{k:"muscle",l:"Meta Músculo kg"}].map(m=><EF key={m.k} label={m.l} value={d.health?.targets?.[m.k]} onSave={v=>up(`health.targets.${m.k}`,v)}/>)}
+      </div>
+    </div>
+    <div className="c"><h3 className="ca">⭕ Oura Ring</h3><p style={{fontSize:11,color:"#666",marginBottom:10}}>Dados do app Oura</p>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6,textAlign:"center",marginBottom:10}}>
+        {[{k:"sleep",l:"Sleep",c:"#818cf8"},{k:"readiness",l:"Ready",c:"#22c55e"},{k:"activity",l:"Activity",c:"#f5a623"}].map(m=><div key={m.k} style={{padding:8,background:"#1a1a1e",borderRadius:8}}><div style={{fontSize:9,color:"#888"}}>{m.l}</div><div style={{fontSize:22,fontWeight:800,color:m.c}}>{d.health?.oura?.[m.k]||"—"}</div></div>)}
+      </div>
+      {[{k:"sleep",l:"Sleep Score"},{k:"readiness",l:"Readiness"},{k:"activity",l:"Activity"},{k:"hrv",l:"HRV"},{k:"rhr",l:"Resting HR"},{k:"temp",l:"Temp. Variação"}].map(m=><EF key={m.k} label={m.l} value={d.health?.oura?.[m.k]} onSave={v=>up(`health.oura.${m.k}`,v)}/>)}
+    </div>
+    <div className="c"><h3 className="ca">⚖️ Bioimpedância</h3><p style={{fontSize:11,color:"#666",marginBottom:10}}>Resultados da balança → Claude analisa → salve aqui</p>
+      {[{k:"weight",l:"Peso",s:" kg"},{k:"fat",l:"% Gordura",s:"%"},{k:"muscle",l:"Massa Muscular",s:" kg"},{k:"water",l:"% Água",s:"%"},{k:"bone",l:"Massa Óssea",s:" kg"},{k:"metAge",l:"Idade Metabólica",s:" anos"},{k:"viscFat",l:"Gordura Visceral",s:""}].map(m=><EF key={m.k} label={m.l} value={d.health?.bio?.[m.k]} onSave={v=>up(`health.bio.${m.k}`,v)} suffix={m.s}/>)}
+    </div>
+    <div className="c"><h3 className="ca">💊 Medicamentos</h3>
+      {(d.health?.meds||[]).map((m,i)=><div key={i}><EF label="Nome" value={m.name} onSave={v=>{const nd=JSON.parse(JSON.stringify(d));nd.health.meds[i].name=v;sv(nd)}}/><EF label="Dose" value={m.dose} onSave={v=>{const nd=JSON.parse(JSON.stringify(d));nd.health.meds[i].dose=v;sv(nd)}}/></div>)}
+    </div>
+    <div className="c"><h3 className="ca">📅 Check-ups</h3>
+      {d.checkDates.map((c,i)=>{const dd=dU(c.next);return<div key={i} style={{display:"flex",gap:12,padding:"10px 0",borderBottom:"1px solid #1f1f23"}}><div style={{width:4,borderRadius:2,minHeight:36,background:sCol(dd)}}/><div style={{flex:1}}><div style={{fontSize:14,fontWeight:600,color:"#fff"}}>{c.tp} <span style={{fontSize:10,color:"#888"}}>({c.iv})</span></div><EF label="Último" value={c.last} type="date" onSave={v=>{const nd=JSON.parse(JSON.stringify(d));nd.checkDates[i].last=v;sv(nd)}}/><EF label="Próximo" value={c.next} type="date" onSave={v=>{const nd=JSON.parse(JSON.stringify(d));nd.checkDates[i].next=v;sv(nd)}}/></div></div>})}
+    </div>
+    <div className="c"><h3 className="ca">📝 Última Análise Claude</h3><textarea value={d.health?.lastAnalysis||""} onChange={e=>up("health.lastAnalysis",e.target.value)} placeholder="Cole aqui o resumo/recomendações que o Claude gerou da sua análise de dados..." className="ta" rows={5}/></div>
+    <div style={{height:90}}/>
+  </div>;
+}
+
+// ═══════════════════════════════════════════════════════════
+// FINANÇAS
+// ═══════════════════════════════════════════════════════════
+function Fin({d,sv,up}){
+  const accs=[{k:"frc",i:"🚗",c:"#38bdf8"},{k:"personal",i:"👤",c:"#22c55e"},{k:"patrimonio",i:"🏠",c:"#f5a623"},{k:"porcino",i:"🐷",c:"#a78bfa"},{k:"cc",i:"🏦",c:"#fb923c"}];
+  return<div className="pg">
+    <div className="sh"><span style={{fontSize:32}}>💰</span><div><h1>Finanças</h1><p>Contas, patrimônio, investidores</p></div></div>
+    {accs.map(a=>{const f=d.finances?.[a.k]||{};return<div className="c" key={a.k}><div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}><span style={{fontSize:22}}>{a.i}</span><h3 style={{fontSize:15,fontWeight:700,color:a.c}}>{f.desc||a.k}</h3></div>
+      <EF label="Saldo" value={f.bal} onSave={v=>up(`finances.${a.k}.bal`,v)}/>
+      {a.k==="frc"&&<><EF label="Revenue 2025" value={f.rev25} onSave={v=>up("finances.frc.rev25",v)}/><EF label="Projeção 2026" value={f.proj26} onSave={v=>up("finances.frc.proj26",v)}/></>}
+      {a.k==="personal"&&<><EF label="Renda" value={f.income} onSave={v=>up("finances.personal.income",v)}/><EF label="Gastos" value={f.expenses} onSave={v=>up("finances.personal.expenses",v)}/></>}
+      {a.k==="patrimonio"&&<><EF label="Imóveis" value={f.realEstate} onSave={v=>up("finances.patrimonio.realEstate",v)}/><EF label="Investimentos" value={f.investments} onSave={v=>up("finances.patrimonio.investments",v)}/></>}
+      <EF label="Notas" value={f.notes} onSave={v=>up(`finances.${a.k}.notes`,v)}/>
+    </div>})}
+    <div className="c"><h3 className="ca">📊 Investidores</h3>
+      {(d.investidores||[]).map((inv,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 0",borderBottom:"1px solid #1a1a1e"}}><div><div style={{fontSize:14,fontWeight:600,color:"#fff"}}>{inv.name}</div>{inv.val&&<div style={{fontSize:12,color:"#888"}}>${parseInt(inv.val).toLocaleString()}</div>}</div><span style={{fontSize:11,padding:"4px 12px",borderRadius:12,fontWeight:600,background:inv.st==="Quitado"?"#1a3a1a":inv.st==="Parcial"?"#3a3a1a":"#3a1a1a",color:inv.st==="Quitado"?"#22c55e":inv.st==="Parcial"?"#f5a623":"#ef4444"}}>{inv.st}</span></div>)}
+    </div>
+    <div style={{height:90}}/>
+  </div>;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ROTINA — Day + hacks + progress + streak
+// ═══════════════════════════════════════════════════════════
+function Rotina({d,sv}){
+  const day=td();const now=new Date();
+  const ch=d.rc?.[day]||{};const dn=Object.values(ch).filter(Boolean).length;const tot=RTPL.length;const pct=tot?Math.round(dn/tot*100):0;
+  const toggle=idx=>{const nd=JSON.parse(JSON.stringify(d));if(!nd.rc)nd.rc={};if(!nd.rc[day])nd.rc[day]={};nd.rc[day][idx]=!nd.rc[day]?.[idx];sv(nd)};
+  let streak=0;for(let i=0;i<90;i++){const dt=new Date(now);dt.setDate(dt.getDate()-i);const dk=dt.toISOString().split("T")[0];const c=d.rc?.[dk];if(c&&Object.values(c).filter(Boolean).length>=tot*.5)streak++;else if(i>0)break}
+  const groups={m:[],w:[],h:[],f:[],g:[]};RTPL.forEach((r,i)=>{if(groups[r.ct])groups[r.ct].push({...r,idx:i})});
+
+  return<div className="pg">
+    <div className="sh"><span style={{fontSize:32}}>⚡</span><div><h1>Rotina do Dia</h1><p>{DN[now.getDay()]}, {now.getDate()} de {MN[now.getMonth()]}</p></div></div>
+    <div className="c" style={{background:"linear-gradient(135deg,#151517,#1a1a10)"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+        <div><div style={{fontSize:36,fontWeight:800,color:pct>=80?"#22c55e":pct>=50?"#f5a623":"#888"}}>{pct}%</div><div style={{fontSize:12,color:"#888"}}>{dn}/{tot} completadas</div></div>
+        <div style={{textAlign:"right"}}>{streak>0&&<div style={{display:"inline-flex",alignItems:"center",gap:4,padding:"5px 12px",borderRadius:20,fontSize:12,fontWeight:700,background:"#2a2a1a",color:"#f5a623"}}>🔥 {streak} dias</div>}</div>
+      </div>
+      <div className="pb" style={{height:8}}><div className="pf" style={{width:`${pct}%`,background:pct>=80?"#22c55e":pct>=50?"#f5a623":"#ef4444"}}/></div>
+    </div>
+    {Object.entries(groups).map(([ct,items])=>items.length>0&&<div key={ct}>
+      <div style={{display:"flex",alignItems:"center",gap:8,padding:"10px 0 4px"}}><div style={{width:8,height:8,borderRadius:4,background:CC[ct]}}/><span style={{fontSize:13,fontWeight:700,color:CC[ct]}}>{CL[ct]}</span><span style={{fontSize:11,color:"#666"}}>{items.filter(r=>!!ch[r.idx]).length}/{items.length}</span></div>
+      {items.map(r=>{const ck=!!ch[r.idx];return<div key={r.idx} className="db" style={{borderLeftColor:ck?"#22c55e":CC[ct],opacity:ck?.55:1,cursor:"pointer"}} onClick={()=>toggle(r.idx)}>
+        <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <span style={{fontSize:11,color:"#f5a623",fontWeight:600,minWidth:40}}>{r.tm}</span>
+          <span style={{fontSize:14}}>{r.ic}</span>
+          <div style={{flex:1}}><div style={{fontSize:14,color:"#e5e5e5",textDecoration:ck?"line-through":"none"}}>{r.tk}</div><div style={{fontSize:11,color:"#555",fontStyle:"italic",marginTop:1}}>{r.tp}</div></div>
+          <div className="cks" style={{borderColor:ck?"#22c55e":"#444",background:ck?"#22c55e":"transparent"}}>{ck&&<span style={{color:"#000",fontSize:11}}>✓</span>}</div>
+        </div>
+      </div>})}
+    </div>)}
+    <div className="c" style={{marginTop:8}}><h3 className="ct" style={{color:"#f5a623",marginBottom:10}}>📆 Semana</h3>
+      {[{d:"Dom",t:["Igreja","Família","Review"]},{d:"Seg",t:["FRC","Reuniões"]},{d:"Ter",t:["FRC","Treinamentos"]},{d:"Qua",t:["FRC","Relatórios"]},{d:"Qui",t:["FRC","Cobrar"]},{d:"Sex",t:["FRC","Estratégia"]},{d:"Sáb",t:["Esporte","Família","Projeto"]}].map((w,i)=><div key={i} className="ir"><span style={{fontSize:12,fontWeight:700,color:i===now.getDay()?"#f5a623":"#888",width:28}}>{w.d}</span><div style={{display:"flex",flexWrap:"wrap",gap:4}}>{w.t.map((t,j)=><span key={j} style={{fontSize:10,background:i===now.getDay()?"#2a2a1a":"#1a1a1e",color:i===now.getDay()?"#f5a623":"#aaa",padding:"2px 8px",borderRadius:6}}>{t}</span>)}</div></div>)}
+    </div>
+    <div style={{height:90}}/>
+  </div>;
+}
+
+// ═══════════════════════════════════════════════════════════
+// DIÁRIO — Mensal no topo + Journal
+// ═══════════════════════════════════════════════════════════
+function Diario({d,sv}){
+  const[vw,setVw]=useState("main");const[nw,setNw]=useState("");const[nt,setNt]=useState("reflection");const[sh,setSh]=useState(false);
+  const now=new Date();const[yr,setYr]=useState(now.getFullYear());const[mo,setMo]=useState(now.getMonth());
+  const[ci,setCi]=useState(0);const[ans,setAns]=useState({});
+  const mk=`${yr}-${String(mo+1).padStart(2,"0")}`;const ex=d.assessments?.[mk];
+  const startA=()=>{setAns(ex||{});setCi(0);setVw("fill")};
+  const saveA=()=>{const nd=JSON.parse(JSON.stringify(d));if(!nd.assessments)nd.assessments={};nd.assessments[mk]={...ans,at:new Date().toISOString()};sv(nd);setVw("review")};
+  const addJ=()=>{if(!nw.trim())return;const nd=JSON.parse(JSON.stringify(d));nd.journal.unshift({dt:td(),tm:new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),tp:nt,tx:nw.trim()});sv(nd);setNw("");setSh(false)};
+  const rmJ=i=>{const nd=JSON.parse(JSON.stringify(d));nd.journal.splice(i,1);sv(nd)};
   const tc={reflection:{l:"Reflexão",e:"💭",c:"#a78bfa"},study:{l:"Estudo",e:"📚",c:"#38bdf8"},gratitude:{l:"Gratidão",e:"🙏",c:"#22c55e"},idea:{l:"Ideia",e:"💡",c:"#f5a623"},goal:{l:"Meta",e:"🎯",c:"#ef4444"},dream:{l:"Sonho",e:"✨",c:"#f472b6"}};
-  return <div className="page"><SH title="Diário & Reflexões" sub="Estudos, ideias, gratidão e metas" icon="📔"/>
-    {!show?<button className="btn-primary" onClick={()=>setShow(true)}>+ Nova Entrada</button>:
-    <div className="card"><div className="flex flex-wrap gap-6 mb-12">{Object.entries(tc).map(([k,v])=><button key={k} className="type-btn" style={{background:nt===k?v.c:"#2a2a2e",color:nt===k?"#000":"#999"}} onClick={()=>setNt(k)}>{v.e} {v.l}</button>)}</div>
+  const fm=Object.keys(d.assessments||{}).filter(k=>k.startsWith(String(yr))).length;
+  const annual=gAR(d.assessments||{},String(yr));
+
+  if(vw==="main")return<div className="pg">
+    <div className="sh"><span style={{fontSize:32}}>📔</span><div><h1>Diário & Avaliação</h1><p>Mensal + reflexões diárias</p></div></div>
+    <div className="c" style={{borderColor:"#f5a623",background:"linear-gradient(135deg,#1a1a10,#151517)"}}>
+      <h3 className="ca">📋 Avaliação Mensal</h3>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+        <button className="bs" onClick={()=>setYr(y=>y-1)} style={{fontSize:12}}>◀ {yr-1}</button>
+        <span style={{fontSize:16,fontWeight:800,color:"#fff"}}>{yr}</span>
+        <button className="bs" onClick={()=>setYr(y=>y+1)} style={{fontSize:12}}>{yr+1} ▶</button>
+      </div>
+      <div className="mg">{MN.map((m,i)=>{const done=!!d.assessments?.[`${yr}-${String(i+1).padStart(2,"0")}`];const cur=i===mo&&yr===now.getFullYear();return<button key={i} className="mb" style={{background:done?"#1a3a1a":cur?"#2a2a1a":"#1a1a1e",borderColor:done?"#22c55e":cur?"#f5a623":"#2a2a2e"}} onClick={()=>{setMo(i);if(done){setAns(d.assessments[`${yr}-${String(i+1).padStart(2,"0")}`]);setVw("review")}}}><span style={{fontSize:10,fontWeight:600,color:done?"#22c55e":cur?"#f5a623":"#888"}}>{m.substring(0,3)}</span>{done&&<span style={{fontSize:8}}>✅</span>}</button>})}</div>
+      <button className="bp" style={{marginTop:10,marginBottom:0}} onClick={startA}>{ex?"✏️ Editar":"📝 Preencher"} {MN[mo]}</button>
+      {fm>=2&&<button className="bp" style={{marginTop:6,marginBottom:0,background:"linear-gradient(135deg,#a78bfa,#7c3aed)"}} onClick={()=>setVw("annual")}>📊 Revisão Anual ({fm} meses)</button>}
+    </div>
+    {!sh?<button className="bp" style={{background:"#2a2a2e",color:"#ccc"}} onClick={()=>setSh(true)}>+ Nova Entrada Diário</button>:
+    <div className="c"><div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}}>{Object.entries(tc).map(([k,v])=><button key={k} className="tb" style={{background:nt===k?v.c:"#2a2a2e",color:nt===k?"#000":"#999"}} onClick={()=>setNt(k)}>{v.e} {v.l}</button>)}</div>
       <textarea value={nw} onChange={e=>setNw(e.target.value)} placeholder="Escreva..." className="ta" rows={4} autoFocus/>
-      <div className="flex gap-8 mt-8"><button style={{flex:1,padding:10,borderRadius:10,background:"#f5a623",border:"none",color:"#000",fontWeight:700,cursor:"pointer"}} onClick={add}>Salvar</button><button style={{padding:10,borderRadius:10,background:"#2a2a2e",border:"none",color:"#888",cursor:"pointer"}} onClick={()=>{setShow(false);setNw("");}}>Cancelar</button></div></div>}
-    {data.journal.length===0&&<div className="card text-center" style={{padding:32}}><div style={{fontSize:40,marginBottom:12}}>📝</div><div style={{color:"#888"}}>Nenhuma entrada ainda.</div></div>}
-    {data.journal.map((e,i)=>{const c=tc[e.type]||tc.reflection;return <div className="card" key={i}><div className="flex justify-between items-center mb-8"><div className="flex items-center gap-8"><span className="journal-tag" style={{background:c.c,color:"#000"}}>{c.e} {c.l}</span><span style={{fontSize:11,color:"#666"}}>{e.date}</span></div><button className="btn-del" onClick={()=>rm(i)}>✕</button></div><div style={{fontSize:14,color:"#ccc",lineHeight:1.6}}>{e.text}</div></div>;})}
-    <div style={{height:100}}/>
+      <div style={{display:"flex",gap:8,marginTop:8}}><button style={{flex:1,padding:10,borderRadius:10,background:"#f5a623",border:"none",color:"#000",fontWeight:700,cursor:"pointer"}} onClick={addJ}>Salvar</button><button className="bs" onClick={()=>{setSh(false);setNw("")}}>Cancelar</button></div></div>}
+    {d.journal.length===0&&!sh&&<div className="c" style={{textAlign:"center",padding:24}}><span style={{fontSize:32}}>📝</span><p style={{color:"#888",fontSize:13,marginTop:6}}>Nenhuma entrada.</p></div>}
+    {d.journal.map((e,i)=>{const c=tc[e.tp]||tc.reflection;return<div className="c" key={i}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{padding:"3px 8px",borderRadius:10,fontSize:10,fontWeight:700,background:c.c,color:"#000"}}>{c.e} {c.l}</span><span style={{fontSize:10,color:"#666"}}>{e.dt} {e.tm}</span></div><button className="bd" onClick={()=>rmJ(i)}>✕</button></div><div style={{fontSize:14,color:"#ccc",lineHeight:1.6}}>{e.tx}</div></div>})}
+    <div style={{height:90}}/>
   </div>;
+
+  if(vw==="fill"){const cat=ACAT[ci];const prog=((ci+1)/ACAT.length)*100;return<div className="pg">
+    <div style={{padding:"8px 0"}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><button className="bs" onClick={()=>ci>0?setCi(c=>c-1):setVw("main")}>← {ci===0?"Sair":"Voltar"}</button><span style={{fontSize:12,color:"#888"}}>{ci+1}/{ACAT.length}</span></div><div className="pb"><div className="pf" style={{width:`${prog}%`,background:cat.cl}}/></div></div>
+    <div style={{textAlign:"center",padding:"10px 0"}}><div style={{fontSize:32}}>{cat.ic}</div><h2 style={{fontSize:18,fontWeight:800,color:cat.cl}}>{cat.nm}</h2><p style={{fontSize:12,color:"#888"}}>{MN[mo]} {yr}</p></div>
+    {cat.qs.map(q=><div className="c" key={q.id}><p style={{fontSize:14,color:"#e5e5e5",marginBottom:10,lineHeight:1.4}}>{q.t}</p>{q.tp==="score"?<div style={{display:"flex",gap:3,flexWrap:"wrap"}}>{[1,2,3,4,5,6,7,8,9,10].map(s=><button key={s} className="sb" style={{background:s<=(ans[q.id]||0)?cat.cl:"#2a2a2e",color:s<=(ans[q.id]||0)?"#000":"#666"}} onClick={()=>setAns(p=>({...p,[q.id]:s}))}>{s}</button>)}</div>:<textarea value={ans[q.id]||""} onChange={e=>setAns(p=>({...p,[q.id]:e.target.value}))} placeholder="Resposta..." className="ta" rows={3}/>}</div>)}
+    <div style={{display:"flex",gap:8}}>{ci>0&&<button className="bs" style={{flex:1}} onClick={()=>setCi(c=>c-1)}>← Anterior</button>}{ci<ACAT.length-1?<button className="bp" style={{flex:2,marginBottom:0}} onClick={()=>setCi(c=>c+1)}>Próximo → {ACAT[ci+1].ic}</button>:<button className="bp" style={{flex:2,marginBottom:0,background:"linear-gradient(135deg,#22c55e,#16a34a)"}} onClick={saveA}>✅ Finalizar</button>}</div>
+    <div style={{height:90}}/>
+  </div>}
+
+  if(vw==="review"){const ma=ex||ans;return<div className="pg">
+    <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0"}}><button className="bs" onClick={()=>setVw("main")}>← Voltar</button><h1 style={{fontSize:17,fontWeight:800,color:"#fff"}}>{MN[mo]} {yr}</h1></div>
+    {ACAT.map(cat=>{const fb=gFb(ma,cat.id);if(fb.av===0)return null;return<div className="c" key={cat.id}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:18}}>{cat.ic}</span><div><div style={{fontSize:13,fontWeight:700,color:cat.cl}}>{cat.nm}</div><div style={{fontSize:10,color:"#888"}}>{fb.lv}</div></div></div><div style={{textAlign:"right"}}><div style={{fontSize:20,fontWeight:800,color:cat.cl}}>{fb.av.toFixed(1)}</div><span style={{fontSize:14}}>{fb.em}</span></div></div>
+      <div className="pb" style={{marginBottom:4}}><div className="pf" style={{width:`${fb.av*10}%`,background:cat.cl}}/></div>
+      <p style={{fontSize:11,color:"#aaa",fontStyle:"italic"}}>{fb.msg}</p>
+      {cat.qs.filter(q=>q.tp==="text"&&ma[q.id]).map(q=><div key={q.id} style={{marginTop:4,padding:6,background:"#1a1a1e",borderRadius:6}}><div style={{fontSize:9,color:"#666"}}>{q.t}</div><div style={{fontSize:12,color:"#ccc"}}>{ma[q.id]}</div></div>)}
+    </div>})}
+    <button className="bs" style={{width:"100%"}} onClick={startA}>✏️ Editar</button>
+    <div style={{height:90}}/>
+  </div>}
+
+  if(vw==="annual"&&annual){const{cs,oA,best,worst,imp,mc}=annual;return<div className="pg">
+    <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0"}}><button className="bs" onClick={()=>setVw("main")}>← Voltar</button><h1 style={{fontSize:17,fontWeight:800,color:"#fff"}}>Revisão {yr}</h1></div>
+    <div className="c" style={{textAlign:"center",padding:20}}><div style={{fontSize:48,fontWeight:900,color:"#f5a623"}}>{oA}</div><div style={{fontSize:12,color:"#888"}}>{mc} meses avaliados</div></div>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
+      {best&&<div className="c" style={{textAlign:"center",padding:10}}><div style={{fontSize:9,color:"#22c55e",fontWeight:700}}>MELHOR</div><div style={{fontSize:16}}>{best.ic}</div><div style={{fontSize:18,fontWeight:800,color:"#22c55e"}}>{best.av}</div><div style={{fontSize:9,color:"#888"}}>{best.nm}</div></div>}
+      {worst&&<div className="c" style={{textAlign:"center",padding:10}}><div style={{fontSize:9,color:"#ef4444",fontWeight:700}}>ATENÇÃO</div><div style={{fontSize:16}}>{worst.ic}</div><div style={{fontSize:18,fontWeight:800,color:"#ef4444"}}>{worst.av}</div><div style={{fontSize:9,color:"#888"}}>{worst.nm}</div></div>}
+      {imp&&<div className="c" style={{textAlign:"center",padding:10}}><div style={{fontSize:9,color:"#38bdf8",fontWeight:700}}>EVOLUIU</div><div style={{fontSize:16}}>{imp.ic}</div><div style={{fontSize:18,fontWeight:800,color:"#38bdf8"}}>{imp.tr>0?"+":""}{imp.tr.toFixed(1)}</div><div style={{fontSize:9,color:"#888"}}>{imp.nm}</div></div>}
+    </div>
+    <div className="c"><h3 className="ca">📊 Por Área</h3>{Object.values(cs).sort((a,b)=>b.av-a.av).map(c=><div key={c.nm} style={{marginBottom:10}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><span style={{fontSize:12,color:"#fff"}}>{c.ic} {c.nm}</span><span style={{fontSize:12,fontWeight:700,color:c.cl}}>{c.av} <span style={{fontSize:10,color:c.tr>0?"#22c55e":"#ef4444"}}>{c.tr>0?"↑":"↓"}{Math.abs(c.tr).toFixed(1)}</span></span></div><div className="pb"><div className="pf" style={{width:`${+c.av*10}%`,background:c.cl}}/></div></div>)}</div>
+    <div style={{height:90}}/>
+  </div>}
+  return<div className="pg"><button className="bs" onClick={()=>setVw("main")}>← Voltar</button></div>;
 }
 
-// ─── Render ─────────────────────────────────────────────────
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
 </body>

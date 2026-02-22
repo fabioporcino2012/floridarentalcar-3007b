@@ -208,20 +208,42 @@ function rCEO(){
   return hd+'<div class="card"><div class="card-tt" style="margin-bottom:14px">'+(tabs.find(function(t){return t.id===TB})||{}).i+' '+(tabs.find(function(t){return t.id===TB})||{}).l+'</div><div class="vis-val">'+val+'</div></div>';
 }
 
+var JOR_PHASES=[
+{from:1,to:1,name:"O SONHO",color:"#FAAD14",icon:"✨"},
+{from:2,to:3,name:"MARKETING & TRÁFEGO",color:"#E87722",icon:"📣"},
+{from:4,to:8,name:"IA / FOLLOW-UP",color:"#13C2C2",icon:"🤖"},
+{from:9,to:15,name:"COMERCIAL EM ATENDIMENTO",color:"#D4380D",icon:"💰"},
+{from:16,to:22,name:"PÓS-VENDA & LOGÍSTICA",color:"#52C41A",icon:"📞"},
+{from:23,to:25,name:"LOGÍSTICA — ENTREGA",color:"#096DD9",icon:"🚗"},
+{from:26,to:29,name:"SUPORTE",color:"#389E0D",icon:"🆘"},
+{from:30,to:32,name:"LOGÍSTICA — DEVOLUÇÃO",color:"#096DD9",icon:"🚗"},
+{from:33,to:37,name:"SUCESSO DO CLIENTE",color:"#135200",icon:"⭐"},
+{from:38,to:43,name:"FINANCEIRO — REEMBOLSO",color:"#722ED1",icon:"🏦"},
+];
+
 function vJornada(c){
   var items=(c.jornada||[]).slice().sort(function(a,b){return(a.ordem||0)-(b.ordem||0)});
   if(!items.length)return '<div class="card"><div class="empty"><div class="empty-ic">🗺️</div>Jornada não configurada</div></div>';
   var flow='';
-  for(var i=0;i<items.length;i++){
-    var s=items[i];var secCol='var(--acc)';
-    for(var si=0;si<SECTORS.length;si++){if(s.setor&&s.setor.toLowerCase().indexOf(SECTORS[si].name.toLowerCase())>=0){secCol=SECTORS[si].color;break}}
-    flow+='<div class="jor-node"><div class="jor-num">'+s.ordem+'</div><div style="flex:1"><div style="font-size:13px;font-weight:700">'+s.etapa+'</div><div class="jor-setor" style="background:'+secCol+'22;color:'+secCol+'">'+s.setor+'</div>';
-    if(s.desc)flow+='<div style="font-size:11px;color:var(--tx2);margin-top:4px">'+s.desc+'</div>';
-    if(s.acao)flow+='<div style="font-size:11px;color:var(--grn);margin-top:2px">→ '+s.acao+'</div>';
-    flow+='</div></div>';
-    if(i<items.length-1)flow+='<div class="jor-arrow">▼</div>';
+  for(var p=0;p<JOR_PHASES.length;p++){
+    var ph=JOR_PHASES[p];
+    var phItems=items.filter(function(s){return s.ordem>=ph.from&&s.ordem<=ph.to});
+    if(!phItems.length)continue;
+    flow+='<div style="margin-bottom:20px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 14px;background:'+ph.color+'15;border-left:4px solid '+ph.color+';border-radius:0 8px 8px 0"><span style="font-size:16px">'+ph.icon+'</span><span style="font-size:12px;font-weight:700;color:'+ph.color+';text-transform:uppercase;letter-spacing:1px">'+ph.name+'</span><span style="font-size:10px;color:var(--tx3);margin-left:auto">'+phItems.length+' etapas</span></div>';
+    for(var i=0;i<phItems.length;i++){
+      var s=phItems[i];var secCol=ph.color;
+      for(var si=0;si<SECTORS.length;si++){if(s.setor&&s.setor.toLowerCase().indexOf(SECTORS[si].name.toLowerCase())>=0){secCol=SECTORS[si].color;break}}
+      flow+='<div class="jor-node" style="margin-left:20px"><div class="jor-num" style="background:'+ph.color+'">'+s.ordem+'</div><div style="flex:1"><div style="font-size:13px;font-weight:700">'+s.etapa+'</div><div class="jor-setor" style="background:'+secCol+'22;color:'+secCol+'">'+s.setor+'</div>';
+      if(s.desc)flow+='<div style="font-size:11px;color:var(--tx2);margin-top:4px">'+s.desc+'</div>';
+      if(s.acao)flow+='<div style="font-size:11px;color:var(--grn);margin-top:2px">→ '+s.acao+'</div>';
+      flow+='</div></div>';
+      if(i<phItems.length-1)flow+='<div class="jor-arrow" style="margin-left:34px">▼</div>';
+    }
+    flow+='</div>';
   }
-  return '<div class="card"><div class="card-tt" style="margin-bottom:14px">🗺️ Jornada do Cliente ('+items.length+' etapas)</div><div class="jor-flow">'+flow+'</div></div>';
+  var orphans=items.filter(function(s){var inP=false;JOR_PHASES.forEach(function(ph){if(s.ordem>=ph.from&&s.ordem<=ph.to)inP=true});return!inP});
+  if(orphans.length){flow+='<div style="margin-bottom:20px"><div style="font-size:10px;font-weight:700;color:var(--tx3);margin-bottom:8px">ETAPAS ADICIONAIS</div>';for(var i=0;i<orphans.length;i++){var s=orphans[i];flow+='<div class="jor-node"><div class="jor-num">'+s.ordem+'</div><div style="flex:1"><div style="font-size:13px;font-weight:700">'+s.etapa+'</div><div class="jor-setor" style="background:var(--bg4);color:var(--tx2)">'+s.setor+'</div>';if(s.desc)flow+='<div style="font-size:11px;color:var(--tx2);margin-top:4px">'+s.desc+'</div>';flow+='</div></div>'}flow+='</div>'}
+  return '<div class="card"><div class="card-tt" style="margin-bottom:14px">🗺️ Jornada do Cliente — Florida Rental Car ('+items.length+' etapas • 10 fases)</div><div class="jor-flow">'+flow+'</div></div>';
 }
 
 function vTarefasCeo(){

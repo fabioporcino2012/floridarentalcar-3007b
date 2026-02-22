@@ -415,17 +415,33 @@ function vOrgS(d){
 }
 
 function vComissao(d){
-  var c=d.comissao||{};
-  var lvlCards='<div class="com-lvl">';
-  for(var i=0;i<LVLS.length;i++){var lv=LVLS[i];var nv=(c.niveis||{})[lv.id]||{};
-  lvlCards+='<div class="com-card"><div class="bar" style="background:'+lv.color+'"></div><div class="com-icon">'+lv.icon+'</div><div class="com-nm">'+lv.name+'</div><div class="com-pct">'+lv.pct+'</div><div class="com-val" style="color:'+lv.color+'">'+(nv.valor||"—")+'</div></div>'}
-  lvlCards+='</div>';
-  var regras='';for(var r=0;r<(c.regras||[]).length;r++){regras+='<div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:12px">'+c.regras[r].texto+'</div>'}
-  return '<div class="card"><div class="card-tt" style="margin-bottom:14px">💲 Comissionamento</div>'+
-    (c.ajudaCusto?'<div style="margin-bottom:14px"><div class="vis-lb">Ajuda de Custo</div><div class="vis-val">'+c.ajudaCusto+'</div></div>':'')+
-    '<div class="vis-lb" style="margin-bottom:10px">Níveis de Atingimento</div>'+lvlCards+
-    ((c.regras||[]).length?'<div style="margin-top:14px"><div class="vis-lb" style="margin-bottom:8px">Regras</div>'+regras+'</div>':'')+
-    '</div>';
+  var c=d.comissao||{};var cargos=c.cargos||[];
+  if(!cargos.length)return '<div class="card"><div class="empty"><div class="empty-ic">💲</div>Comissionamento não configurado</div></div>';
+  function showLvls(obj){
+    if(!obj||!obj.niveis)return'';var has=false;
+    var h='<table style="width:100%;font-size:11px;margin:6px 0"><thead><tr><th></th><th>Nível</th><th>Critério</th><th>Valor</th></tr></thead><tbody>';
+    for(var i=0;i<LVLS.length;i++){var lv=LVLS[i];var nv=(obj.niveis||{})[lv.id]||{};if(!nv.criterio&&!nv.valor)continue;has=true;
+    h+='<tr><td style="font-size:14px;text-align:center">'+lv.icon+'</td><td style="font-weight:700;color:'+lv.color+'">'+lv.name+'</td><td>'+( nv.criterio||"—")+'</td><td style="font-weight:700;font-family:Space Mono,monospace">'+(nv.valor||"—")+'</td></tr>'}
+    h+='</tbody></table>';return has?h:'';
+  }
+  function showItem(label,obj){if(!obj)return'';var tbl=showLvls(obj);if(!tbl&&!obj.dataPgto&&!obj.regras)return'';
+  return '<div style="background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:10px;margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:var(--acc);margin-bottom:4px">'+label+'</div>'+tbl+
+  '<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;font-size:10px">'+
+  (obj.dataPgto?'<div><span class="vis-lb">Pgto:</span> '+obj.dataPgto+'</div>':'')+
+  (obj.regras?'<div style="flex:1;min-width:150px"><span class="vis-lb">Regras:</span> <span style="color:var(--tx2)">'+obj.regras+'</span></div>':'')+
+  (obj.penalidade?'<div style="flex:1;min-width:150px"><span class="vis-lb" style="color:var(--red)">Penalidade:</span> <span style="color:var(--red);font-style:italic">'+obj.penalidade+'</span></div>':'')+
+  '</div></div>'}
+  var list='';
+  for(var ci=0;ci<cargos.length;ci++){
+    var cg=cargos[ci];
+    list+='<div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;padding:14px;margin-bottom:12px"><div style="font-size:14px;font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bdr)">'+cg.cargo+(cg.nome?' <span style="font-size:11px;color:var(--tx2);font-weight:400">'+cg.nome+'</span>':'')+'</div>';
+    list+=showItem('💵 AJUDA DE CUSTO',cg.ajudaCusto);
+    list+=showItem('📊 COMISSÃO',cg.comissao_item);
+    if(cg.bonus&&cg.bonus.length){for(var b=0;b<cg.bonus.length;b++){list+=showItem('🎁 BÔNUS: '+(cg.bonus[b].nome||'Bônus '+(b+1)),cg.bonus[b])}}
+    list+='</div>';
+  }
+  return '<div class="card"><div class="card-hd"><div class="card-tt">💲 Comissionamento</div><span style="font-size:11px;color:var(--tx3)">'+cargos.length+' cargos</span></div>'+
+  '<div style="display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap">'+LVLS.map(function(lv){return '<div style="display:flex;align-items:center;gap:4px;font-size:12px"><span style="font-size:16px">'+lv.icon+'</span><span style="font-weight:700;color:'+lv.color+'">'+lv.name+'</span></div>'}).join('')+'</div>'+list+'</div>';
 }
 
 function vNotes(d){

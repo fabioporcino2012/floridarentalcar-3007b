@@ -198,7 +198,7 @@ function gS(id){
   if(!s.rotinas)s.rotinas=[];
   if(!s.fluxo)s.fluxo=[];
   if(!s.orgNodes)s.orgNodes=[];
-  if(!s.comissao)s.comissao={ajudaCusto:"",regras:[]};
+  if(!s.comissao)s.comissao={cargos:[]};
   if(!s.notes)s.notes="";
   return s;
 }
@@ -673,36 +673,99 @@ function dlOS(id,nid){var d=gS(id);var rm=new Set([nid]);var changed=true;while(
 
 // ===== BLOCK 4: COMISSÃO =====
 var LVLS=[
-{id:"bronze",name:"Bronze",icon:"🥉",color:"#CD7F32",pct:"70-79%"},
-{id:"prata",name:"Prata",icon:"🥈",color:"#C0C0C0",pct:"80-89%"},
-{id:"ouro",name:"Ouro",icon:"🥇",color:"#FFD700",pct:"90-99%"},
-{id:"diamante",name:"Diamante",icon:"💎",color:"#B9F2FF",pct:"100%+"}
+{id:"bronze",name:"Bronze",icon:"🥉",color:"#CD7F32"},
+{id:"prata",name:"Prata",icon:"🥈",color:"#C0C0C0"},
+{id:"ouro",name:"Ouro",icon:"🥇",color:"#FFD700"},
+{id:"diamante",name:"Diamante",icon:"💎",color:"#B9F2FF"}
 ];
+var CCOM=null;
+
+function lvlTable(id,ci,field,bi){
+  var d=gS(id);var cg=d.comissao.cargos[ci];
+  var obj=bi!==null?(cg.bonus[bi]):(cg[field]);
+  if(!obj)obj={};if(!obj.niveis)obj.niveis={};
+  var pfx=bi!==null?'upCBN(\''+id+'\','+ci+','+bi:'upCCN(\''+id+'\','+ci+',\''+field+'\'';
+  var h='<table style="width:100%;font-size:11px;margin-top:8px"><thead><tr><th style="width:24px"></th><th>Nível</th><th>Critério (o que precisa atingir)</th><th>Valor (o que recebe)</th></tr></thead><tbody>';
+  for(var i=0;i<LVLS.length;i++){
+    var lv=LVLS[i];var nv=obj.niveis[lv.id]||{};
+    h+='<tr><td style="font-size:16px;text-align:center">'+lv.icon+'</td><td style="font-weight:700;color:'+lv.color+';white-space:nowrap">'+lv.name+'</td>';
+    h+='<td><input value="'+(nv.criterio||'')+'" onchange="'+pfx+',\''+lv.id+'\',\'criterio\',this.value)" placeholder="Ex: Faturar R$50k, 5 reservas/dia..." style="width:100%;font-size:11px"></td>';
+    h+='<td><input value="'+(nv.valor||'')+'" onchange="'+pfx+',\''+lv.id+'\',\'valor\',this.value)" placeholder="3%, R$200..." style="width:100%;font-size:11px;font-weight:700;font-family:Space Mono,monospace"></td></tr>';
+  }
+  return h+'</tbody></table>';
+}
+
+function comItem(label,obj,id,ci,field){
+  obj=obj||{};
+  return '<div style="background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:12px;margin-bottom:12px">'+
+    '<div style="font-size:11px;font-weight:700;color:var(--acc);margin-bottom:4px">'+label+'</div>'+
+    lvlTable(id,ci,field,null)+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px">'+
+    '<div><div class="il">Data Pagamento</div><input value="'+(obj.dataPgto||'')+'" onchange="upCC(\''+id+'\','+ci+',\''+field+'\',\'dataPgto\',this.value)" placeholder="Ex: dia 5..."></div>'+
+    '<div><div class="il">Regras</div><textarea onchange="upCC(\''+id+'\','+ci+',\''+field+'\',\'regras\',this.value)" placeholder="Regras gerais..." style="min-height:44px">'+(obj.regras||'')+'</textarea></div>'+
+    '<div><div class="il" style="color:var(--red)">Penalidade</div><textarea onchange="upCC(\''+id+'\','+ci+',\''+field+'\',\'penalidade\',this.value)" placeholder="Se não cumprir..." style="min-height:44px;border-color:rgba(239,68,68,.3)">'+(obj.penalidade||'')+'</textarea></div>'+
+    '</div></div>';
+}
+
+function comBonus(id,ci,bonusList){
+  var h='';bonusList=bonusList||[];
+  for(var b=0;b<bonusList.length;b++){
+    var bn=bonusList[b];
+    h+='<div style="background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:12px;margin-bottom:12px">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-size:11px;font-weight:700;color:var(--ylw)">🎁 '+(bn.nome||'Bônus '+(b+1))+'</div><button class="btn btn-d btn-s" onclick="dlCB(\''+id+'\','+ci+','+b+')">✕</button></div>'+
+    '<div style="margin-bottom:6px"><div class="il">Nome do Bônus</div><input value="'+(bn.nome||'')+'" onchange="upCB(\''+id+'\','+ci+','+b+',\'nome\',this.value)" placeholder="Ex: Bônus NPS, Bônus Meta..." style="font-weight:600"></div>'+
+    lvlTable(id,ci,null,b)+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px">'+
+    '<div><div class="il">Data Pagamento</div><input value="'+(bn.dataPgto||'')+'" onchange="upCB(\''+id+'\','+ci+','+b+',\'dataPgto\',this.value)" placeholder="Ex: dia 20..."></div>'+
+    '<div><div class="il">Regras</div><textarea onchange="upCB(\''+id+'\','+ci+','+b+',\'regras\',this.value)" placeholder="Regras..." style="min-height:44px">'+(bn.regras||'')+'</textarea></div>'+
+    '<div><div class="il" style="color:var(--red)">Penalidade</div><textarea onchange="upCB(\''+id+'\','+ci+','+b+',\'penalidade\',this.value)" placeholder="Se não cumprir..." style="min-height:44px;border-color:rgba(239,68,68,.3)">'+(bn.penalidade||'')+'</textarea></div>'+
+    '</div></div>';
+  }
+  h+='<button class="btn btn-g btn-s" onclick="adCB(\''+id+'\','+ci+')" style="margin-top:4px">🎁 + Novo Bônus</button>';
+  return h;
+}
 
 function rComissao(id,d){
-  var c=d.comissao||{ajudaCusto:"",regras:[]};
-  if(!c.niveis)c.niveis={bronze:{valor:""},prata:{valor:""},ouro:{valor:""},diamante:{valor:""}};
-  var lvlCards='<div class="com-lvl">';
-  for(var i=0;i<LVLS.length;i++){
-    var lv=LVLS[i];var nv=c.niveis[lv.id]||{valor:""};
-    lvlCards+='<div class="com-card"><div class="bar" style="background:'+lv.color+'"></div><div class="com-icon">'+lv.icon+'</div><div class="com-nm">'+lv.name+'</div><div class="com-pct">'+lv.pct+'</div><div style="margin-top:8px"><div class="il">Comissão / Bônus</div><input value="'+(nv.valor||'')+'" onchange="upCom(\''+id+'\',\''+lv.id+'\',this.value)" placeholder="R$ ou %" style="width:100%;text-align:center;font-weight:700;font-size:13px"></div></div>';
+  var c=d.comissao||{cargos:[]};if(!c.cargos)c.cargos=[];
+  var form='<div style="padding:12px;background:var(--bg3);border-radius:8px;border:1px solid var(--bdr);margin-bottom:16px">'+
+    '<div style="font-size:10px;font-weight:600;color:var(--acc);margin-bottom:8px">+ NOVO CARGO</div>'+
+    '<div class="fr">'+
+    '<div class="ig"><div class="il">Cargo *</div><select id="cc_tipo" style="width:140px"><option value="Líder">Líder</option><option value="Coordenador">Coordenador</option><option value="Time">Time / Equipe</option><option value="Outro">Outro</option></select></div>'+
+    '<div class="ig"><div class="il">Nome(s)</div><input id="cc_nome" placeholder="Nome ou descrição..." style="width:180px"></div>'+
+    '<button class="btn btn-p" onclick="adCargo(\''+id+'\')" style="align-self:end">+ Add</button>'+
+    '</div></div>';
+  var list='';
+  if(!c.cargos.length){list='<div class="empty"><div class="empty-ic">💲</div>Nenhum cargo. Adicione Líder, Coordenador ou Time.</div>'}
+  for(var ci=0;ci<c.cargos.length;ci++){
+    var cg=c.cargos[ci];var isOpen=CCOM===ci;var bCount=(cg.bonus||[]).length;
+    var summary=[];
+    if(cg.ajudaCusto&&cg.ajudaCusto.niveis){var ak=Object.keys(cg.ajudaCusto.niveis).filter(function(k){return cg.ajudaCusto.niveis[k].valor});if(ak.length)summary.push('💵 '+ak.length+' faixas')}
+    if(cg.comissao_item&&cg.comissao_item.niveis){var ck=Object.keys(cg.comissao_item.niveis).filter(function(k){return cg.comissao_item.niveis[k].valor});if(ck.length)summary.push('📊 '+ck.length+' faixas')}
+    if(bCount)summary.push('🎁 '+bCount+' bônus');
+    list+='<div style="background:var(--bg3);border:1px solid '+(isOpen?'var(--acc)':'var(--bdr)')+';border-radius:10px;margin-bottom:10px;overflow:hidden">';
+    list+='<div style="padding:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="CCOM='+(isOpen?'null':ci)+';R()"><div style="display:flex;align-items:center;gap:10px"><div style="font-size:14px;font-weight:700">'+cg.cargo+'</div>'+(cg.nome?'<span style="font-size:11px;color:var(--tx2)">'+cg.nome+'</span>':'')+'</div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:10px;color:var(--tx3)">'+(summary.join(' • ')||'sem dados')+'</span><span style="font-size:14px;color:var(--tx3)">'+(isOpen?'▲':'▼')+'</span></div></div>';
+    if(isOpen){
+      list+='<div style="padding:0 12px 12px;border-top:1px solid var(--bdr)"><div style="margin:12px 0 10px"><button class="btn btn-d btn-s" onclick="dlCargo(\''+id+'\','+ci+')">🗑️ Remover Cargo</button></div>'+
+        comItem('💵 AJUDA DE CUSTO — Faixas por Resultado',cg.ajudaCusto,id,ci,'ajudaCusto')+
+        comItem('📊 COMISSÃO — Faixas por Resultado',cg.comissao_item,id,ci,'comissao_item')+
+        '<div style="font-size:11px;font-weight:700;color:var(--ylw);margin:14px 0 8px">🎁 BÔNUS ('+bCount+') — cada bônus com faixas por resultado</div>'+
+        comBonus(id,ci,cg.bonus||[])+'</div>';
+    }
+    list+='</div>';
   }
-  lvlCards+='</div>';
-  var regras='';
-  for(var r=0;r<(c.regras||[]).length;r++){
-    var rg=c.regras[r];
-    regras+='<div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:6px;padding:8px 10px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:start;gap:8px"><div style="flex:1;font-size:12px">'+rg.texto+'</div><button class="btn btn-d btn-s" onclick="dlCR(\''+id+'\','+r+')">✕</button></div>';
-  }
-  return '<div class="card"><div class="card-hd"><div class="card-tt">💲 Comissionamento</div></div>'+
-    '<div style="margin-bottom:16px"><div class="vis-lb">Ajuda de Custo</div><textarea id="cm_ac" style="min-height:60px" placeholder="Valor fixo, vale transporte, alimentação...">'+(c.ajudaCusto||'')+'</textarea><div style="margin-top:6px;text-align:right"><button class="btn btn-p btn-s" onclick="svComAC(\''+id+'\')">💾 Salvar</button></div></div>'+
-    '<div class="vis-lb" style="margin-bottom:10px">Níveis de Atingimento</div>'+lvlCards+
-    '<div style="margin-top:14px"><div class="vis-lb" style="margin-bottom:8px">Regras de Comissão & Bônus</div>'+
-    '<div class="fr"><input class="if" id="cm_rg" placeholder="Descreva a regra..." style="min-width:250px"><button class="btn btn-p btn-s" onclick="adCR(\''+id+'\')">+ Regra</button></div>'+regras+'</div></div>';
+  return '<div class="card"><div class="card-hd"><div class="card-tt">💲 Comissionamento do Setor</div><span style="font-size:11px;color:var(--tx3)">'+c.cargos.length+' cargos</span></div>'+
+    '<div style="display:flex;gap:14px;margin-bottom:16px;flex-wrap:wrap;padding:10px;background:var(--bg3);border-radius:8px">'+LVLS.map(function(lv){return '<div style="display:flex;align-items:center;gap:4px;font-size:12px"><span style="font-size:16px">'+lv.icon+'</span><span style="font-weight:700;color:'+lv.color+'">'+lv.name+'</span></div>'}).join('')+'<span style="font-size:10px;color:var(--tx3);margin-left:auto">Cada item tem 4 faixas de resultado</span></div>'+
+    form+list+'</div>';
 }
-function svComAC(id){var d=gS(id);d.comissao.ajudaCusto=document.getElementById("cm_ac").value;D[id]=d;save();R()}
-function upCom(id,lvl,val){var d=gS(id);if(!d.comissao.niveis)d.comissao.niveis={};if(!d.comissao.niveis[lvl])d.comissao.niveis[lvl]={};d.comissao.niveis[lvl].valor=val;D[id]=d;save()}
-function adCR(id){var d=gS(id);var t=document.getElementById("cm_rg").value.trim();if(!t){toast("⚠️ Preencha a regra");return}if(!d.comissao.regras)d.comissao.regras=[];d.comissao.regras.push({id:gid(),texto:t});D[id]=d;save();R()}
-function dlCR(id,i){var d=gS(id);d.comissao.regras.splice(i,1);D[id]=d;save();R()}
+
+function adCargo(id){var d=gS(id);if(!d.comissao.cargos)d.comissao.cargos=[];d.comissao.cargos.push({id:gid(),cargo:document.getElementById("cc_tipo").value,nome:document.getElementById("cc_nome").value,ajudaCusto:{niveis:{},dataPgto:"",regras:"",penalidade:""},comissao_item:{niveis:{},dataPgto:"",regras:"",penalidade:""},bonus:[]});D[id]=d;save();CCOM=d.comissao.cargos.length-1;R()}
+function dlCargo(id,ci){if(!confirm("Remover cargo e dados?"))return;var d=gS(id);d.comissao.cargos.splice(ci,1);D[id]=d;save();CCOM=null;R()}
+function upCC(id,ci,field,key,val){var d=gS(id);var cg=d.comissao.cargos[ci];if(!cg[field])cg[field]={niveis:{},dataPgto:"",regras:"",penalidade:""};cg[field][key]=val;D[id]=d;save()}
+function upCCN(id,ci,field,lvl,key,val){var d=gS(id);var cg=d.comissao.cargos[ci];if(!cg[field])cg[field]={niveis:{}};if(!cg[field].niveis)cg[field].niveis={};if(!cg[field].niveis[lvl])cg[field].niveis[lvl]={};cg[field].niveis[lvl][key]=val;D[id]=d;save()}
+function adCB(id,ci){var d=gS(id);if(!d.comissao.cargos[ci].bonus)d.comissao.cargos[ci].bonus=[];d.comissao.cargos[ci].bonus.push({id:gid(),nome:"",niveis:{},dataPgto:"",regras:"",penalidade:""});D[id]=d;save();R()}
+function upCB(id,ci,bi,key,val){var d=gS(id);d.comissao.cargos[ci].bonus[bi][key]=val;D[id]=d;save()}
+function upCBN(id,ci,bi,lvl,key,val){var d=gS(id);var bn=d.comissao.cargos[ci].bonus[bi];if(!bn.niveis)bn.niveis={};if(!bn.niveis[lvl])bn.niveis[lvl]={};bn.niveis[lvl][key]=val;D[id]=d;save()}
+function dlCB(id,ci,bi){var d=gS(id);d.comissao.cargos[ci].bonus.splice(bi,1);D[id]=d;save();R()}
 
 // ===== CEO: JORNADA DO CLIENTE =====
 var JOR_DEFAULT=[

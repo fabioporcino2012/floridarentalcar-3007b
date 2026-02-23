@@ -28,723 +28,649 @@
   <script type="text/babel">
     const { useState, useCallback } = React;
 
-```
 const INITIAL_SUBACCOUNTS = [
-  { id: "half", name: "Half", emoji: "🃏", color: "#00D4AA", operacional: [], patrimonio: [] },
-  { id: "guilherme", name: "Guilherme", emoji: "👔", color: "#4A9EFF", operacional: [], patrimonio: [] },
-  { id: "gordinho", name: "Gordinho", emoji: "🐻", color: "#FF6B6B", operacional: [], patrimonio: [] },
-  { id: "capiroto", name: "Capiroto", emoji: "😈", color: "#9B59B6", operacional: [], patrimonio: [] },
-  { id: "glaubinho", name: "Glaubinho", emoji: "⭐", color: "#E8A838", operacional: [], patrimonio: [] },
-  { id: "jr-dolares", name: "JR Dolares", emoji: "💵", color: "#1ABC9C", operacional: [], patrimonio: [] },
-  { id: "eduardo-alaska", name: "Eduardo Alaska", emoji: "🏔️", color: "#3498DB", operacional: [], patrimonio: [] },
-  { id: "kamei", name: "Kamei", emoji: "🎯", color: "#E74C3C", operacional: [], patrimonio: [] },
-  { id: "wallet", name: "Wallet", emoji: "👛", color: "#F39C12", operacional: [], patrimonio: [] },
-  { id: "trust", name: "Trust", emoji: "🏦", color: "#2ECC71", operacional: [], patrimonio: [] },
-  { id: "cofre", name: "Cofre", emoji: "🔐", color: "#8E44AD", operacional: [], patrimonio: [] },
+{ id: “half”, name: “Half”, emoji: “🃏”, color: “#00D4AA”, operacional: [], patrimonio: [] },
+{ id: “guilherme”, name: “Guilherme”, emoji: “👔”, color: “#4A9EFF”, operacional: [], patrimonio: [] },
+{ id: “gordinho”, name: “Gordinho”, emoji: “🐻”, color: “#FF6B6B”, operacional: [], patrimonio: [] },
+{ id: “capiroto”, name: “Capiroto”, emoji: “😈”, color: “#9B59B6”, operacional: [], patrimonio: [] },
+{ id: “glaubinho”, name: “Glaubinho”, emoji: “⭐”, color: “#E8A838”, operacional: [], patrimonio: [] },
+{ id: “jr-dolares”, name: “JR Dolares”, emoji: “💵”, color: “#1ABC9C”, operacional: [], patrimonio: [] },
+{ id: “eduardo-alaska”, name: “Eduardo Alaska”, emoji: “🏔️”, color: “#3498DB”, operacional: [], patrimonio: [] },
+{ id: “kamei”, name: “Kamei”, emoji: “🎯”, color: “#E74C3C”, operacional: [], patrimonio: [] },
+{ id: “wallet”, name: “Wallet”, emoji: “👛”, color: “#F39C12”, operacional: [], patrimonio: [] },
+{ id: “trust”, name: “Trust”, emoji: “🏦”, color: “#2ECC71”, operacional: [], patrimonio: [] },
+{ id: “cofre”, name: “Cofre”, emoji: “🔐”, color: “#8E44AD”, operacional: [], patrimonio: [] },
 ];
 
 const genId = () => Math.random().toString(36).substr(2, 9);
-const today = () => new Date().toISOString().split("T")[0];
+const today = () => new Date().toISOString().split(“T”)[0];
 
 const fmtUSD = (v) => {
-  const abs = Math.abs(v);
-  const parts = abs.toFixed(2).split(".");
-  const intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return `${v < 0 ? "- " : ""}$ ${intPart}.${parts[1]}`;
+const abs = Math.abs(v);
+const parts = abs.toFixed(2).split(”.”);
+const intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, “,”);
+return `${v < 0 ? "- " : ""}$ ${intPart}.${parts[1]}`;
 };
 const fmtBRL = (v) => {
-  const abs = Math.abs(v);
-  const parts = abs.toFixed(2).split(".");
-  const intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  return `${v < 0 ? "- " : ""}R$ ${intPart},${parts[1]}`;
+const abs = Math.abs(v);
+const parts = abs.toFixed(2).split(”.”);
+const intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, “.”);
+return `${v < 0 ? "- " : ""}R$ ${intPart},${parts[1]}`;
 };
 
 const Ic = {
-  back: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>,
-  plus: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>,
-  trash: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>,
-  reset: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>,
-  edit: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
-  chevron: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>,
-  home: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
-  list: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
-  op: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>,
-  pat: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>,
+back: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>,
+plus: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>,
+trash: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>,
+reset: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>,
+edit: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+chevron: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>,
+home: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
+list: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
+op: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>,
+pat: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>,
 };
 
+```
 function App() {
   const [subAccounts, setSubAccounts] = useState(null);
   const [syncStatus, setSyncStatus] = useState("loading");
-  const saveTimer = React.useRef(null);
-  const isFirstLoad = React.useRef(true);
-  const [activeTab, setActiveTab] = useState("geral");
-  const [view, setView] = useState("main");
-  const [selectedSub, setSelectedSub] = useState(null);
-  const [selectedBox, setSelectedBox] = useState(null);
-  const [showAddEntry, setShowAddEntry] = useState(false);
-  const [showAddSub, setShowAddSub] = useState(false);
-  const [editingEntry, setEditingEntry] = useState(null);
-  const [newSubName, setNewSubName] = useState("");
-  const [newSubEmoji, setNewSubEmoji] = useState("📁");
-  const [entryForm, setEntryForm] = useState({
-    date: today(), info: "", value: "", currency: "USD", exchange: "5.80", type: "credito",
-    targetSub: "", targetBox: "operacional",
-  });
+  const _saveTimer = React.useRef(null);
+  const _firstLoad = React.useRef(true);
+```
 
-  
-  // === FIREBASE LOAD ===
-  React.useEffect(() => {
+const [activeTab, setActiveTab] = useState(“geral”);
+const [view, setView] = useState(“main”);
+const [selectedSub, setSelectedSub] = useState(null);
+const [selectedBox, setSelectedBox] = useState(null);
+const [showAddEntry, setShowAddEntry] = useState(false);
+const [showAddSub, setShowAddSub] = useState(false);
+const [editingEntry, setEditingEntry] = useState(null);
+const [newSubName, setNewSubName] = useState(””);
+const [newSubEmoji, setNewSubEmoji] = useState(“📁”);
+const [entryForm, setEntryForm] = useState({
+date: today(), info: “”, value: “”, currency: “USD”, exchange: “5.80”, type: “credito”,
+targetSub: “”, targetBox: “operacional”,
+});
+
+```
+  React.useEffect(function() {
     setSyncStatus("loading");
     db.collection("financeiro").doc("data").get()
       .then(function(doc) {
-        if (doc.exists && doc.data().subAccounts) {
-          setSubAccounts(doc.data().subAccounts);
-        } else {
-          setSubAccounts(INITIAL_SUBACCOUNTS);
-          db.collection("financeiro").doc("data").set({
-            subAccounts: INITIAL_SUBACCOUNTS,
-            ts: new Date().toISOString()
-          });
-        }
+        if (doc.exists && doc.data().subAccounts) { setSubAccounts(doc.data().subAccounts); }
+        else { setSubAccounts(INITIAL_SUBACCOUNTS); db.collection("financeiro").doc("data").set({ subAccounts: INITIAL_SUBACCOUNTS }); }
         setSyncStatus("saved");
-        setTimeout(function() { isFirstLoad.current = false; }, 500);
+        setTimeout(function() { _firstLoad.current = false; }, 500);
       })
-      .catch(function() {
-        setSubAccounts(INITIAL_SUBACCOUNTS);
-        setSyncStatus("error");
-        isFirstLoad.current = false;
-      });
+      .catch(function() { setSubAccounts(INITIAL_SUBACCOUNTS); setSyncStatus("error"); _firstLoad.current = false; });
   }, []);
 
-  // === FIREBASE AUTO-SAVE ===
-  React.useEffect(() => {
-    if (subAccounts === null || isFirstLoad.current) return;
-    if (saveTimer.current) clearTimeout(saveTimer.current);
+  React.useEffect(function() {
+    if (subAccounts === null || _firstLoad.current) return;
+    if (_saveTimer.current) clearTimeout(_saveTimer.current);
     setSyncStatus("saving");
-    saveTimer.current = setTimeout(function() {
+    _saveTimer.current = setTimeout(function() {
       db.collection("financeiro").doc("data")
         .set({ subAccounts: subAccounts, ts: new Date().toISOString() })
-        .then(function() {
-          setSyncStatus("saved");
-          setTimeout(function() { setSyncStatus(""); }, 2000);
-        })
+        .then(function() { setSyncStatus("saved"); setTimeout(function() { setSyncStatus(""); }, 2000); })
         .catch(function() { setSyncStatus("error"); });
     }, 800);
-    return function() { if (saveTimer.current) clearTimeout(saveTimer.current); };
+    return function() { if (_saveTimer.current) clearTimeout(_saveTimer.current); };
   }, [subAccounts]);
+```
 
-  const resetForm = () => {
-    setEntryForm({ date: today(), info: "", value: "", currency: "USD", exchange: "5.80", type: "credito", targetSub: (subAccounts || [])[0]?.id || "", targetBox: "operacional" });
-    setEditingEntry(null);
-  };
+const resetForm = () => {
+setEntryForm({ date: today(), info: “”, value: “”, currency: “USD”, exchange: “5.80”, type: “credito”, targetSub: (subAccounts || [])[0]?.id || “”, targetBox: “operacional” });
+setEditingEntry(null);
+};
 
-  const getBalance = useCallback((entries) => {
-    let usd = 0, brl = 0;
-    entries.forEach((e) => {
-      const sign = e.type === "credito" ? 1 : -1;
-      const val = Math.abs(e.value) * sign;
-      if (e.currency === "USD") {
-        usd += val;
-        if (e.exchange > 0) brl += val * e.exchange;
-      } else {
-        brl += val;
-        if (e.exchange > 0) usd += val / e.exchange;
-      }
-    });
-    return { usd, brl };
-  }, []);
+const getBalance = useCallback((entries) => {
+let usd = 0, brl = 0;
+entries.forEach((e) => {
+const sign = e.type === “credito” ? 1 : -1;
+const val = Math.abs(e.value) * sign;
+if (e.currency === “USD”) {
+usd += val;
+if (e.exchange > 0) brl += val * e.exchange;
+} else {
+brl += val;
+if (e.exchange > 0) usd += val / e.exchange;
+}
+});
+return { usd, brl };
+}, []);
 
-  const getGeralBalance = useCallback((boxType) => {
-    if (!subAccounts) return { usd: 0, brl: 0 };
-    let usd = 0, brl = 0;
-    subAccounts.forEach((s) => { const b = getBalance(s[boxType]); usd += b.usd; brl += b.brl; });
-    return { usd, brl };
-  }, [subAccounts, getBalance]);
+const getGeralBalance = useCallback((boxType) => {
+if (!subAccounts) return { usd: 0, brl: 0 };
+let usd = 0, brl = 0;
+subAccounts.forEach((s) => { const b = getBalance(s[boxType]); usd += b.usd; brl += b.brl; });
+return { usd, brl };
+}, [subAccounts, getBalance]);
 
-  const currentSub = subAccounts ? subAccounts.find((s) => s.id === selectedSub) : null;
-  const bc = (v) => v > 0.005 ? "pos" : v < -0.005 ? "neg" : "zero";
+const currentSub = subAccounts ? subAccounts.find((s) => s.id === selectedSub) : null;
+const bc = (v) => v > 0.005 ? “pos” : v < -0.005 ? “neg” : “zero”;
 
-  const addEntry = (targetSubId, targetBox) => {
-    if (!entryForm.value || !entryForm.info) return;
-    const subId = targetSubId || entryForm.targetSub;
-    const box = targetBox || entryForm.targetBox;
-    const entry = {
-      id: genId(), date: entryForm.date, info: entryForm.info,
-      value: parseFloat(entryForm.value), currency: entryForm.currency,
-      exchange: parseFloat(entryForm.exchange) || 0, type: entryForm.type,
-    };
-    setSubAccounts((prev) => prev.map((s) => s.id === subId ? { ...s, [box]: [...s[box], entry] } : s));
-    resetForm(); setShowAddEntry(false);
-  };
+const addEntry = (targetSubId, targetBox) => {
+if (!entryForm.value || !entryForm.info) return;
+const subId = targetSubId || entryForm.targetSub;
+const box = targetBox || entryForm.targetBox;
+const entry = {
+id: genId(), date: entryForm.date, info: entryForm.info,
+value: parseFloat(entryForm.value), currency: entryForm.currency,
+exchange: parseFloat(entryForm.exchange) || 0, type: entryForm.type,
+};
+setSubAccounts((prev) => prev.map((s) => s.id === subId ? { …s, [box]: […s[box], entry] } : s));
+resetForm(); setShowAddEntry(false);
+};
 
-  const updateEntry = () => {
-    if (!entryForm.value || !entryForm.info) return;
-    setSubAccounts((prev) => prev.map((s) => s.id === selectedSub ? {
-      ...s, [selectedBox]: s[selectedBox].map((e) => e.id === editingEntry ? {
-        ...e, date: entryForm.date, info: entryForm.info,
-        value: parseFloat(entryForm.value), currency: entryForm.currency,
-        exchange: parseFloat(entryForm.exchange) || 0, type: entryForm.type,
-      } : e)
-    } : s));
-    resetForm(); setShowAddEntry(false);
-  };
+const updateEntry = () => {
+if (!entryForm.value || !entryForm.info) return;
+setSubAccounts((prev) => prev.map((s) => s.id === selectedSub ? {
+…s, [selectedBox]: s[selectedBox].map((e) => e.id === editingEntry ? {
+…e, date: entryForm.date, info: entryForm.info,
+value: parseFloat(entryForm.value), currency: entryForm.currency,
+exchange: parseFloat(entryForm.exchange) || 0, type: entryForm.type,
+} : e)
+} : s));
+resetForm(); setShowAddEntry(false);
+};
 
-  const deleteEntry = (subId, box, entryId) => {
-    setSubAccounts((prev) => prev.map((s) => s.id === subId ? { ...s, [box]: s[box].filter((e) => e.id !== entryId) } : s));
-  };
+const deleteEntry = (subId, box, entryId) => {
+setSubAccounts((prev) => prev.map((s) => s.id === subId ? { …s, [box]: s[box].filter((e) => e.id !== entryId) } : s));
+};
 
-  const resetBox = (subId, box) => {
-    if (!confirm(`Zerar ${box === "operacional" ? "Operacional" : "Patrimônio"}? Todos os lançamentos serão apagados.`)) return;
-    setSubAccounts((prev) => prev.map((s) => s.id === subId ? { ...s, [box]: [] } : s));
-  };
+const resetBox = (subId, box) => {
+if (!confirm(`Zerar ${box === "operacional" ? "Operacional" : "Patrimônio"}? Todos os lançamentos serão apagados.`)) return;
+setSubAccounts((prev) => prev.map((s) => s.id === subId ? { …s, [box]: [] } : s));
+};
 
-  const addSubAccount = () => {
-    if (!newSubName.trim()) return;
-    const colors = ["#E8A838", "#9B59B6", "#1ABC9C", "#E74C3C", "#3498DB", "#F39C12", "#00D4AA"];
-    setSubAccounts((prev) => [...prev, { id: genId(), name: newSubName.trim(), emoji: newSubEmoji, color: colors[prev.length % colors.length], operacional: [], patrimonio: [] }]);
-    setNewSubName(""); setNewSubEmoji("📁"); setShowAddSub(false);
-  };
+const addSubAccount = () => {
+if (!newSubName.trim()) return;
+const colors = [”#E8A838”, “#9B59B6”, “#1ABC9C”, “#E74C3C”, “#3498DB”, “#F39C12”, “#00D4AA”];
+setSubAccounts((prev) => […prev, { id: genId(), name: newSubName.trim(), emoji: newSubEmoji, color: colors[prev.length % colors.length], operacional: [], patrimonio: [] }]);
+setNewSubName(””); setNewSubEmoji(“📁”); setShowAddSub(false);
+};
 
-  const deleteSubAccount = (id) => {
-    if (!confirm("Excluir esta sub-conta e todos os lançamentos?")) return;
-    setSubAccounts((prev) => prev.filter((s) => s.id !== id));
-    if (selectedSub === id) { setView("main"); setSelectedSub(null); }
-  };
+const deleteSubAccount = (id) => {
+if (!confirm(“Excluir esta sub-conta e todos os lançamentos?”)) return;
+setSubAccounts((prev) => prev.filter((s) => s.id !== id));
+if (selectedSub === id) { setView(“main”); setSelectedSub(null); }
+};
 
-  // ==================== COMPONENTS ====================
-  const BalDisplay = ({ usd, brl, size = "md" }) => {
-    const fs = size === "lg" ? { u: 18, b: 13 } : size === "md" ? { u: 14, b: 11 } : { u: 13, b: 10 };
-    return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 1 }}>
-        <span className={`bal ${bc(usd)}`} style={{ fontSize: fs.u }}>{fmtUSD(usd)}</span>
-        <span className="bal" style={{ fontSize: fs.b, color: "var(--t3)" }}>{fmtBRL(brl)}</span>
-      </div>
-    );
-  };
+// ==================== COMPONENTS ====================
+const BalDisplay = ({ usd, brl, size = “md” }) => {
+const fs = size === “lg” ? { u: 18, b: 13 } : size === “md” ? { u: 14, b: 11 } : { u: 13, b: 10 };
+return (
+<div style={{ display: “flex”, flexDirection: “column”, alignItems: “flex-end”, gap: 1 }}>
+<span className={`bal ${bc(usd)}`} style={{ fontSize: fs.u }}>{fmtUSD(usd)}</span>
+<span className=“bal” style={{ fontSize: fs.b, color: “var(–t3)” }}>{fmtBRL(brl)}</span>
+</div>
+);
+};
 
-  const EntryValues = ({ e }) => {
-    const sign = e.type === "credito" ? "+" : "-";
-    const valUSD = e.currency === "USD" ? e.value : (e.exchange > 0 ? e.value / e.exchange : 0);
-    const valBRL = e.currency === "BRL" ? e.value : (e.exchange > 0 ? e.value * e.exchange : 0);
-    return (
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 0 }}>
-        <span className={`val ${e.type === "credito" ? "pos" : "neg"}`}>{sign} {fmtUSD(e.currency === "USD" ? e.value : valUSD)}</span>
-        <span style={{ fontSize: 10, color: "var(--t3)", fontFamily: "'JetBrains Mono',monospace" }}>{sign} {fmtBRL(e.currency === "BRL" ? e.value : valBRL)}</span>
-      </div>
-    );
-  };
+const EntryValues = ({ e }) => {
+const sign = e.type === “credito” ? “+” : “-”;
+const valUSD = e.currency === “USD” ? e.value : (e.exchange > 0 ? e.value / e.exchange : 0);
+const valBRL = e.currency === “BRL” ? e.value : (e.exchange > 0 ? e.value * e.exchange : 0);
+return (
+<div style={{ display: “flex”, flexDirection: “column”, alignItems: “flex-end”, gap: 0 }}>
+<span className={`val ${e.type === "credito" ? "pos" : "neg"}`}>{sign} {fmtUSD(e.currency === “USD” ? e.value : valUSD)}</span>
+<span style={{ fontSize: 10, color: “var(–t3)”, fontFamily: “‘JetBrains Mono’,monospace” }}>{sign} {fmtBRL(e.currency === “BRL” ? e.value : valBRL)}</span>
+</div>
+);
+};
 
-  const EntriesTable = ({ entries, subId, boxType, showSubCol = false }) => {
-    const sorted = [...entries].sort((a, b) => new Date(b.date) - new Date(a.date));
-    if (sorted.length === 0) return <div className="empty"><p>Sem lançamentos</p></div>;
+const EntriesTable = ({ entries, subId, boxType, showSubCol = false }) => {
+const sorted = […entries].sort((a, b) => new Date(b.date) - new Date(a.date));
+if (sorted.length === 0) return <div className="empty"><p>Sem lançamentos</p></div>;
 
-    const chronological = [...entries].sort((a, b) => new Date(a.date) - new Date(b.date));
-    const runBal = {};
-    let rU = 0, rB = 0;
-    chronological.forEach((e) => {
-      const sign = e.type === "credito" ? 1 : -1;
-      if (e.currency === "USD") { rU += Math.abs(e.value) * sign; if (e.exchange > 0) rB += Math.abs(e.value) * e.exchange * sign; }
-      else { rB += Math.abs(e.value) * sign; if (e.exchange > 0) rU += (Math.abs(e.value) / e.exchange) * sign; }
-      runBal[e.id] = { usd: rU, brl: rB };
-    });
+```
+const chronological = [...entries].sort((a, b) => new Date(a.date) - new Date(b.date));
+const runBal = {};
+let rU = 0, rB = 0;
+chronological.forEach((e) => {
+  const sign = e.type === "credito" ? 1 : -1;
+  if (e.currency === "USD") { rU += Math.abs(e.value) * sign; if (e.exchange > 0) rB += Math.abs(e.value) * e.exchange * sign; }
+  else { rB += Math.abs(e.value) * sign; if (e.exchange > 0) rU += (Math.abs(e.value) / e.exchange) * sign; }
+  runBal[e.id] = { usd: rU, brl: rB };
+});
 
-    const bal = getBalance(entries);
+const bal = getBalance(entries);
 
-    return (
-      <div className="tbl-wrap">
-        <table className="tbl">
-          <thead>
-            <tr>
-              <th>Data</th>
-              {showSubCol && <th>Sub-conta</th>}
-              <th>Descrição</th>
-              <th>Tipo</th>
-              <th style={{ textAlign: "right" }}>Valor</th>
-              <th style={{ textAlign: "center" }}>Câmbio</th>
-              <th style={{ textAlign: "right" }}>Saldo</th>
-              {!showSubCol && <th style={{ width: 56 }}></th>}
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((e) => (
-              <tr key={e.id}>
-                <td className="dt">{e.date.split("-").reverse().join("/")}</td>
-                {showSubCol && <td><span className="badge-sub">{e.subEmoji} {e.subName}</span></td>}
-                <td style={{ maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.info}</td>
-                <td><span className={`badge badge-${e.type === "credito" ? "c" : "d"}`}>{e.type === "credito" ? "C" : "D"}</span></td>
-                <td style={{ textAlign: "right" }}><EntryValues e={e} /></td>
-                <td style={{ textAlign: "center" }}>
-                  <span className="mono" style={{ fontSize: 11, color: "var(--yllw)", background: "rgba(240,192,64,0.08)", padding: "2px 6px", borderRadius: 4 }}>
-                    {e.exchange > 0 ? `${e.exchange.toFixed(2)}` : "—"}
-                  </span>
-                </td>
-                <td style={{ textAlign: "right" }}>
-                  {runBal[e.id] && (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-                      <span className={`mono ${bc(runBal[e.id].usd)}`} style={{ fontSize: 11, fontWeight: 600 }}>{fmtUSD(runBal[e.id].usd)}</span>
-                      <span className="mono" style={{ fontSize: 9, color: "var(--t3)" }}>{fmtBRL(runBal[e.id].brl)}</span>
-                    </div>
-                  )}
-                </td>
-                {!showSubCol && (
-                  <td>
-                    <div style={{ display: "flex", gap: 2 }}>
-                      <button className="ibtn" onClick={() => {
-                        setEntryForm({ date: e.date, info: e.info, value: e.value.toString(), currency: e.currency, exchange: e.exchange ? e.exchange.toString() : "5.80", type: e.type, targetSub: subId, targetBox: boxType });
-                        setEditingEntry(e.id); setSelectedSub(subId); setSelectedBox(boxType); setShowAddEntry(true);
-                      }}>{Ic.edit}</button>
-                      <button className="ibtn dng" onClick={() => deleteEntry(subId, boxType, e.id)}>{Ic.trash}</button>
-                    </div>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "var(--bg2)", borderTop: "2px solid var(--border)" }}>
-          <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.8px", color: "var(--t2)" }}>Subtotal</span>
-          <BalDisplay usd={bal.usd} brl={bal.brl} size="md" />
-        </div>
-      </div>
-    );
-  };
-
-  // ==================== TOTALS CARD (always separated) ====================
-  const TotalsCard = ({ opBal, patBal, label = "" }) => (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 12 }}>
-      <div style={{ background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "var(--r)", padding: "14px 16px", borderTop: "3px solid #4A9EFF" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-          {Ic.op}
-          <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", color: "#4A9EFF" }}>
-            {label ? `${label} · ` : ""}Total Operacional
-          </span>
-        </div>
-        <div className={`bal ${bc(opBal.usd)}`} style={{ fontSize: 20, marginBottom: 2 }}>{fmtUSD(opBal.usd)}</div>
-        <div className="bal" style={{ fontSize: 13, color: "var(--t3)" }}>{fmtBRL(opBal.brl)}</div>
-      </div>
-      <div style={{ background: "var(--bg2)", border: "1px solid var(--border)", borderRadius: "var(--r)", padding: "14px 16px", borderTop: "3px solid #E8A838" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-          {Ic.pat}
-          <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px", color: "#E8A838" }}>
-            {label ? `${label} · ` : ""}Total Patrimônio
-          </span>
-        </div>
-        <div className={`bal ${bc(patBal.usd)}`} style={{ fontSize: 20, marginBottom: 2 }}>{fmtUSD(patBal.usd)}</div>
-        <div className="bal" style={{ fontSize: 13, color: "var(--t3)" }}>{fmtBRL(patBal.brl)}</div>
-      </div>
-    </div>
-  );
-
-  // ==================== CONTA GERAL ====================
-  const renderGeral = () => {
-    const opBal = getGeralBalance("operacional");
-    const patBal = getGeralBalance("patrimonio");
-
-    const allEntries = (boxType) => {
-      const entries = [];
-      subAccounts.forEach((s) => { s[boxType].forEach((e) => entries.push({ ...e, subId: s.id, subName: s.name, subColor: s.color, subEmoji: s.emoji })); });
-      return entries;
-    };
-
-    const renderGeralBox = (boxType, label, icon, bal, accentColor) => {
-      const entries = allEntries(boxType);
-      return (
-        <div className="box-sec">
-          <div className="box-hdr" style={{ borderTop: `3px solid ${accentColor}` }}>
-            <h3 style={{ color: accentColor }}>{icon} {label}</h3>
-            <BalDisplay usd={bal.usd} brl={bal.brl} />
-          </div>
-          <div className="box-body">
-            {entries.length === 0 ? (
-              <div className="empty"><p>Nenhum lançamento</p></div>
-            ) : (
-              <EntriesTable entries={entries} showSubCol={true} />
+return (
+  <div className="tbl-wrap">
+    <table className="tbl">
+      <thead>
+        <tr>
+          <th>Data</th>
+          {showSubCol && <th>Sub-conta</th>}
+          <th>Descrição</th>
+          <th>Tipo</th>
+          <th style={{ textAlign: "right" }}>Valor</th>
+          <th style={{ textAlign: "center" }}>Câmbio</th>
+          <th style={{ textAlign: "right" }}>Saldo</th>
+          {!showSubCol && <th style={{ width: 56 }}></th>}
+        </tr>
+      </thead>
+      <tbody>
+        {sorted.map((e) => (
+          <tr key={e.id}>
+            <td className="dt">{e.date.split("-").reverse().join("/")}</td>
+            {showSubCol && <td><span className="badge-sub">{e.subEmoji} {e.subName}</span></td>}
+            <td style={{ maxWidth: 180, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.info}</td>
+            <td><span className={`badge badge-${e.type === "credito" ? "c" : "d"}`}>{e.type === "credito" ? "C" : "D"}</span></td>
+            <td style={{ textAlign: "right" }}><EntryValues e={e} /></td>
+            <td style={{ textAlign: "center" }}>
+              <span className="mono" style={{ fontSize: 11, color: "var(--yllw)", background: "rgba(240,192,64,0.08)", padding: "2px 6px", borderRadius: 4 }}>
+                {e.exchange > 0 ? `${e.exchange.toFixed(2)}` : "—"}
+              </span>
+            </td>
+            <td style={{ textAlign: "right" }}>
+              {runBal[e.id] && (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                  <span className={`mono ${bc(runBal[e.id].usd)}`} style={{ fontSize: 11, fontWeight: 600 }}>{fmtUSD(runBal[e.id].usd)}</span>
+                  <span className="mono" style={{ fontSize: 9, color: "var(--t3)" }}>{fmtBRL(runBal[e.id].brl)}</span>
+                </div>
+              )}
+            </td>
+            {!showSubCol && (
+              <td>
+                <div style={{ display: "flex", gap: 2 }}>
+                  <button className="ibtn" onClick={() => {
+                    setEntryForm({ date: e.date, info: e.info, value: e.value.toString(), currency: e.currency, exchange: e.exchange ? e.exchange.toString() : "5.80", type: e.type, targetSub: subId, targetBox: boxType });
+                    setEditingEntry(e.id); setSelectedSub(subId); setSelectedBox(boxType); setShowAddEntry(true);
+                  }}>{Ic.edit}</button>
+                  <button className="ibtn dng" onClick={() => deleteEntry(subId, boxType, e.id)}>{Ic.trash}</button>
+                </div>
+              </td>
             )}
-            <div className="add-row" onClick={() => {
-              resetForm();
-              setEntryForm((f) => ({ ...f, targetBox: boxType, targetSub: (subAccounts || [])[0]?.id || "" }));
-              setSelectedBox(boxType); setShowAddEntry(true);
-            }}>
-              {Ic.plus} Novo Lançamento
-            </div>
-          </div>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", background: "var(--bg2)", borderTop: "2px solid var(--border)" }}>
+      <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.8px", color: "var(--t2)" }}>Subtotal</span>
+      <BalDisplay usd={bal.usd} brl={bal.brl} size="md" />
+    </div>
+  </div>
+);
+```
 
-          {/* Per sub-account breakdown for this box */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(180px,1fr))", gap: 6, marginTop: 8 }}>
-            {subAccounts.map((s) => {
-              const b = getBalance(s[boxType]);
-              return (
-                <div key={s.id} style={{ background: "var(--bg1)", border: "1px solid var(--border)", borderRadius: "var(--r-sm)", padding: "8px 10px", borderLeft: `3px solid ${s.color}` }}>
-                  <div style={{ fontSize: 10, color: "var(--t3)", fontWeight: 600, marginBottom: 3 }}>{s.emoji} {s.name}</div>
-                  <div className={`bal ${bc(b.usd)}`} style={{ fontSize: 13 }}>{fmtUSD(b.usd)}</div>
-                  <div className="bal" style={{ fontSize: 9, color: "var(--t3)" }}>{fmtBRL(b.brl)}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      );
-    };
+};
 
-    return (
-      <div className="anim">
-        <div className="hdr">
-          <div>
-            <div className="hdr-sub">Visão Consolidada</div>
-            <h2>Conta Geral</h2>
-          </div>
-        </div>
+// ==================== TOTALS CARD (always separated) ====================
+const TotalsCard = ({ opBal, patBal, label = “” }) => (
+<div style={{ display: “grid”, gridTemplateColumns: “1fr 1fr”, gap: 10, marginTop: 12 }}>
+<div style={{ background: “var(–bg2)”, border: “1px solid var(–border)”, borderRadius: “var(–r)”, padding: “14px 16px”, borderTop: “3px solid #4A9EFF” }}>
+<div style={{ display: “flex”, alignItems: “center”, gap: 6, marginBottom: 8 }}>
+{Ic.op}
+<span style={{ fontSize: 11, fontWeight: 700, textTransform: “uppercase”, letterSpacing: “1px”, color: “#4A9EFF” }}>
+{label ? `${label} · ` : “”}Total Operacional
+</span>
+</div>
+<div className={`bal ${bc(opBal.usd)}`} style={{ fontSize: 20, marginBottom: 2 }}>{fmtUSD(opBal.usd)}</div>
+<div className=“bal” style={{ fontSize: 13, color: “var(–t3)” }}>{fmtBRL(opBal.brl)}</div>
+</div>
+<div style={{ background: “var(–bg2)”, border: “1px solid var(–border)”, borderRadius: “var(–r)”, padding: “14px 16px”, borderTop: “3px solid #E8A838” }}>
+<div style={{ display: “flex”, alignItems: “center”, gap: 6, marginBottom: 8 }}>
+{Ic.pat}
+<span style={{ fontSize: 11, fontWeight: 700, textTransform: “uppercase”, letterSpacing: “1px”, color: “#E8A838” }}>
+{label ? `${label} · ` : “”}Total Patrimônio
+</span>
+</div>
+<div className={`bal ${bc(patBal.usd)}`} style={{ fontSize: 20, marginBottom: 2 }}>{fmtUSD(patBal.usd)}</div>
+<div className=“bal” style={{ fontSize: 13, color: “var(–t3)” }}>{fmtBRL(patBal.brl)}</div>
+</div>
+</div>
+);
 
-        {/* TOTALS - ALWAYS SEPARATED */}
-        <TotalsCard opBal={opBal} patBal={patBal} />
+// ==================== CONTA GERAL ====================
+const renderGeral = () => {
+const opBal = getGeralBalance(“operacional”);
+const patBal = getGeralBalance(“patrimonio”);
 
-        {renderGeralBox("operacional", "Caixa Operacional", Ic.op, opBal, "#4A9EFF")}
-        {renderGeralBox("patrimonio", "Caixa Patrimônio", Ic.pat, patBal, "#E8A838")}
+```
+const allEntries = (boxType) => {
+  const entries = [];
+  subAccounts.forEach((s) => { s[boxType].forEach((e) => entries.push({ ...e, subId: s.id, subName: s.name, subColor: s.color, subEmoji: s.emoji })); });
+  return entries;
+};
+
+const renderGeralBox = (boxType, label, icon, bal, accentColor) => {
+  const entries = allEntries(boxType);
+  return (
+    <div className="box-sec">
+      <div className="box-hdr" style={{ borderTop: `3px solid ${accentColor}` }}>
+        <h3 style={{ color: accentColor }}>{icon} {label}</h3>
+        <BalDisplay usd={bal.usd} brl={bal.brl} />
       </div>
-    );
-  };
-
-  // ==================== SUB-CONTAS LIST ====================
-  const renderSubContas = () => (
-    <div className="anim">
-      <div className="hdr">
-        <div>
-          <div className="hdr-sub">Contas Individuais</div>
-          <h2>Sub-Contas</h2>
+      <div className="box-body">
+        {entries.length === 0 ? (
+          <div className="empty"><p>Nenhum lançamento</p></div>
+        ) : (
+          <EntriesTable entries={entries} showSubCol={true} />
+        )}
+        <div className="add-row" onClick={() => {
+          resetForm();
+          setEntryForm((f) => ({ ...f, targetBox: boxType, targetSub: (subAccounts || [])[0]?.id || "" }));
+          setSelectedBox(boxType); setShowAddEntry(true);
+        }}>
+          {Ic.plus} Novo Lançamento
         </div>
-        <button className="btn btn-p" onClick={() => setShowAddSub(true)}>{Ic.plus} Nova</button>
       </div>
-      <div className="card-grid">
+
+      {/* Per sub-account breakdown for this box */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(180px,1fr))", gap: 6, marginTop: 8 }}>
         {subAccounts.map((s) => {
-          const opBal = getBalance(s.operacional);
-          const patBal = getBalance(s.patrimonio);
+          const b = getBalance(s[boxType]);
           return (
-            <div key={s.id} className="card" style={{ padding: 14 }} onClick={() => { setSelectedSub(s.id); setView("subdetail"); }}>
-              <div className="card-accent" style={{ background: s.color }} />
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", paddingLeft: 10, marginBottom: 12 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 15, fontWeight: 600 }}>
-                  <span>{s.emoji}</span>{s.name}
-                </div>
-                <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-                  <button className="ibtn dng" onClick={(e) => { e.stopPropagation(); deleteSubAccount(s.id); }}>{Ic.trash}</button>
-                  {Ic.chevron}
-                </div>
-              </div>
-              {/* ALWAYS SEPARATE - never combined */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, paddingLeft: 10 }}>
-                <div className="bal-box" style={{ borderTop: "2px solid #4A9EFF" }}>
-                  <div className="bal-label" style={{ color: "#4A9EFF" }}>💳 Operacional</div>
-                  <div className={`bal ${bc(opBal.usd)}`} style={{ fontSize: 14 }}>{fmtUSD(opBal.usd)}</div>
-                  <div className="bal" style={{ fontSize: 10, color: "var(--t3)" }}>{fmtBRL(opBal.brl)}</div>
-                </div>
-                <div className="bal-box" style={{ borderTop: "2px solid #E8A838" }}>
-                  <div className="bal-label" style={{ color: "#E8A838" }}>🏛 Patrimônio</div>
-                  <div className={`bal ${bc(patBal.usd)}`} style={{ fontSize: 14 }}>{fmtUSD(patBal.usd)}</div>
-                  <div className="bal" style={{ fontSize: 10, color: "var(--t3)" }}>{fmtBRL(patBal.brl)}</div>
-                </div>
-              </div>
+            <div key={s.id} style={{ background: "var(--bg1)", border: "1px solid var(--border)", borderRadius: "var(--r-sm)", padding: "8px 10px", borderLeft: `3px solid ${s.color}` }}>
+              <div style={{ fontSize: 10, color: "var(--t3)", fontWeight: 600, marginBottom: 3 }}>{s.emoji} {s.name}</div>
+              <div className={`bal ${bc(b.usd)}`} style={{ fontSize: 13 }}>{fmtUSD(b.usd)}</div>
+              <div className="bal" style={{ fontSize: 9, color: "var(--t3)" }}>{fmtBRL(b.brl)}</div>
             </div>
           );
         })}
       </div>
     </div>
   );
+};
 
-  // ==================== SUB DETAIL ====================
-  const renderSubDetail = () => {
-    if (!currentSub) return null;
-    const opBal = getBalance(currentSub.operacional);
-    const patBal = getBalance(currentSub.patrimonio);
-
-    const renderBox = (boxType, label, icon, accentColor) => {
-      const bal = getBalance(currentSub[boxType]);
-      return (
-        <div className="box-sec">
-          <div className="box-hdr" style={{ borderTop: `3px solid ${accentColor}` }}>
-            <h3 style={{ color: accentColor }}>{icon} {label}</h3>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <BalDisplay usd={bal.usd} brl={bal.brl} size="sm" />
-              <button className="ibtn dng" title="Zerar" onClick={() => resetBox(currentSub.id, boxType)}>{Ic.reset}</button>
-            </div>
-          </div>
-          <div className="box-body">
-            <EntriesTable entries={currentSub[boxType]} subId={currentSub.id} boxType={boxType} />
-            <div className="add-row" onClick={() => {
-              resetForm(); setSelectedSub(currentSub.id); setSelectedBox(boxType);
-              setEntryForm((f) => ({ ...f, targetSub: currentSub.id, targetBox: boxType }));
-              setShowAddEntry(true);
-            }}>
-              {Ic.plus} Novo Lançamento
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    return (
-      <div className="anim">
-        <div className="hdr">
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <button className="back-btn" onClick={() => { setView("main"); setSelectedSub(null); }}>{Ic.back}</button>
-            <div>
-              <div className="hdr-sub">Sub-conta</div>
-              <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span>{currentSub.emoji}</span>
-                <span style={{ width: 10, height: 10, borderRadius: "50%", background: currentSub.color, display: "inline-block" }} />
-                {currentSub.name}
-              </h2>
-            </div>
-          </div>
-        </div>
-
-        {/* ALWAYS SEPARATED TOTALS */}
-        <TotalsCard opBal={opBal} patBal={patBal} label={currentSub.name} />
-
-        {renderBox("operacional", "Caixa Operacional", Ic.op, "#4A9EFF")}
-        {renderBox("patrimonio", "Caixa Patrimônio", Ic.pat, "#E8A838")}
+return (
+  <div className="anim">
+    <div className="hdr">
+      <div>
+        <div className="hdr-sub">Visão Consolidada</div>
+        <h2>Conta Geral</h2>
       </div>
-    );
-  };
+    </div>
 
-  // ==================== ENTRY MODAL ====================
-  const renderEntryModal = () => {
-    const isGeral = activeTab === "geral" && !editingEntry;
-    return (
-      <div className="overlay" onClick={() => { setShowAddEntry(false); resetForm(); }}>
-        <div className="modal" onClick={(e) => e.stopPropagation()}>
-          <h3>{editingEntry ? "✏️ Editar Lançamento" : "➕ Novo Lançamento"}</h3>
+    {/* TOTALS - ALWAYS SEPARATED */}
+    <TotalsCard opBal={opBal} patBal={patBal} />
 
-          <div className="fg">
-            <label>Tipo</label>
-            <div className="type-tog">
-              <button className={entryForm.type === "credito" ? "ac" : ""} onClick={() => setEntryForm((f) => ({ ...f, type: "credito" }))}>↑ Crédito</button>
-              <button className={entryForm.type === "debito" ? "ad" : ""} onClick={() => setEntryForm((f) => ({ ...f, type: "debito" }))}>↓ Débito</button>
-            </div>
-          </div>
+    {renderGeralBox("operacional", "Caixa Operacional", Ic.op, opBal, "#4A9EFF")}
+    {renderGeralBox("patrimonio", "Caixa Patrimônio", Ic.pat, patBal, "#E8A838")}
+  </div>
+);
+```
 
-          {isGeral && (
-            <div className="fg-row">
-              <div className="fg">
-                <label>Sub-conta</label>
-                <select value={entryForm.targetSub} onChange={(e) => setEntryForm((f) => ({ ...f, targetSub: e.target.value }))}>
-                  {subAccounts.map((s) => <option key={s.id} value={s.id}>{s.emoji} {s.name}</option>)}
-                </select>
-              </div>
-              <div className="fg">
-                <label>Caixa</label>
-                <select value={entryForm.targetBox} onChange={(e) => setEntryForm((f) => ({ ...f, targetBox: e.target.value }))}>
-                  <option value="operacional">💳 Operacional</option>
-                  <option value="patrimonio">🏛 Patrimônio</option>
-                </select>
-              </div>
-            </div>
-          )}
+};
 
-          <div className="fg-row">
-            <div className="fg">
-              <label>Data</label>
-              <input type="date" value={entryForm.date} onChange={(e) => setEntryForm((f) => ({ ...f, date: e.target.value }))} />
-            </div>
-            <div className="fg">
-              <label>Moeda</label>
-              <select value={entryForm.currency} onChange={(e) => setEntryForm((f) => ({ ...f, currency: e.target.value }))}>
-                <option value="USD">$ Dólar (USD)</option>
-                <option value="BRL">R$ Real (BRL)</option>
-              </select>
-            </div>
-          </div>
+// ==================== SUB-CONTAS LIST ====================
+const renderSubContas = () => (
+<div className="anim">
+<div className="hdr">
+<div>
+<div className="hdr-sub">Contas Individuais</div>
+<h2>Sub-Contas</h2>
+</div>
+<button className=“btn btn-p” onClick={() => setShowAddSub(true)}>{Ic.plus} Nova</button>
+</div>
+<div className="card-grid">
+{subAccounts.map((s) => {
+const opBal = getBalance(s.operacional);
+const patBal = getBalance(s.patrimonio);
+return (
+<div key={s.id} className=“card” style={{ padding: 14 }} onClick={() => { setSelectedSub(s.id); setView(“subdetail”); }}>
+<div className=“card-accent” style={{ background: s.color }} />
+<div style={{ display: “flex”, justifyContent: “space-between”, alignItems: “flex-start”, paddingLeft: 10, marginBottom: 12 }}>
+<div style={{ display: “flex”, alignItems: “center”, gap: 8, fontSize: 15, fontWeight: 600 }}>
+<span>{s.emoji}</span>{s.name}
+</div>
+<div style={{ display: “flex”, gap: 4, alignItems: “center” }}>
+<button className=“ibtn dng” onClick={(e) => { e.stopPropagation(); deleteSubAccount(s.id); }}>{Ic.trash}</button>
+{Ic.chevron}
+</div>
+</div>
+{/* ALWAYS SEPARATE - never combined */}
+<div style={{ display: “grid”, gridTemplateColumns: “1fr 1fr”, gap: 8, paddingLeft: 10 }}>
+<div className=“bal-box” style={{ borderTop: “2px solid #4A9EFF” }}>
+<div className=“bal-label” style={{ color: “#4A9EFF” }}>💳 Operacional</div>
+<div className={`bal ${bc(opBal.usd)}`} style={{ fontSize: 14 }}>{fmtUSD(opBal.usd)}</div>
+<div className=“bal” style={{ fontSize: 10, color: “var(–t3)” }}>{fmtBRL(opBal.brl)}</div>
+</div>
+<div className=“bal-box” style={{ borderTop: “2px solid #E8A838” }}>
+<div className=“bal-label” style={{ color: “#E8A838” }}>🏛 Patrimônio</div>
+<div className={`bal ${bc(patBal.usd)}`} style={{ fontSize: 14 }}>{fmtUSD(patBal.usd)}</div>
+<div className=“bal” style={{ fontSize: 10, color: “var(–t3)” }}>{fmtBRL(patBal.brl)}</div>
+</div>
+</div>
+</div>
+);
+})}
+</div>
+</div>
+);
 
-          <div className="fg">
-            <label>Descrição</label>
-            <input type="text" placeholder="Ex: Depósito, Pagamento fornecedor..." value={entryForm.info} onChange={(e) => setEntryForm((f) => ({ ...f, info: e.target.value }))} />
-          </div>
+// ==================== SUB DETAIL ====================
+const renderSubDetail = () => {
+if (!currentSub) return null;
+const opBal = getBalance(currentSub.operacional);
+const patBal = getBalance(currentSub.patrimonio);
 
-          <div className="fg-row">
-            <div className="fg">
-              <label>Valor ({entryForm.currency === "USD" ? "$" : "R$"})</label>
-              <input type="number" step="0.01" placeholder="0.00" value={entryForm.value} onChange={(e) => setEntryForm((f) => ({ ...f, value: e.target.value }))} />
-            </div>
-            <div className="fg">
-              <label>💱 Câmbio (1 USD = ? BRL)</label>
-              <input type="number" step="0.01" placeholder="5.80" value={entryForm.exchange} onChange={(e) => setEntryForm((f) => ({ ...f, exchange: e.target.value }))} />
-            </div>
-          </div>
-
-          {entryForm.value && entryForm.exchange && parseFloat(entryForm.exchange) > 0 && (
-            <div style={{ background: "var(--bg0)", border: "1px solid var(--border)", borderRadius: "var(--r-sm)", padding: "10px 12px", marginTop: 4 }}>
-              <div style={{ fontSize: 11, color: "var(--t3)", fontWeight: 600, marginBottom: 4 }}>PRÉVIA DA CONVERSÃO</div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <div>
-                  <div className="bal pos" style={{ fontSize: 14 }}>
-                    {entryForm.currency === "USD" ? fmtUSD(parseFloat(entryForm.value)) : fmtUSD(parseFloat(entryForm.value) / parseFloat(entryForm.exchange))}
-                  </div>
-                  <div style={{ fontSize: 10, color: "var(--t3)" }}>Dólar</div>
-                </div>
-                <div style={{ fontSize: 18, color: "var(--yllw)", alignSelf: "center" }}>⇄</div>
-                <div style={{ textAlign: "right" }}>
-                  <div className="bal" style={{ fontSize: 14, color: "var(--t2)" }}>
-                    {entryForm.currency === "BRL" ? fmtBRL(parseFloat(entryForm.value)) : fmtBRL(parseFloat(entryForm.value) * parseFloat(entryForm.exchange))}
-                  </div>
-                  <div style={{ fontSize: 10, color: "var(--t3)" }}>Real</div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="f-actions">
-            <button className="btn btn-s" onClick={() => { setShowAddEntry(false); resetForm(); }}>Cancelar</button>
-            <button className="btn btn-p" onClick={() => {
-              if (editingEntry) updateEntry();
-              else addEntry(isGeral ? entryForm.targetSub : selectedSub, isGeral ? entryForm.targetBox : selectedBox);
-            }}>
-              {editingEntry ? "Salvar" : "Adicionar"}
-            </button>
-          </div>
+```
+const renderBox = (boxType, label, icon, accentColor) => {
+  const bal = getBalance(currentSub[boxType]);
+  return (
+    <div className="box-sec">
+      <div className="box-hdr" style={{ borderTop: `3px solid ${accentColor}` }}>
+        <h3 style={{ color: accentColor }}>{icon} {label}</h3>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <BalDisplay usd={bal.usd} brl={bal.brl} size="sm" />
+          <button className="ibtn dng" title="Zerar" onClick={() => resetBox(currentSub.id, boxType)}>{Ic.reset}</button>
         </div>
       </div>
-    );
-  };
-
-  const renderSubModal = () => (
-    <div className="overlay" onClick={() => { setShowAddSub(false); setNewSubName(""); }}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h3>Nova Sub-conta</h3>
-        <div className="fg-row">
-          <div className="fg">
-            <label>Emoji</label>
-            <input type="text" maxLength={2} value={newSubEmoji} onChange={(e) => setNewSubEmoji(e.target.value)} style={{ textAlign: "center", fontSize: 20 }} />
-          </div>
-          <div className="fg">
-            <label>Nome</label>
-            <input type="text" placeholder="Ex: Empresa Nova..." value={newSubName} onChange={(e) => setNewSubName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addSubAccount()} autoFocus />
-          </div>
-        </div>
-        <div className="f-actions">
-          <button className="btn btn-s" onClick={() => { setShowAddSub(false); setNewSubName(""); }}>Cancelar</button>
-          <button className="btn btn-p" onClick={addSubAccount}>Criar</button>
+      <div className="box-body">
+        <EntriesTable entries={currentSub[boxType]} subId={currentSub.id} boxType={boxType} />
+        <div className="add-row" onClick={() => {
+          resetForm(); setSelectedSub(currentSub.id); setSelectedBox(boxType);
+          setEntryForm((f) => ({ ...f, targetSub: currentSub.id, targetBox: boxType }));
+          setShowAddEntry(true);
+        }}>
+          {Ic.plus} Novo Lançamento
         </div>
       </div>
     </div>
   );
+};
 
-  
-  // === SYNC STATUS BAR ===
-  const SyncBar = () => {
+return (
+  <div className="anim">
+    <div className="hdr">
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <button className="back-btn" onClick={() => { setView("main"); setSelectedSub(null); }}>{Ic.back}</button>
+        <div>
+          <div className="hdr-sub">Sub-conta</div>
+          <h2 style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span>{currentSub.emoji}</span>
+            <span style={{ width: 10, height: 10, borderRadius: "50%", background: currentSub.color, display: "inline-block" }} />
+            {currentSub.name}
+          </h2>
+        </div>
+      </div>
+    </div>
+
+    {/* ALWAYS SEPARATED TOTALS */}
+    <TotalsCard opBal={opBal} patBal={patBal} label={currentSub.name} />
+
+    {renderBox("operacional", "Caixa Operacional", Ic.op, "#4A9EFF")}
+    {renderBox("patrimonio", "Caixa Patrimônio", Ic.pat, "#E8A838")}
+  </div>
+);
+```
+
+};
+
+// ==================== ENTRY MODAL ====================
+const renderEntryModal = () => {
+const isGeral = activeTab === “geral” && !editingEntry;
+return (
+<div className=“overlay” onClick={() => { setShowAddEntry(false); resetForm(); }}>
+<div className=“modal” onClick={(e) => e.stopPropagation()}>
+<h3>{editingEntry ? “✏️ Editar Lançamento” : “➕ Novo Lançamento”}</h3>
+
+```
+      <div className="fg">
+        <label>Tipo</label>
+        <div className="type-tog">
+          <button className={entryForm.type === "credito" ? "ac" : ""} onClick={() => setEntryForm((f) => ({ ...f, type: "credito" }))}>↑ Crédito</button>
+          <button className={entryForm.type === "debito" ? "ad" : ""} onClick={() => setEntryForm((f) => ({ ...f, type: "debito" }))}>↓ Débito</button>
+        </div>
+      </div>
+
+      {isGeral && (
+        <div className="fg-row">
+          <div className="fg">
+            <label>Sub-conta</label>
+            <select value={entryForm.targetSub} onChange={(e) => setEntryForm((f) => ({ ...f, targetSub: e.target.value }))}>
+              {subAccounts.map((s) => <option key={s.id} value={s.id}>{s.emoji} {s.name}</option>)}
+            </select>
+          </div>
+          <div className="fg">
+            <label>Caixa</label>
+            <select value={entryForm.targetBox} onChange={(e) => setEntryForm((f) => ({ ...f, targetBox: e.target.value }))}>
+              <option value="operacional">💳 Operacional</option>
+              <option value="patrimonio">🏛 Patrimônio</option>
+            </select>
+          </div>
+        </div>
+      )}
+
+      <div className="fg-row">
+        <div className="fg">
+          <label>Data</label>
+          <input type="date" value={entryForm.date} onChange={(e) => setEntryForm((f) => ({ ...f, date: e.target.value }))} />
+        </div>
+        <div className="fg">
+          <label>Moeda</label>
+          <select value={entryForm.currency} onChange={(e) => setEntryForm((f) => ({ ...f, currency: e.target.value }))}>
+            <option value="USD">$ Dólar (USD)</option>
+            <option value="BRL">R$ Real (BRL)</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="fg">
+        <label>Descrição</label>
+        <input type="text" placeholder="Ex: Depósito, Pagamento fornecedor..." value={entryForm.info} onChange={(e) => setEntryForm((f) => ({ ...f, info: e.target.value }))} />
+      </div>
+
+      <div className="fg-row">
+        <div className="fg">
+          <label>Valor ({entryForm.currency === "USD" ? "$" : "R$"})</label>
+          <input type="number" step="0.01" placeholder="0.00" value={entryForm.value} onChange={(e) => setEntryForm((f) => ({ ...f, value: e.target.value }))} />
+        </div>
+        <div className="fg">
+          <label>💱 Câmbio (1 USD = ? BRL)</label>
+          <input type="number" step="0.01" placeholder="5.80" value={entryForm.exchange} onChange={(e) => setEntryForm((f) => ({ ...f, exchange: e.target.value }))} />
+        </div>
+      </div>
+
+      {entryForm.value && entryForm.exchange && parseFloat(entryForm.exchange) > 0 && (
+        <div style={{ background: "var(--bg0)", border: "1px solid var(--border)", borderRadius: "var(--r-sm)", padding: "10px 12px", marginTop: 4 }}>
+          <div style={{ fontSize: 11, color: "var(--t3)", fontWeight: 600, marginBottom: 4 }}>PRÉVIA DA CONVERSÃO</div>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div>
+              <div className="bal pos" style={{ fontSize: 14 }}>
+                {entryForm.currency === "USD" ? fmtUSD(parseFloat(entryForm.value)) : fmtUSD(parseFloat(entryForm.value) / parseFloat(entryForm.exchange))}
+              </div>
+              <div style={{ fontSize: 10, color: "var(--t3)" }}>Dólar</div>
+            </div>
+            <div style={{ fontSize: 18, color: "var(--yllw)", alignSelf: "center" }}>⇄</div>
+            <div style={{ textAlign: "right" }}>
+              <div className="bal" style={{ fontSize: 14, color: "var(--t2)" }}>
+                {entryForm.currency === "BRL" ? fmtBRL(parseFloat(entryForm.value)) : fmtBRL(parseFloat(entryForm.value) * parseFloat(entryForm.exchange))}
+              </div>
+              <div style={{ fontSize: 10, color: "var(--t3)" }}>Real</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="f-actions">
+        <button className="btn btn-s" onClick={() => { setShowAddEntry(false); resetForm(); }}>Cancelar</button>
+        <button className="btn btn-p" onClick={() => {
+          if (editingEntry) updateEntry();
+          else addEntry(isGeral ? entryForm.targetSub : selectedSub, isGeral ? entryForm.targetBox : selectedBox);
+        }}>
+          {editingEntry ? "Salvar" : "Adicionar"}
+        </button>
+      </div>
+    </div>
+  </div>
+);
+```
+
+};
+
+const renderSubModal = () => (
+<div className=“overlay” onClick={() => { setShowAddSub(false); setNewSubName(””); }}>
+<div className=“modal” onClick={(e) => e.stopPropagation()}>
+<h3>Nova Sub-conta</h3>
+<div className="fg-row">
+<div className="fg">
+<label>Emoji</label>
+<input type=“text” maxLength={2} value={newSubEmoji} onChange={(e) => setNewSubEmoji(e.target.value)} style={{ textAlign: “center”, fontSize: 20 }} />
+</div>
+<div className="fg">
+<label>Nome</label>
+<input type=“text” placeholder=“Ex: Empresa Nova…” value={newSubName} onChange={(e) => setNewSubName(e.target.value)} onKeyDown={(e) => e.key === “Enter” && addSubAccount()} autoFocus />
+</div>
+</div>
+<div className="f-actions">
+<button className=“btn btn-s” onClick={() => { setShowAddSub(false); setNewSubName(””); }}>Cancelar</button>
+<button className="btn btn-p" onClick={addSubAccount}>Criar</button>
+</div>
+</div>
+</div>
+);
+
+const css = `@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap'); *{margin:0;padding:0;box-sizing:border-box} :root{--bg0:#06080D;--bg1:#0C1018;--bg2:#131A28;--bg3:#1A2338;--bg-hover:#1E2A42;--border:#1C2640;--border-h:#2A3A5C;--t1:#EDF0F7;--t2:#8A95B0;--t3:#515E7A;--grn:#00E4B8;--grn-bg:rgba(0,228,184,0.07);--red:#FF5A5A;--red-bg:rgba(255,90,90,0.07);--blu:#4A9EFF;--blu-bg:rgba(74,158,255,0.07);--yllw:#F0C040;--r:10px;--r-sm:7px} body{background:var(--bg0)} .app{font-family:'Outfit',sans-serif;min-height:100vh;background:var(--bg0);color:var(--t1);max-width:1000px;margin:0 auto;padding:12px;padding-top:34px} .mono{font-family:'JetBrains Mono',monospace} .nav{display:flex;gap:4px;padding:4px;background:var(--bg2);border-radius:var(--r);margin-bottom:16px;border:1px solid var(--border)} .nav-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:none;border-radius:var(--r-sm);background:transparent;color:var(--t2);font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif} .nav-btn:hover{color:var(--t1);background:var(--bg3)} .nav-btn.active{background:var(--blu);color:#fff;box-shadow:0 2px 12px rgba(74,158,255,0.3)} .hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 0 16px} .hdr h2{font-size:18px;font-weight:700;letter-spacing:-0.3px} .hdr-sub{font-size:11px;color:var(--t3);font-weight:600;letter-spacing:1.5px;text-transform:uppercase} .back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--t2);font-size:13px;cursor:pointer;padding:6px 10px;border-radius:var(--r-sm);transition:all .15s;font-family:'Outfit',sans-serif} .back-btn:hover{color:var(--t1);background:var(--bg2)} .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:all .15s;cursor:pointer;position:relative;overflow:hidden} .card:hover{border-color:var(--border-h);background:var(--bg-hover)} .card-accent{position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px} .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px} .bal{font-family:'JetBrains Mono',monospace;font-weight:600} .pos{color:var(--grn)}.neg{color:var(--red)}.zero{color:var(--t3)} .bal-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;font-weight:600} .bal-box{padding:8px 10px;background:var(--bg1);border-radius:var(--r-sm)} .box-sec{margin-top:16px} .box-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r) var(--r) 0 0} .box-hdr h3{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px} .box-body{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);background:var(--bg1);overflow:hidden} .tbl-wrap{overflow-x:auto} .tbl{width:100%;border-collapse:collapse;min-width:650px} .tbl th{padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--t3);text-align:left;border-bottom:1px solid var(--border);background:var(--bg2)} .tbl td{padding:8px 10px;font-size:13px;border-bottom:1px solid var(--border)} .tbl tr:last-child td{border-bottom:none} .tbl tr:hover td{background:var(--bg-hover)} .dt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);white-space:nowrap} .val{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;white-space:nowrap} .badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px} .badge-c{background:var(--grn-bg);color:var(--grn)}.badge-d{background:var(--red-bg);color:var(--red)} .badge-sub{background:var(--blu-bg);color:var(--blu);font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600} .btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border:none;border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif} .btn-p{background:var(--blu);color:#fff}.btn-p:hover{filter:brightness(1.15)} .btn-s{background:var(--bg1);color:var(--t1);border:1px solid var(--border)}.btn-s:hover{border-color:var(--t3)} .ibtn{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border:none;background:none;color:var(--t3);cursor:pointer;border-radius:var(--r-sm);transition:all .12s} .ibtn:hover{background:var(--bg2);color:var(--t1)}.ibtn.dng:hover{background:var(--red-bg);color:var(--red)} .empty{text-align:center;padding:28px 16px;color:var(--t3)}.empty p{font-size:13px;margin-bottom:10px} .add-row{display:flex;align-items:center;justify-content:center;padding:10px;cursor:pointer;transition:all .12s;color:var(--blu);font-size:12px;font-weight:600;gap:5px;border-top:1px solid var(--border)} .add-row:hover{background:var(--blu-bg)} .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:100;padding:12px;backdrop-filter:blur(6px)} .modal{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:20px;width:100%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,0.5);max-height:90vh;overflow-y:auto} .modal h3{font-size:16px;font-weight:700;margin-bottom:16px} .fg{margin-bottom:12px} .fg label{display:block;font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px} .fg input,.fg select{width:100%;padding:9px 12px;background:var(--bg0);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--t1);font-size:13px;font-family:'Outfit',sans-serif;transition:border-color .15s} .fg input:focus,.fg select:focus{outline:none;border-color:var(--blu)} .fg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px} .f-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px} .type-tog{display:flex;gap:3px;padding:3px;background:var(--bg0);border-radius:var(--r-sm);border:1px solid var(--border)} .type-tog button{flex:1;padding:7px;border:none;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;font-family:'Outfit',sans-serif;background:transparent;color:var(--t3)} .type-tog button.ac{background:var(--grn-bg);color:var(--grn);border:1px solid rgba(0,228,184,0.3)} .type-tog button.ad{background:var(--red-bg);color:var(--red);border:1px solid rgba(255,90,90,0.3)} @media(max-width:640px){.app{padding:8px}.card-grid{grid-template-columns:1fr}.fg-row{grid-template-columns:1fr}} ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg0)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px} .sync-bar{position:fixed;top:0;left:0;right:0;padding:6px 16px;font-size:11px;font-weight:600;text-align:center;z-index:200;font-family:'Outfit',sans-serif;transition:all .3s} .sync-saving{background:#1A2338;color:#F0C040;border-bottom:2px solid #F0C040} .sync-saved{background:#0D2818;color:#00E4B8;border-bottom:2px solid #00E4B8} .sync-error{background:#2D1515;color:#FF5A5A;border-bottom:2px solid #FF5A5A} .sync-loading{background:#1A2338;color:#4A9EFF;border-bottom:2px solid #4A9EFF} .loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px} .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blu);border-radius:50%;animation:spin .8s linear infinite} @keyframes spin{to{transform:rotate(360deg)}} @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}.anim{animation:fadeIn .2s ease-out}`;
+
+```
+  const SyncBar = function() {
     if (!syncStatus) return null;
-    var labels = { loading: "Carregando dados...", saving: "Salvando...", saved: "Salvo na nuvem", error: "Erro ao salvar" };
+    var labels = { loading: "Carregando...", saving: "Salvando...", saved: "Salvo na nuvem", error: "Erro ao salvar" };
     var cls = { loading: "sync-loading", saving: "sync-saving", saved: "sync-saved", error: "sync-error" };
     return <div className={"sync-bar " + (cls[syncStatus] || "")}>{labels[syncStatus]}</div>;
   };
 
-  // === LOADING SCREEN ===
   if (subAccounts === null) {
     return (
-      <div className="app">
-        <SyncBar />
+      <div className="app" style={{paddingTop:12}}>
         <SyncBar />
         <div className="loading-screen">
           <div className="spinner"></div>
-          <div style={{ color: "var(--t2)", fontSize: 14 }}>Carregando dados do Firebase...</div>
+          <div style={{color:"var(--t2)",fontSize:14}}>Carregando dados do Firebase...</div>
         </div>
       </div>
     );
   }
+```
 
-const css = `
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap');
-    *{margin:0;padding:0;box-sizing:border-box}
-    :root{--bg0:#06080D;--bg1:#0C1018;--bg2:#131A28;--bg3:#1A2338;--bg-hover:#1E2A42;--border:#1C2640;--border-h:#2A3A5C;--t1:#EDF0F7;--t2:#8A95B0;--t3:#515E7A;--grn:#00E4B8;--grn-bg:rgba(0,228,184,0.07);--red:#FF5A5A;--red-bg:rgba(255,90,90,0.07);--blu:#4A9EFF;--blu-bg:rgba(74,158,255,0.07);--yllw:#F0C040;--r:10px;--r-sm:7px}
-    body{background:var(--bg0)}
-    .app{font-family:'Outfit',sans-serif;min-height:100vh;background:var(--bg0);color:var(--t1);max-width:1000px;margin:0 auto;padding:12px;padding-top:32px}
-    .mono{font-family:'JetBrains Mono',monospace}
-    .nav{display:flex;gap:4px;padding:4px;background:var(--bg2);border-radius:var(--r);margin-bottom:16px;border:1px solid var(--border)}
-    .nav-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:none;border-radius:var(--r-sm);background:transparent;color:var(--t2);font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif}
-    .nav-btn:hover{color:var(--t1);background:var(--bg3)}
-    .nav-btn.active{background:var(--blu);color:#fff;box-shadow:0 2px 12px rgba(74,158,255,0.3)}
-    .hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 0 16px}
-    .hdr h2{font-size:18px;font-weight:700;letter-spacing:-0.3px}
-    .hdr-sub{font-size:11px;color:var(--t3);font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
-    .back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--t2);font-size:13px;cursor:pointer;padding:6px 10px;border-radius:var(--r-sm);transition:all .15s;font-family:'Outfit',sans-serif}
-    .back-btn:hover{color:var(--t1);background:var(--bg2)}
-    .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:all .15s;cursor:pointer;position:relative;overflow:hidden}
-    .card:hover{border-color:var(--border-h);background:var(--bg-hover)}
-    .card-accent{position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px}
-    .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
-    .bal{font-family:'JetBrains Mono',monospace;font-weight:600}
-    .pos{color:var(--grn)}.neg{color:var(--red)}.zero{color:var(--t3)}
-    .bal-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;font-weight:600}
-    .bal-box{padding:8px 10px;background:var(--bg1);border-radius:var(--r-sm)}
-    .box-sec{margin-top:16px}
-    .box-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r) var(--r) 0 0}
-    .box-hdr h3{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px}
-    .box-body{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);background:var(--bg1);overflow:hidden}
-    .tbl-wrap{overflow-x:auto}
-    .tbl{width:100%;border-collapse:collapse;min-width:650px}
-    .tbl th{padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--t3);text-align:left;border-bottom:1px solid var(--border);background:var(--bg2)}
-    .tbl td{padding:8px 10px;font-size:13px;border-bottom:1px solid var(--border)}
-    .tbl tr:last-child td{border-bottom:none}
-    .tbl tr:hover td{background:var(--bg-hover)}
-    .dt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);white-space:nowrap}
-    .val{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;white-space:nowrap}
-    .badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px}
-    .badge-c{background:var(--grn-bg);color:var(--grn)}.badge-d{background:var(--red-bg);color:var(--red)}
-    .badge-sub{background:var(--blu-bg);color:var(--blu);font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600}
-    .btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border:none;border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif}
-    .btn-p{background:var(--blu);color:#fff}.btn-p:hover{filter:brightness(1.15)}
-    .btn-s{background:var(--bg1);color:var(--t1);border:1px solid var(--border)}.btn-s:hover{border-color:var(--t3)}
-    .ibtn{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border:none;background:none;color:var(--t3);cursor:pointer;border-radius:var(--r-sm);transition:all .12s}
-    .ibtn:hover{background:var(--bg2);color:var(--t1)}.ibtn.dng:hover{background:var(--red-bg);color:var(--red)}
-    .empty{text-align:center;padding:28px 16px;color:var(--t3)}.empty p{font-size:13px;margin-bottom:10px}
-    .add-row{display:flex;align-items:center;justify-content:center;padding:10px;cursor:pointer;transition:all .12s;color:var(--blu);font-size:12px;font-weight:600;gap:5px;border-top:1px solid var(--border)}
-    .add-row:hover{background:var(--blu-bg)}
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:100;padding:12px;backdrop-filter:blur(6px)}
-    .modal{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:20px;width:100%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,0.5);max-height:90vh;overflow-y:auto}
-    .modal h3{font-size:16px;font-weight:700;margin-bottom:16px}
-    .fg{margin-bottom:12px}
-    .fg label{display:block;font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px}
-    .fg input,.fg select{width:100%;padding:9px 12px;background:var(--bg0);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--t1);font-size:13px;font-family:'Outfit',sans-serif;transition:border-color .15s}
-    .fg input:focus,.fg select:focus{outline:none;border-color:var(--blu)}
-    .fg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .f-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
-    .type-tog{display:flex;gap:3px;padding:3px;background:var(--bg0);border-radius:var(--r-sm);border:1px solid var(--border)}
-    .type-tog button{flex:1;padding:7px;border:none;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;font-family:'Outfit',sans-serif;background:transparent;color:var(--t3)}
-    .type-tog button.ac{background:var(--grn-bg);color:var(--grn);border:1px solid rgba(0,228,184,0.3)}
-    .type-tog button.ad{background:var(--red-bg);color:var(--red);border:1px solid rgba(255,90,90,0.3)}
-    @media(max-width:640px){.app{padding:8px}.card-grid{grid-template-columns:1fr}.fg-row{grid-template-columns:1fr}}
-    ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg0)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-    
-.sync-bar{position:fixed;top:0;left:0;right:0;padding:6px 16px;font-size:11px;font-weight:600;text-align:center;z-index:200;font-family:'Outfit',sans-serif;transition:all .3s}
-.sync-saving{background:#1A2338;color:#F0C040;border-bottom:2px solid #F0C040}
-.sync-saved{background:#0D2818;color:#00E4B8;border-bottom:2px solid #00E4B8}
-.sync-error{background:#2D1515;color:#FF5A5A;border-bottom:2px solid #FF5A5A}
-.sync-loading{background:#1A2338;color:#4A9EFF;border-bottom:2px solid #4A9EFF}
-.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blu);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}.anim{animation:fadeIn .2s ease-out}
-  `;
-
-  return (
-    <>
-      <style>{css}</style>
-      <div className="app">
-        {view === "main" && (
-          <nav className="nav">
-            <button className={`nav-btn ${activeTab === "geral" ? "active" : ""}`} onClick={() => setActiveTab("geral")}>{Ic.home} Conta Geral</button>
-            <button className={`nav-btn ${activeTab === "subcontas" ? "active" : ""}`} onClick={() => setActiveTab("subcontas")}>{Ic.list} Sub-Contas</button>
-          </nav>
-        )}
-        {view === "main" && activeTab === "geral" && renderGeral()}
-        {view === "main" && activeTab === "subcontas" && renderSubContas()}
-        {view === "subdetail" && renderSubDetail()}
-        {showAddEntry && renderEntryModal()}
-        {showAddSub && renderSubModal()}
-      </div>
-    </>
-  );
+return (
+<>
+<style>{css}</style>
+<SyncBar />
+<div className="app">
+{view === “main” && (
+<nav className="nav">
+<button className={`nav-btn ${activeTab === "geral" ? "active" : ""}`} onClick={() => setActiveTab(“geral”)}>{Ic.home} Conta Geral</button>
+<button className={`nav-btn ${activeTab === "subcontas" ? "active" : ""}`} onClick={() => setActiveTab(“subcontas”)}>{Ic.list} Sub-Contas</button>
+</nav>
+)}
+{view === “main” && activeTab === “geral” && renderGeral()}
+{view === “main” && activeTab === “subcontas” && renderSubContas()}
+{view === “subdetail” && renderSubDetail()}
+{showAddEntry && renderEntryModal()}
+{showAddSub && renderSubModal()}
+</div>
+</>
+);
 }
 
-
+```
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 ```
 

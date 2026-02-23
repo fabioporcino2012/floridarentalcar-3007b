@@ -2,495 +2,483 @@
 
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema Financeiro - Fabinho CEO</title>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-
-  <script>
-    firebase.initializeApp({
-      apiKey: "AIzaSyCOBaTzerrtRf1FpKCDPXt5lqHqPe4vY5w",
-      authDomain: "floridarentalcar-3007b.firebaseapp.com",
-      projectId: "floridarentalcar-3007b",
-      storageBucket: "floridarentalcar-3007b.firebasestorage.app",
-      messagingSenderId: "919190214515",
-      appId: "1:919190214515:web:6087c48ee5032df4ee5706"
-    });
-    var db = firebase.firestore();
-  </script>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema Financeiro - Fabinho CEO</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg0:#06080D;--bg1:#0C1018;--bg2:#131A28;--bg3:#1A2338;--bg-hover:#1E2A42;--border:#1C2640;--border-h:#2A3A5C;--t1:#EDF0F7;--t2:#8A95B0;--t3:#515E7A;--grn:#00E4B8;--grn-bg:rgba(0,228,184,0.07);--red:#FF5A5A;--red-bg:rgba(255,90,90,0.07);--blu:#4A9EFF;--blu-bg:rgba(74,158,255,0.07);--yllw:#F0C040;--r:10px;--r-sm:7px}
+body{background:var(--bg0);color:var(--t1);font-family:'Outfit',sans-serif}
+.app{min-height:100vh;max-width:1000px;margin:0 auto;padding:12px;padding-top:34px}
+.mono{font-family:'JetBrains Mono',monospace}
+.nav{display:flex;gap:4px;padding:4px;background:var(--bg2);border-radius:var(--r);margin-bottom:16px;border:1px solid var(--border)}
+.nav-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:none;border-radius:var(--r-sm);background:transparent;color:var(--t2);font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif}
+.nav-btn:hover{color:var(--t1);background:var(--bg3)}
+.nav-btn.active{background:var(--blu);color:#fff;box-shadow:0 2px 12px rgba(74,158,255,0.3)}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 0 16px}
+.hdr h2{font-size:18px;font-weight:700;letter-spacing:-0.3px}
+.hdr-sub{font-size:11px;color:var(--t3);font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
+.back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--t2);font-size:13px;cursor:pointer;padding:6px 10px;border-radius:var(--r-sm);transition:all .15s;font-family:'Outfit',sans-serif}
+.back-btn:hover{color:var(--t1);background:var(--bg2)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:all .15s;cursor:pointer;position:relative;overflow:hidden}
+.card:hover{border-color:var(--border-h);background:var(--bg-hover)}
+.card-accent{position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.bal{font-family:'JetBrains Mono',monospace;font-weight:600}
+.pos{color:var(--grn)}.neg{color:var(--red)}.zero{color:var(--t3)}
+.bal-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;font-weight:600}
+.bal-box{padding:8px 10px;background:var(--bg1);border-radius:var(--r-sm)}
+.box-sec{margin-top:16px}
+.box-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r) var(--r) 0 0}
+.box-hdr h3{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px}
+.box-body{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);background:var(--bg1);overflow:hidden}
+.tbl-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;min-width:650px}
+.tbl th{padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--t3);text-align:left;border-bottom:1px solid var(--border);background:var(--bg2)}
+.tbl td{padding:8px 10px;font-size:13px;border-bottom:1px solid var(--border)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg-hover)}
+.dt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);white-space:nowrap}
+.val{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;white-space:nowrap}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px}
+.badge-c{background:var(--grn-bg);color:var(--grn)}.badge-d{background:var(--red-bg);color:var(--red)}
+.badge-sub{background:var(--blu-bg);color:var(--blu);font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border:none;border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif}
+.btn-p{background:var(--blu);color:#fff}.btn-p:hover{filter:brightness(1.15)}
+.btn-s{background:var(--bg1);color:var(--t1);border:1px solid var(--border)}.btn-s:hover{border-color:var(--t3)}
+.ibtn{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border:none;background:none;color:var(--t3);cursor:pointer;border-radius:var(--r-sm);transition:all .12s}
+.ibtn:hover{background:var(--bg2);color:var(--t1)}.ibtn.dng:hover{background:var(--red-bg);color:var(--red)}
+.empty{text-align:center;padding:28px 16px;color:var(--t3)}.empty p{font-size:13px;margin-bottom:10px}
+.add-row{display:flex;align-items:center;justify-content:center;padding:10px;cursor:pointer;transition:all .12s;color:var(--blu);font-size:12px;font-weight:600;gap:5px;border-top:1px solid var(--border)}
+.add-row:hover{background:var(--blu-bg)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:100;padding:12px;backdrop-filter:blur(6px)}
+.modal{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:20px;width:100%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,0.5);max-height:90vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:16px}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px}
+.fg input,.fg select{width:100%;padding:9px 12px;background:var(--bg0);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--t1);font-size:13px;font-family:'Outfit',sans-serif;transition:border-color .15s}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--blu)}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.type-tog{display:flex;gap:3px;padding:3px;background:var(--bg0);border-radius:var(--r-sm);border:1px solid var(--border)}
+.type-tog button{flex:1;padding:7px;border:none;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;font-family:'Outfit',sans-serif;background:transparent;color:var(--t3)}
+.type-tog button.ac{background:var(--grn-bg);color:var(--grn);border:1px solid rgba(0,228,184,0.3)}
+.type-tog button.ad{background:var(--red-bg);color:var(--red);border:1px solid rgba(255,90,90,0.3)}
+.sync-bar{position:fixed;top:0;left:0;right:0;padding:6px 16px;font-size:11px;font-weight:600;text-align:center;z-index:200;font-family:'Outfit',sans-serif;transition:all .3s}
+.sync-saving{background:#1A2338;color:#F0C040;border-bottom:2px solid #F0C040}
+.sync-saved{background:#0D2818;color:#00E4B8;border-bottom:2px solid #00E4B8}
+.sync-error{background:#2D1515;color:#FF5A5A;border-bottom:2px solid #FF5A5A}
+.sync-loading{background:#1A2338;color:#4A9EFF;border-bottom:2px solid #4A9EFF}
+.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blu);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:640px){.app{padding:8px;padding-top:34px}.card-grid{grid-template-columns:1fr}.fg-row{grid-template-columns:1fr}}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg0)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}.anim{animation:fadeIn .2s ease-out}
+</style>
 </head>
 <body>
-  <div id="root"></div>
-  <script>const {
-  useState,
-  useCallback
-} = React;
-const INITIAL_SUBACCOUNTS = [{
+<div id="root"><div class="loading-screen"><div class="spinner"></div><div style="color:#8A95B0;font-size:14px;font-family:Outfit,sans-serif">Carregando...</div></div></div>
+<script>
+firebase.initializeApp({apiKey:"AIzaSyCOBaTzerrtRf1FpKCDPXt5lqHqPe4vY5w",authDomain:"floridarentalcar-3007b.firebaseapp.com",projectId:"floridarentalcar-3007b",storageBucket:"floridarentalcar-3007b.firebasestorage.app",messagingSenderId:"919190214515",appId:"1:919190214515:web:6087c48ee5032df4ee5706"});
+var db=firebase.firestore();
+</script>
+<script>
+var h = React.createElement,
+  useState = React.useState,
+  useCallback = React.useCallback,
+  useEffect = React.useEffect,
+  useRef = React.useRef;
+var SUBS0 = [{
   id: "half",
   name: "Half",
-  emoji: "🃏",
+  emoji: "\u{1F0CF}",
   color: "#00D4AA",
   operacional: [],
   patrimonio: []
 }, {
   id: "guilherme",
   name: "Guilherme",
-  emoji: "👔",
+  emoji: "\u{1F454}",
   color: "#4A9EFF",
   operacional: [],
   patrimonio: []
 }, {
   id: "gordinho",
   name: "Gordinho",
-  emoji: "🐻",
+  emoji: "\u{1F43B}",
   color: "#FF6B6B",
   operacional: [],
   patrimonio: []
 }, {
   id: "capiroto",
   name: "Capiroto",
-  emoji: "😈",
+  emoji: "\u{1F608}",
   color: "#9B59B6",
   operacional: [],
   patrimonio: []
 }, {
   id: "glaubinho",
   name: "Glaubinho",
-  emoji: "⭐",
+  emoji: "\u2B50",
   color: "#E8A838",
   operacional: [],
   patrimonio: []
 }, {
   id: "jr-dolares",
   name: "JR Dolares",
-  emoji: "💵",
+  emoji: "\u{1F4B5}",
   color: "#1ABC9C",
   operacional: [],
   patrimonio: []
 }, {
   id: "eduardo-alaska",
   name: "Eduardo Alaska",
-  emoji: "🏔️",
+  emoji: "\u{1F3D4}",
   color: "#3498DB",
   operacional: [],
   patrimonio: []
 }, {
   id: "kamei",
   name: "Kamei",
-  emoji: "🎯",
+  emoji: "\u{1F3AF}",
   color: "#E74C3C",
   operacional: [],
   patrimonio: []
 }, {
   id: "wallet",
   name: "Wallet",
-  emoji: "👛",
+  emoji: "\u{1F45B}",
   color: "#F39C12",
   operacional: [],
   patrimonio: []
 }, {
   id: "trust",
   name: "Trust",
-  emoji: "🏦",
+  emoji: "\u{1F3E6}",
   color: "#2ECC71",
   operacional: [],
   patrimonio: []
 }, {
   id: "cofre",
   name: "Cofre",
-  emoji: "🔐",
+  emoji: "\u{1F510}",
   color: "#8E44AD",
   operacional: [],
   patrimonio: []
 }];
-const genId = () => Math.random().toString(36).substr(2, 9);
-const today = () => new Date().toISOString().split("T")[0];
-const fmtUSD = v => {
-  const abs = Math.abs(v);
-  const parts = abs.toFixed(2).split(".");
-  const intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return `${v < 0 ? "- " : ""}$ ${intPart}.${parts[1]}`;
-};
-const fmtBRL = v => {
-  const abs = Math.abs(v);
-  const parts = abs.toFixed(2).split(".");
-  const intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  return `${v < 0 ? "- " : ""}R$ ${intPart},${parts[1]}`;
-};
-const Ic = {
-  back: /*#__PURE__*/React.createElement("svg", {
-    width: "18",
-    height: "18",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2.5",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M19 12H5"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M12 19l-7-7 7-7"
-  })),
-  plus: /*#__PURE__*/React.createElement("svg", {
-    width: "15",
-    height: "15",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2.5",
-    strokeLinecap: "round"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M12 5v14M5 12h14"
-  })),
-  trash: /*#__PURE__*/React.createElement("svg", {
-    width: "14",
-    height: "14",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M3 6h18"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"
-  })),
-  reset: /*#__PURE__*/React.createElement("svg", {
-    width: "14",
-    height: "14",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M1 4v6h6"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M3.51 15a9 9 0 102.13-9.36L1 10"
-  })),
-  edit: /*#__PURE__*/React.createElement("svg", {
-    width: "13",
-    height: "13",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
-  })),
-  chevron: /*#__PURE__*/React.createElement("svg", {
-    width: "14",
-    height: "14",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2.5",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M9 18l6-6-6-6"
-  })),
-  home: /*#__PURE__*/React.createElement("svg", {
-    width: "18",
-    height: "18",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"
-  }), /*#__PURE__*/React.createElement("polyline", {
-    points: "9 22 9 12 15 12 15 22"
-  })),
-  list: /*#__PURE__*/React.createElement("svg", {
-    width: "18",
-    height: "18",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }, /*#__PURE__*/React.createElement("rect", {
-    x: "3",
-    y: "3",
-    width: "7",
-    height: "7"
-  }), /*#__PURE__*/React.createElement("rect", {
-    x: "14",
-    y: "3",
-    width: "7",
-    height: "7"
-  }), /*#__PURE__*/React.createElement("rect", {
-    x: "14",
-    y: "14",
-    width: "7",
-    height: "7"
-  }), /*#__PURE__*/React.createElement("rect", {
-    x: "3",
-    y: "14",
-    width: "7",
-    height: "7"
-  })),
-  op: /*#__PURE__*/React.createElement("svg", {
-    width: "16",
-    height: "16",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }, /*#__PURE__*/React.createElement("rect", {
-    x: "2",
-    y: "5",
-    width: "20",
-    height: "14",
-    rx: "2"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M2 10h20"
-  })),
-  pat: /*#__PURE__*/React.createElement("svg", {
-    width: "16",
-    height: "16",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M12 2L2 7l10 5 10-5-10-5z"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M2 17l10 5 10-5"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M2 12l10 5 10-5"
-  }))
-};
+function gid() {
+  return Math.random().toString(36).substr(2, 9);
+}
+function tod() {
+  return new Date().toISOString().split("T")[0];
+}
+function fU(v) {
+  var a = Math.abs(v),
+    p = a.toFixed(2).split(".");
+  return (v < 0 ? "- " : "") + "$ " + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "." + p[1];
+}
+function fB(v) {
+  var a = Math.abs(v),
+    p = a.toFixed(2).split(".");
+  return (v < 0 ? "- " : "") + "R$ " + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".") + "," + p[1];
+}
+function bc(v) {
+  return v > 0.005 ? "pos" : v < -0.005 ? "neg" : "zero";
+}
 function App() {
-  const [subAccounts, setSubAccounts] = useState(null);
-  const [syncStatus, setSyncStatus] = useState("loading");
-  const _saveTimer = React.useRef(null);
-  const _firstLoad = React.useRef(true);
-  const [activeTab, setActiveTab] = useState("geral");
-  const [view, setView] = useState("main");
-  const [selectedSub, setSelectedSub] = useState(null);
-  const [selectedBox, setSelectedBox] = useState(null);
-  const [showAddEntry, setShowAddEntry] = useState(false);
-  const [showAddSub, setShowAddSub] = useState(false);
-  const [editingEntry, setEditingEntry] = useState(null);
-  const [newSubName, setNewSubName] = useState("");
-  const [newSubEmoji, setNewSubEmoji] = useState("📁");
-  const [entryForm, setEntryForm] = useState({
-    date: today(),
-    info: "",
-    value: "",
-    currency: "USD",
-    exchange: "5.80",
-    type: "credito",
-    targetSub: "",
-    targetBox: "operacional"
-  });
-  React.useEffect(function () {
-    setSyncStatus("loading");
-    db.collection("financeiro").doc("data").get().then(function (doc) {
-      if (doc.exists && doc.data().subAccounts) {
-        setSubAccounts(doc.data().subAccounts);
-      } else {
-        setSubAccounts(INITIAL_SUBACCOUNTS);
-        db.collection("financeiro").doc("data").set({
-          subAccounts: INITIAL_SUBACCOUNTS
-        });
-      }
-      setSyncStatus("saved");
-      setTimeout(function () {
-        _firstLoad.current = false;
-      }, 500);
-    }).catch(function () {
-      setSubAccounts(INITIAL_SUBACCOUNTS);
-      setSyncStatus("error");
-      _firstLoad.current = false;
-    });
-  }, []);
-  React.useEffect(function () {
-    if (subAccounts === null || _firstLoad.current) return;
-    if (_saveTimer.current) clearTimeout(_saveTimer.current);
-    setSyncStatus("saving");
-    _saveTimer.current = setTimeout(function () {
-      db.collection("financeiro").doc("data").set({
-        subAccounts: subAccounts,
-        ts: new Date().toISOString()
-      }).then(function () {
-        setSyncStatus("saved");
-        setTimeout(function () {
-          setSyncStatus("");
-        }, 2000);
-      }).catch(function () {
-        setSyncStatus("error");
-      });
-    }, 800);
-    return function () {
-      if (_saveTimer.current) clearTimeout(_saveTimer.current);
-    };
-  }, [subAccounts]);
-  const resetForm = () => {
-    setEntryForm({
-      date: today(),
+  var _sa = useState(null),
+    subAccounts = _sa[0],
+    setSubAccounts = _sa[1];
+  var _ss = useState("loading"),
+    syncStatus = _ss[0],
+    setSyncStatus = _ss[1];
+  var _at = useState("geral"),
+    activeTab = _at[0],
+    setActiveTab = _at[1];
+  var _vw = useState("main"),
+    view = _vw[0],
+    setView = _vw[1];
+  var _sl = useState(null),
+    selectedSub = _sl[0],
+    setSelectedSub = _sl[1];
+  var _sb = useState(null),
+    selectedBox = _sb[0],
+    setSelectedBox = _sb[1];
+  var _se = useState(false),
+    showAddEntry = _se[0],
+    setShowAddEntry = _se[1];
+  var _sas = useState(false),
+    showAddSub = _sas[0],
+    setShowAddSub = _sas[1];
+  var _ee = useState(null),
+    editingEntry = _ee[0],
+    setEditingEntry = _ee[1];
+  var _nsn = useState(""),
+    newSubName = _nsn[0],
+    setNewSubName = _nsn[1];
+  var _nse = useState("\u{1F4C1}"),
+    newSubEmoji = _nse[0],
+    setNewSubEmoji = _nse[1];
+  var _ef = useState({
+      date: tod(),
       info: "",
       value: "",
       currency: "USD",
       exchange: "5.80",
       type: "credito",
-      targetSub: (subAccounts || [])[0]?.id || "",
+      targetSub: "",
       targetBox: "operacional"
-    });
-    setEditingEntry(null);
-  };
-  const getBalance = useCallback(entries => {
-    let usd = 0,
-      brl = 0;
-    entries.forEach(e => {
-      const sign = e.type === "credito" ? 1 : -1;
-      const val = Math.abs(e.value) * sign;
-      if (e.currency === "USD") {
-        usd += val;
-        if (e.exchange > 0) brl += val * e.exchange;
-      } else {
-        brl += val;
-        if (e.exchange > 0) usd += val / e.exchange;
-      }
-    });
-    return {
-      usd,
-      brl
-    };
-  }, []);
-  const getGeralBalance = useCallback(boxType => {
-    if (!subAccounts) return {
-      usd: 0,
-      brl: 0
-    };
-    let usd = 0,
-      brl = 0;
-    subAccounts.forEach(s => {
-      const b = getBalance(s[boxType]);
-      usd += b.usd;
-      brl += b.brl;
-    });
-    return {
-      usd,
-      brl
-    };
-  }, [subAccounts, getBalance]);
-  const currentSub = subAccounts ? subAccounts.find(s => s.id === selectedSub) : null;
-  const bc = v => v > 0.005 ? "pos" : v < -0.005 ? "neg" : "zero";
-  const addEntry = (targetSubId, targetBox) => {
-    if (!entryForm.value || !entryForm.info) return;
-    const subId = targetSubId || entryForm.targetSub;
-    const box = targetBox || entryForm.targetBox;
-    const entry = {
-      id: genId(),
-      date: entryForm.date,
-      info: entryForm.info,
-      value: parseFloat(entryForm.value),
-      currency: entryForm.currency,
-      exchange: parseFloat(entryForm.exchange) || 0,
-      type: entryForm.type
-    };
-    setSubAccounts(prev => prev.map(s => s.id === subId ? {
-      ...s,
-      [box]: [...s[box], entry]
-    } : s));
-    resetForm();
-    setShowAddEntry(false);
-  };
-  const updateEntry = () => {
-    if (!entryForm.value || !entryForm.info) return;
-    setSubAccounts(prev => prev.map(s => s.id === selectedSub ? {
-      ...s,
-      [selectedBox]: s[selectedBox].map(e => e.id === editingEntry ? {
-        ...e,
-        date: entryForm.date,
-        info: entryForm.info,
-        value: parseFloat(entryForm.value),
-        currency: entryForm.currency,
-        exchange: parseFloat(entryForm.exchange) || 0,
-        type: entryForm.type
-      } : e)
-    } : s));
-    resetForm();
-    setShowAddEntry(false);
-  };
-  const deleteEntry = (subId, box, entryId) => {
-    setSubAccounts(prev => prev.map(s => s.id === subId ? {
-      ...s,
-      [box]: s[box].filter(e => e.id !== entryId)
-    } : s));
-  };
-  const resetBox = (subId, box) => {
-    if (!confirm(`Zerar ${box === "operacional" ? "Operacional" : "Patrimônio"}? Todos os lançamentos serão apagados.`)) return;
-    setSubAccounts(prev => prev.map(s => s.id === subId ? {
-      ...s,
-      [box]: []
-    } : s));
-  };
-  const addSubAccount = () => {
-    if (!newSubName.trim()) return;
-    const colors = ["#E8A838", "#9B59B6", "#1ABC9C", "#E74C3C", "#3498DB", "#F39C12", "#00D4AA"];
-    setSubAccounts(prev => [...prev, {
-      id: genId(),
-      name: newSubName.trim(),
-      emoji: newSubEmoji,
-      color: colors[prev.length % colors.length],
-      operacional: [],
-      patrimonio: []
-    }]);
-    setNewSubName("");
-    setNewSubEmoji("📁");
-    setShowAddSub(false);
-  };
-  const deleteSubAccount = id => {
-    if (!confirm("Excluir esta sub-conta e todos os lançamentos?")) return;
-    setSubAccounts(prev => prev.filter(s => s.id !== id));
-    if (selectedSub === id) {
-      setView("main");
-      setSelectedSub(null);
-    }
-  };
+    }),
+    entryForm = _ef[0],
+    setEntryForm = _ef[1];
+  var saveTimer = useRef(null);
+  var firstLoad = useRef(true);
 
-// ==================== COMPONENTS ====================
-const BalDisplay = ({
-usd,
-brl,
-size = “md”
-}) => {
-const fs = size === “lg” ? {
+// FIREBASE LOAD
+useEffect(function () {
+setSyncStatus(“loading”);
+db.collection(“financeiro”).doc(“data”).get().then(function (doc) {
+if (doc.exists && doc.data().subAccounts) {
+setSubAccounts(doc.data().subAccounts);
+} else {
+setSubAccounts(SUBS0);
+db.collection(“financeiro”).doc(“data”).set({
+subAccounts: SUBS0
+});
+}
+setSyncStatus(“saved”);
+setTimeout(function () {
+firstLoad.current = false;
+}, 500);
+}).catch(function (e) {
+console.error(e);
+setSubAccounts(SUBS0);
+setSyncStatus(“error”);
+firstLoad.current = false;
+});
+}, []);
+
+// FIREBASE AUTO-SAVE
+useEffect(function () {
+if (subAccounts === null || firstLoad.current) return;
+if (saveTimer.current) clearTimeout(saveTimer.current);
+setSyncStatus(“saving”);
+saveTimer.current = setTimeout(function () {
+db.collection(“financeiro”).doc(“data”).set({
+subAccounts: subAccounts,
+ts: new Date().toISOString()
+}).then(function () {
+setSyncStatus(“saved”);
+setTimeout(function () {
+setSyncStatus(””);
+}, 2000);
+}).catch(function () {
+setSyncStatus(“error”);
+});
+}, 800);
+return function () {
+if (saveTimer.current) clearTimeout(saveTimer.current);
+};
+}, [subAccounts]);
+function resetForm() {
+setEntryForm({
+date: tod(),
+info: “”,
+value: “”,
+currency: “USD”,
+exchange: “5.80”,
+type: “credito”,
+targetSub: (subAccounts || [])[0] ? (subAccounts || [])[0].id : “”,
+targetBox: “operacional”
+});
+setEditingEntry(null);
+}
+function getBal(entries) {
+var usd = 0,
+brl = 0;
+for (var i = 0; i < entries.length; i++) {
+var e = entries[i],
+sign = e.type === “credito” ? 1 : -1,
+val = Math.abs(e.value) * sign;
+if (e.currency === “USD”) {
+usd += val;
+if (e.exchange > 0) brl += val * e.exchange;
+} else {
+brl += val;
+if (e.exchange > 0) usd += val / e.exchange;
+}
+}
+return {
+usd: usd,
+brl: brl
+};
+}
+function getGeralBal(boxType) {
+if (!subAccounts) return {
+usd: 0,
+brl: 0
+};
+var usd = 0,
+brl = 0;
+for (var i = 0; i < subAccounts.length; i++) {
+var b = getBal(subAccounts[i][boxType]);
+usd += b.usd;
+brl += b.brl;
+}
+return {
+usd: usd,
+brl: brl
+};
+}
+var currentSub = subAccounts ? subAccounts.find(function (s) {
+return s.id === selectedSub;
+}) : null;
+function addEntry(tSub, tBox) {
+if (!entryForm.value || !entryForm.info) return;
+var sid = tSub || entryForm.targetSub,
+box = tBox || entryForm.targetBox;
+var entry = {
+id: gid(),
+date: entryForm.date,
+info: entryForm.info,
+value: parseFloat(entryForm.value),
+currency: entryForm.currency,
+exchange: parseFloat(entryForm.exchange) || 0,
+type: entryForm.type
+};
+setSubAccounts(function (prev) {
+return prev.map(function (s) {
+if (s.id === sid) {
+var o = {};
+o[box] = [].concat(s[box], [entry]);
+return Object.assign({}, s, o);
+}
+return s;
+});
+});
+resetForm();
+setShowAddEntry(false);
+}
+function updateEntry() {
+if (!entryForm.value || !entryForm.info) return;
+setSubAccounts(function (prev) {
+return prev.map(function (s) {
+if (s.id === selectedSub) {
+var o = {};
+o[selectedBox] = s[selectedBox].map(function (e) {
+if (e.id === editingEntry) return {
+id: e.id,
+date: entryForm.date,
+info: entryForm.info,
+value: parseFloat(entryForm.value),
+currency: entryForm.currency,
+exchange: parseFloat(entryForm.exchange) || 0,
+type: entryForm.type
+};
+return e;
+});
+return Object.assign({}, s, o);
+}
+return s;
+});
+});
+resetForm();
+setShowAddEntry(false);
+}
+function deleteEntry(subId, box, entryId) {
+setSubAccounts(function (prev) {
+return prev.map(function (s) {
+if (s.id === subId) {
+var o = {};
+o[box] = s[box].filter(function (e) {
+return e.id !== entryId;
+});
+return Object.assign({}, s, o);
+}
+return s;
+});
+});
+}
+function resetBox(subId, box) {
+if (!confirm(“Zerar “ + (box === “operacional” ? “Operacional” : “Patrimonio”) + “?”)) return;
+setSubAccounts(function (prev) {
+return prev.map(function (s) {
+if (s.id === subId) {
+var o = {};
+o[box] = [];
+return Object.assign({}, s, o);
+}
+return s;
+});
+});
+}
+function addSubAccount() {
+if (!newSubName.trim()) return;
+var colors = [”#E8A838”, “#9B59B6”, “#1ABC9C”, “#E74C3C”, “#3498DB”, “#F39C12”, “#00D4AA”];
+setSubAccounts(function (prev) {
+return prev.concat([{
+id: gid(),
+name: newSubName.trim(),
+emoji: newSubEmoji,
+color: colors[prev.length % colors.length],
+operacional: [],
+patrimonio: []
+}]);
+});
+setNewSubName(””);
+setNewSubEmoji(”\u{1F4C1}”);
+setShowAddSub(false);
+}
+function deleteSubAccount(id) {
+if (!confirm(“Excluir esta sub-conta?”)) return;
+setSubAccounts(function (prev) {
+return prev.filter(function (s) {
+return s.id !== id;
+});
+});
+if (selectedSub === id) {
+setView(“main”);
+setSelectedSub(null);
+}
+}
+
+// SYNC BAR
+function SyncBar() {
+if (!syncStatus) return null;
+var labels = {
+loading: “Carregando…”,
+saving: “Salvando…”,
+saved: “Salvo na nuvem”,
+error: “Erro ao salvar”
+};
+var cls = {
+loading: “sync-loading”,
+saving: “sync-saving”,
+saved: “sync-saved”,
+error: “sync-error”
+};
+return /*#**PURE***/React.createElement(“div”, {
+className: “sync-bar “ + (cls[syncStatus] || “”)
+}, labels[syncStatus]);
+}
+
+// BALANCE DISPLAY
+function BalD(p) {
+var fs = p.size === “lg” ? {
 u: 18,
 b: 13
-} : size === “md” ? {
-u: 14,
-b: 11
-} : {
+} : p.size === “sm” ? {
 u: 13,
 b: 10
+} : {
+u: 14,
+b: 11
 };
 return /*#**PURE***/React.createElement(“div”, {
 style: {
@@ -500,57 +488,63 @@ alignItems: “flex-end”,
 gap: 1
 }
 }, /*#**PURE***/React.createElement(“span”, {
-className: `bal ${bc(usd)}`,
+className: “bal “ + bc(p.usd),
 style: {
 fontSize: fs.u
 }
-}, fmtUSD(usd)), /*#**PURE***/React.createElement(“span”, {
+}, fU(p.usd)), /*#**PURE***/React.createElement(“span”, {
 className: “bal”,
 style: {
 fontSize: fs.b,
 color: “var(–t3)”
 }
-}, fmtBRL(brl)));
-};
-const EntryValues = ({
-e
-}) => {
-const sign = e.type === “credito” ? “+” : “-”;
-const valUSD = e.currency === “USD” ? e.value : e.exchange > 0 ? e.value / e.exchange : 0;
-const valBRL = e.currency === “BRL” ? e.value : e.exchange > 0 ? e.value * e.exchange : 0;
+}, fB(p.brl)));
+}
+
+// ENTRY VALUES
+function EVal(p) {
+var e = p.e,
+sign = e.type === “credito” ? “+” : “-”;
+var vU = e.currency === “USD” ? e.value : e.exchange > 0 ? e.value / e.exchange : 0;
+var vB = e.currency === “BRL” ? e.value : e.exchange > 0 ? e.value * e.exchange : 0;
 return /*#**PURE***/React.createElement(“div”, {
 style: {
 display: “flex”,
 flexDirection: “column”,
-alignItems: “flex-end”,
-gap: 0
+alignItems: “flex-end”
 }
 }, /*#**PURE***/React.createElement(“span”, {
-className: `val ${e.type === "credito" ? "pos" : "neg"}`
-}, sign, “ “, fmtUSD(e.currency === “USD” ? e.value : valUSD)), /*#**PURE***/React.createElement(“span”, {
+className: “val “ + (e.type === “credito” ? “pos” : “neg”)
+}, sign, “ “, fU(e.currency === “USD” ? e.value : vU)), /*#**PURE***/React.createElement(“span”, {
 style: {
 fontSize: 10,
 color: “var(–t3)”,
 fontFamily: “‘JetBrains Mono’,monospace”
 }
-}, sign, “ “, fmtBRL(e.currency === “BRL” ? e.value : valBRL)));
-};
-const EntriesTable = ({
-entries,
-subId,
-boxType,
-showSubCol = false
-}) => {
-const sorted = […entries].sort((a, b) => new Date(b.date) - new Date(a.date));
+}, sign, “ “, fB(e.currency === “BRL” ? e.value : vB)));
+}
+
+// ENTRIES TABLE
+function ETbl(p) {
+var entries = p.entries,
+subId = p.subId,
+boxType = p.boxType,
+showSubCol = p.showSubCol || false;
+var sorted = entries.slice().sort(function (a, b) {
+return new Date(b.date) - new Date(a.date);
+});
 if (sorted.length === 0) return /*#**PURE***/React.createElement(“div”, {
 className: “empty”
-}, /*#**PURE***/React.createElement(“p”, null, “Sem lan\xE7amentos”));
-const chronological = […entries].sort((a, b) => new Date(a.date) - new Date(b.date));
-const runBal = {};
-let rU = 0,
+}, /*#**PURE***/React.createElement(“p”, null, “Sem lancamentos”));
+var chrono = entries.slice().sort(function (a, b) {
+return new Date(a.date) - new Date(b.date);
+});
+var runBal = {},
+rU = 0,
 rB = 0;
-chronological.forEach(e => {
-const sign = e.type === “credito” ? 1 : -1;
+for (var i = 0; i < chrono.length; i++) {
+var e = chrono[i],
+sign = e.type === “credito” ? 1 : -1;
 if (e.currency === “USD”) {
 rU += Math.abs(e.value) * sign;
 if (e.exchange > 0) rB += Math.abs(e.value) * e.exchange * sign;
@@ -562,13 +556,13 @@ runBal[e.id] = {
 usd: rU,
 brl: rB
 };
-});
-const bal = getBalance(entries);
+}
+var bal = getBal(entries);
 return /*#**PURE***/React.createElement(“div”, {
 className: “tbl-wrap”
 }, /*#**PURE***/React.createElement(“table”, {
 className: “tbl”
-}, /*#**PURE***/React.createElement(“thead”, null, /*#**PURE***/React.createElement(“tr”, null, /*#**PURE***/React.createElement(“th”, null, “Data”), showSubCol && /*#**PURE***/React.createElement(“th”, null, “Sub-conta”), /*#**PURE***/React.createElement(“th”, null, “Descri\xE7\xE3o”), /*#**PURE***/React.createElement(“th”, null, “Tipo”), /*#**PURE***/React.createElement(“th”, {
+}, /*#**PURE***/React.createElement(“thead”, null, /*#**PURE***/React.createElement(“tr”, null, /*#**PURE***/React.createElement(“th”, null, “Data”), showSubCol && /*#**PURE***/React.createElement(“th”, null, “Sub-conta”), /*#**PURE***/React.createElement(“th”, null, “Descricao”), /*#**PURE***/React.createElement(“th”, null, “Tipo”), /*#**PURE***/React.createElement(“th”, {
 style: {
 textAlign: “right”
 }
@@ -576,7 +570,7 @@ textAlign: “right”
 style: {
 textAlign: “center”
 }
-}, “C\xE2mbio”), /*#**PURE***/React.createElement(“th”, {
+}, “Cambio”), /*#**PURE***/React.createElement(“th”, {
 style: {
 textAlign: “right”
 }
@@ -584,7 +578,8 @@ textAlign: “right”
 style: {
 width: 56
 }
-}))), /*#**PURE***/React.createElement(“tbody”, null, sorted.map(e => /*#**PURE***/React.createElement(“tr”, {
+}))), /*#**PURE***/React.createElement(“tbody”, null, sorted.map(function (e) {
+return /*#**PURE***/React.createElement(“tr”, {
 key: e.id
 }, /*#**PURE***/React.createElement(“td”, {
 className: “dt”
@@ -598,12 +593,12 @@ textOverflow: “ellipsis”,
 whiteSpace: “nowrap”
 }
 }, e.info), /*#**PURE***/React.createElement(“td”, null, /*#**PURE***/React.createElement(“span”, {
-className: `badge badge-${e.type === "credito" ? "c" : "d"}`
+className: “badge badge-” + (e.type === “credito” ? “c” : “d”)
 }, e.type === “credito” ? “C” : “D”)), /*#**PURE***/React.createElement(“td”, {
 style: {
 textAlign: “right”
 }
-}, /*#**PURE***/React.createElement(EntryValues, {
+}, /*#**PURE***/React.createElement(EVal, {
 e: e
 })), /*#**PURE***/React.createElement(“td”, {
 style: {
@@ -618,7 +613,7 @@ background: “rgba(240,192,64,0.08)”,
 padding: “2px 6px”,
 borderRadius: 4
 }
-}, e.exchange > 0 ? `${e.exchange.toFixed(2)}` : “—”)), /*#**PURE***/React.createElement(“td”, {
+}, e.exchange > 0 ? e.exchange.toFixed(2) : “\u2014”)), /*#**PURE***/React.createElement(“td”, {
 style: {
 textAlign: “right”
 }
@@ -629,31 +624,31 @@ flexDirection: “column”,
 alignItems: “flex-end”
 }
 }, /*#**PURE***/React.createElement(“span”, {
-className: `mono ${bc(runBal[e.id].usd)}`,
+className: “mono “ + bc(runBal[e.id].usd),
 style: {
 fontSize: 11,
 fontWeight: 600
 }
-}, fmtUSD(runBal[e.id].usd)), /*#**PURE***/React.createElement(“span”, {
+}, fU(runBal[e.id].usd)), /*#**PURE***/React.createElement(“span”, {
 className: “mono”,
 style: {
 fontSize: 9,
 color: “var(–t3)”
 }
-}, fmtBRL(runBal[e.id].brl)))), !showSubCol && /*#**PURE***/React.createElement(“td”, null, /*#**PURE***/React.createElement(“div”, {
+}, fB(runBal[e.id].brl)))), !showSubCol && /*#**PURE***/React.createElement(“td”, null, /*#**PURE***/React.createElement(“div”, {
 style: {
 display: “flex”,
 gap: 2
 }
 }, /*#**PURE***/React.createElement(“button”, {
 className: “ibtn”,
-onClick: () => {
+onClick: function () {
 setEntryForm({
 date: e.date,
 info: e.info,
-value: e.value.toString(),
+value: String(e.value),
 currency: e.currency,
-exchange: e.exchange ? e.exchange.toString() : “5.80”,
+exchange: e.exchange ? String(e.exchange) : “5.80”,
 type: e.type,
 targetSub: subId,
 targetBox: boxType
@@ -663,10 +658,13 @@ setSelectedSub(subId);
 setSelectedBox(boxType);
 setShowAddEntry(true);
 }
-}, Ic.edit), /*#**PURE***/React.createElement(“button”, {
+}, “E”), /*#**PURE***/React.createElement(“button”, {
 className: “ibtn dng”,
-onClick: () => deleteEntry(subId, boxType, e.id)
-}, Ic.trash))))))), /*#**PURE***/React.createElement(“div”, {
+onClick: function () {
+deleteEntry(subId, boxType, e.id);
+}
+}, “X”))));
+}))), /*#**PURE***/React.createElement(“div”, {
 style: {
 display: “flex”,
 justifyContent: “space-between”,
@@ -683,19 +681,15 @@ textTransform: “uppercase”,
 letterSpacing: “0.8px”,
 color: “var(–t2)”
 }
-}, “Subtotal”), /*#**PURE***/React.createElement(BalDisplay, {
+}, “Subtotal”), /*#**PURE***/React.createElement(BalD, {
 usd: bal.usd,
-brl: bal.brl,
-size: “md”
+brl: bal.brl
 })));
-};
+}
 
-// ==================== TOTALS CARD (always separated) ====================
-const TotalsCard = ({
-opBal,
-patBal,
-label = “”
-}) => /*#**PURE***/React.createElement(“div”, {
+// TOTALS CARD
+function TotCard(p) {
+return /*#**PURE***/React.createElement(“div”, {
 style: {
 display: “grid”,
 gridTemplateColumns: “1fr 1fr”,
@@ -712,32 +706,26 @@ borderTop: “3px solid #4A9EFF”
 }
 }, /*#**PURE***/React.createElement(“div”, {
 style: {
-display: “flex”,
-alignItems: “center”,
-gap: 6,
-marginBottom: 8
-}
-}, Ic.op, /*#**PURE***/React.createElement(“span”, {
-style: {
 fontSize: 11,
 fontWeight: 700,
 textTransform: “uppercase”,
 letterSpacing: “1px”,
-color: “#4A9EFF”
+color: “#4A9EFF”,
+marginBottom: 8
 }
-}, label ? `${label} · ` : “”, “Total Operacional”)), /*#**PURE***/React.createElement(“div”, {
-className: `bal ${bc(opBal.usd)}`,
+}, “Total Operacional”), /*#**PURE***/React.createElement(“div”, {
+className: “bal “ + bc(p.opBal.usd),
 style: {
 fontSize: 20,
 marginBottom: 2
 }
-}, fmtUSD(opBal.usd)), /*#**PURE***/React.createElement(“div”, {
+}, fU(p.opBal.usd)), /*#**PURE***/React.createElement(“div”, {
 className: “bal”,
 style: {
 fontSize: 13,
 color: “var(–t3)”
 }
-}, fmtBRL(opBal.brl))), /*#**PURE***/React.createElement(“div”, {
+}, fB(p.opBal.brl))), /*#**PURE***/React.createElement(“div”, {
 style: {
 background: “var(–bg2)”,
 border: “1px solid var(–border)”,
@@ -747,94 +735,93 @@ borderTop: “3px solid #E8A838”
 }
 }, /*#**PURE***/React.createElement(“div”, {
 style: {
-display: “flex”,
-alignItems: “center”,
-gap: 6,
-marginBottom: 8
-}
-}, Ic.pat, /*#**PURE***/React.createElement(“span”, {
-style: {
 fontSize: 11,
 fontWeight: 700,
 textTransform: “uppercase”,
 letterSpacing: “1px”,
-color: “#E8A838”
+color: “#E8A838”,
+marginBottom: 8
 }
-}, label ? `${label} · ` : “”, “Total Patrim\xF4nio”)), /*#**PURE***/React.createElement(“div”, {
-className: `bal ${bc(patBal.usd)}`,
+}, “Total Patrimonio”), /*#**PURE***/React.createElement(“div”, {
+className: “bal “ + bc(p.patBal.usd),
 style: {
 fontSize: 20,
 marginBottom: 2
 }
-}, fmtUSD(patBal.usd)), /*#**PURE***/React.createElement(“div”, {
+}, fU(p.patBal.usd)), /*#**PURE***/React.createElement(“div”, {
 className: “bal”,
 style: {
 fontSize: 13,
 color: “var(–t3)”
 }
-}, fmtBRL(patBal.brl))));
+}, fB(p.patBal.brl))));
+}
 
-// ==================== CONTA GERAL ====================
-const renderGeral = () => {
-const opBal = getGeralBalance(“operacional”);
-const patBal = getGeralBalance(“patrimonio”);
-const allEntries = boxType => {
-const entries = [];
-subAccounts.forEach(s => {
-s[boxType].forEach(e => entries.push({
-…e,
+// RENDER GERAL
+function renderGeral() {
+var opBal = getGeralBal(“operacional”),
+patBal = getGeralBal(“patrimonio”);
+function allEntries(boxType) {
+var entries = [];
+for (var i = 0; i < subAccounts.length; i++) {
+var s = subAccounts[i];
+for (var j = 0; j < s[boxType].length; j++) {
+entries.push(Object.assign({}, s[boxType][j], {
 subId: s.id,
 subName: s.name,
 subColor: s.color,
 subEmoji: s.emoji
 }));
-});
+}
+}
 return entries;
-};
-const renderGeralBox = (boxType, label, icon, bal, accentColor) => {
-const entries = allEntries(boxType);
+}
+function renderGeralBox(boxType, label, color) {
+var entries = allEntries(boxType),
+bal = boxType === “operacional” ? opBal : patBal;
 return /*#**PURE***/React.createElement(“div”, {
 className: “box-sec”
 }, /*#**PURE***/React.createElement(“div”, {
 className: “box-hdr”,
 style: {
-borderTop: `3px solid ${accentColor}`
+borderTop: “3px solid “ + color
 }
 }, /*#**PURE***/React.createElement(“h3”, {
 style: {
-color: accentColor
+color: color
 }
-}, icon, “ “, label), /*#**PURE***/React.createElement(BalDisplay, {
+}, label), /*#**PURE***/React.createElement(BalD, {
 usd: bal.usd,
 brl: bal.brl
 })), /*#**PURE***/React.createElement(“div”, {
 className: “box-body”
 }, entries.length === 0 ? /*#**PURE***/React.createElement(“div”, {
 className: “empty”
-}, /*#**PURE***/React.createElement(“p”, null, “Nenhum lan\xE7amento”)) : /*#**PURE***/React.createElement(EntriesTable, {
+}, /*#**PURE***/React.createElement(“p”, null, “Nenhum lancamento”)) : /*#**PURE***/React.createElement(ETbl, {
 entries: entries,
 showSubCol: true
 }), /*#**PURE***/React.createElement(“div”, {
 className: “add-row”,
-onClick: () => {
+onClick: function () {
 resetForm();
-setEntryForm(f => ({
-…f,
+setEntryForm(function (f) {
+return Object.assign({}, f, {
 targetBox: boxType,
-targetSub: (subAccounts || [])[0]?.id || “”
-}));
+targetSub: subAccounts[0] ? subAccounts[0].id : “”
+});
+});
 setSelectedBox(boxType);
 setShowAddEntry(true);
 }
-}, Ic.plus, “ Novo Lan\xE7amento”)), /*#**PURE***/React.createElement(“div”, {
+}, “+ Novo Lancamento”)), /*#**PURE***/React.createElement(“div”, {
 style: {
 display: “grid”,
-gridTemplateColumns: “repeat(auto-fill,minmax(180px,1fr))”,
+gridTemplateColumns: “repeat(auto-fill,minmax(160px,1fr))”,
 gap: 6,
 marginTop: 8
 }
-}, subAccounts.map(s => {
-const b = getBalance(s[boxType]);
+}, subAccounts.map(function (s) {
+var b = getBal(s[boxType]);
 return /*#**PURE***/React.createElement(“div”, {
 key: s.id,
 style: {
@@ -842,7 +829,7 @@ background: “var(–bg1)”,
 border: “1px solid var(–border)”,
 borderRadius: “var(–r-sm)”,
 padding: “8px 10px”,
-borderLeft: `3px solid ${s.color}`
+borderLeft: “3px solid “ + s.color
 }
 }, /*#**PURE***/React.createElement(“div”, {
 style: {
@@ -852,33 +839,34 @@ fontWeight: 600,
 marginBottom: 3
 }
 }, s.emoji, “ “, s.name), /*#**PURE***/React.createElement(“div”, {
-className: `bal ${bc(b.usd)}`,
+className: “bal “ + bc(b.usd),
 style: {
 fontSize: 13
 }
-}, fmtUSD(b.usd)), /*#**PURE***/React.createElement(“div”, {
+}, fU(b.usd)), /*#**PURE***/React.createElement(“div”, {
 className: “bal”,
 style: {
 fontSize: 9,
 color: “var(–t3)”
 }
-}, fmtBRL(b.brl)));
+}, fB(b.brl)));
 })));
-};
+}
 return /*#**PURE***/React.createElement(“div”, {
 className: “anim”
 }, /*#**PURE***/React.createElement(“div”, {
 className: “hdr”
 }, /*#**PURE***/React.createElement(“div”, null, /*#**PURE***/React.createElement(“div”, {
 className: “hdr-sub”
-}, “Vis\xE3o Consolidada”), /*#**PURE***/React.createElement(“h2”, null, “Conta Geral”))), /*#**PURE***/React.createElement(TotalsCard, {
+}, “Visao Consolidada”), /*#**PURE***/React.createElement(“h2”, null, “Conta Geral”))), /*#**PURE***/React.createElement(TotCard, {
 opBal: opBal,
 patBal: patBal
-}), renderGeralBox(“operacional”, “Caixa Operacional”, Ic.op, opBal, “#4A9EFF”), renderGeralBox(“patrimonio”, “Caixa Patrimônio”, Ic.pat, patBal, “#E8A838”));
-};
+}), renderGeralBox(“operacional”, “Caixa Operacional”, “#4A9EFF”), renderGeralBox(“patrimonio”, “Caixa Patrimonio”, “#E8A838”));
+}
 
-// ==================== SUB-CONTAS LIST ====================
-const renderSubContas = () => /*#**PURE***/React.createElement(“div”, {
+// RENDER SUBCONTAS
+function renderSubContas() {
+return /*#**PURE***/React.createElement(“div”, {
 className: “anim”
 }, /*#**PURE***/React.createElement(“div”, {
 className: “hdr”
@@ -886,19 +874,21 @@ className: “hdr”
 className: “hdr-sub”
 }, “Contas Individuais”), /*#**PURE***/React.createElement(“h2”, null, “Sub-Contas”)), /*#**PURE***/React.createElement(“button”, {
 className: “btn btn-p”,
-onClick: () => setShowAddSub(true)
-}, Ic.plus, “ Nova”)), /*#**PURE***/React.createElement(“div”, {
+onClick: function () {
+setShowAddSub(true);
+}
+}, “+ Nova”)), /*#**PURE***/React.createElement(“div”, {
 className: “card-grid”
-}, subAccounts.map(s => {
-const opBal = getBalance(s.operacional);
-const patBal = getBalance(s.patrimonio);
+}, subAccounts.map(function (s) {
+var opBal = getBal(s.operacional),
+patBal = getBal(s.patrimonio);
 return /*#**PURE***/React.createElement(“div”, {
 key: s.id,
 className: “card”,
 style: {
 padding: 14
 },
-onClick: () => {
+onClick: function () {
 setSelectedSub(s.id);
 setView(“subdetail”);
 }
@@ -931,11 +921,11 @@ alignItems: “center”
 }
 }, /*#**PURE***/React.createElement(“button”, {
 className: “ibtn dng”,
-onClick: e => {
-e.stopPropagation();
+onClick: function (ev) {
+ev.stopPropagation();
 deleteSubAccount(s.id);
 }
-}, Ic.trash), Ic.chevron)), /*#**PURE***/React.createElement(“div”, {
+}, “X”))), /*#**PURE***/React.createElement(“div”, {
 style: {
 display: “grid”,
 gridTemplateColumns: “1fr 1fr”,
@@ -952,18 +942,18 @@ className: “bal-label”,
 style: {
 color: “#4A9EFF”
 }
-}, “\uD83D\uDCB3 Operacional”), /*#**PURE***/React.createElement(“div”, {
-className: `bal ${bc(opBal.usd)}`,
+}, “Operacional”), /*#**PURE***/React.createElement(“div”, {
+className: “bal “ + bc(opBal.usd),
 style: {
 fontSize: 14
 }
-}, fmtUSD(opBal.usd)), /*#**PURE***/React.createElement(“div”, {
+}, fU(opBal.usd)), /*#**PURE***/React.createElement(“div”, {
 className: “bal”,
 style: {
 fontSize: 10,
 color: “var(–t3)”
 }
-}, fmtBRL(opBal.brl))), /*#**PURE***/React.createElement(“div”, {
+}, fB(opBal.brl))), /*#**PURE***/React.createElement(“div”, {
 className: “bal-box”,
 style: {
 borderTop: “2px solid #E8A838”
@@ -973,73 +963,77 @@ className: “bal-label”,
 style: {
 color: “#E8A838”
 }
-}, “\uD83C\uDFDB Patrim\xF4nio”), /*#**PURE***/React.createElement(“div”, {
-className: `bal ${bc(patBal.usd)}`,
+}, “Patrimonio”), /*#**PURE***/React.createElement(“div”, {
+className: “bal “ + bc(patBal.usd),
 style: {
 fontSize: 14
 }
-}, fmtUSD(patBal.usd)), /*#**PURE***/React.createElement(“div”, {
+}, fU(patBal.usd)), /*#**PURE***/React.createElement(“div”, {
 className: “bal”,
 style: {
 fontSize: 10,
 color: “var(–t3)”
 }
-}, fmtBRL(patBal.brl)))));
+}, fB(patBal.brl)))));
 })));
+}
 
-// ==================== SUB DETAIL ====================
-const renderSubDetail = () => {
+// RENDER SUB DETAIL
+function renderSubDetail() {
 if (!currentSub) return null;
-const opBal = getBalance(currentSub.operacional);
-const patBal = getBalance(currentSub.patrimonio);
-const renderBox = (boxType, label, icon, accentColor) => {
-const bal = getBalance(currentSub[boxType]);
+var opBal = getBal(currentSub.operacional),
+patBal = getBal(currentSub.patrimonio);
+function renderBox(boxType, label, color) {
+var bal = getBal(currentSub[boxType]);
 return /*#**PURE***/React.createElement(“div”, {
 className: “box-sec”
 }, /*#**PURE***/React.createElement(“div”, {
 className: “box-hdr”,
 style: {
-borderTop: `3px solid ${accentColor}`
+borderTop: “3px solid “ + color
 }
 }, /*#**PURE***/React.createElement(“h3”, {
 style: {
-color: accentColor
+color: color
 }
-}, icon, “ “, label), /*#**PURE***/React.createElement(“div”, {
+}, label), /*#**PURE***/React.createElement(“div”, {
 style: {
 display: “flex”,
 alignItems: “center”,
 gap: 8
 }
-}, /*#**PURE***/React.createElement(BalDisplay, {
+}, /*#**PURE***/React.createElement(BalD, {
 usd: bal.usd,
 brl: bal.brl,
 size: “sm”
 }), /*#**PURE***/React.createElement(“button”, {
 className: “ibtn dng”,
 title: “Zerar”,
-onClick: () => resetBox(currentSub.id, boxType)
-}, Ic.reset))), /*#**PURE***/React.createElement(“div”, {
+onClick: function () {
+resetBox(currentSub.id, boxType);
+}
+}, “R”))), /*#**PURE***/React.createElement(“div”, {
 className: “box-body”
-}, /*#**PURE***/React.createElement(EntriesTable, {
+}, /*#**PURE***/React.createElement(ETbl, {
 entries: currentSub[boxType],
 subId: currentSub.id,
 boxType: boxType
 }), /*#**PURE***/React.createElement(“div”, {
 className: “add-row”,
-onClick: () => {
+onClick: function () {
 resetForm();
 setSelectedSub(currentSub.id);
 setSelectedBox(boxType);
-setEntryForm(f => ({
-…f,
+setEntryForm(function (f) {
+return Object.assign({}, f, {
 targetSub: currentSub.id,
 targetBox: boxType
-}));
+});
+});
 setShowAddEntry(true);
 }
-}, Ic.plus, “ Novo Lan\xE7amento”)));
-};
+}, “+ Novo Lancamento”)));
+}
 return /*#**PURE***/React.createElement(“div”, {
 className: “anim”
 }, /*#**PURE***/React.createElement(“div”, {
@@ -1052,11 +1046,11 @@ gap: 10
 }
 }, /*#**PURE***/React.createElement(“button”, {
 className: “back-btn”,
-onClick: () => {
+onClick: function () {
 setView(“main”);
 setSelectedSub(null);
 }
-}, Ic.back), /*#**PURE***/React.createElement(“div”, null, /*#**PURE***/React.createElement(“div”, {
+}, “\u2190 Voltar”), /*#**PURE***/React.createElement(“div”, null, /*#**PURE***/React.createElement(“div”, {
 className: “hdr-sub”
 }, “Sub-conta”), /*#**PURE***/React.createElement(“h2”, {
 style: {
@@ -1072,124 +1066,157 @@ borderRadius: “50%”,
 background: currentSub.color,
 display: “inline-block”
 }
-}), currentSub.name)))), /*#**PURE***/React.createElement(TotalsCard, {
+}), currentSub.name)))), /*#**PURE***/React.createElement(TotCard, {
 opBal: opBal,
-patBal: patBal,
-label: currentSub.name
-}), renderBox(“operacional”, “Caixa Operacional”, Ic.op, “#4A9EFF”), renderBox(“patrimonio”, “Caixa Patrimônio”, Ic.pat, “#E8A838”));
-};
+patBal: patBal
+}), renderBox(“operacional”, “Caixa Operacional”, “#4A9EFF”), renderBox(“patrimonio”, “Caixa Patrimonio”, “#E8A838”));
+}
 
-// ==================== ENTRY MODAL ====================
-const renderEntryModal = () => {
-const isGeral = activeTab === “geral” && !editingEntry;
+// ENTRY MODAL
+function renderEntryModal() {
+var isGeral = activeTab === “geral” && !editingEntry;
+var ev = entryForm.value,
+ex = entryForm.exchange,
+hasPreview = ev && ex && parseFloat(ex) > 0;
 return /*#**PURE***/React.createElement(“div”, {
 className: “overlay”,
-onClick: () => {
+onClick: function () {
 setShowAddEntry(false);
 resetForm();
 }
 }, /*#**PURE***/React.createElement(“div”, {
 className: “modal”,
-onClick: e => e.stopPropagation()
-}, /*#**PURE***/React.createElement(“h3”, null, editingEntry ? “✏️ Editar Lançamento” : “➕ Novo Lançamento”), /*#**PURE***/React.createElement(“div”, {
+onClick: function (e) {
+e.stopPropagation();
+}
+}, /*#**PURE***/React.createElement(“h3”, null, editingEntry ? “Editar Lancamento” : “Novo Lancamento”), /*#**PURE***/React.createElement(“div”, {
 className: “fg”
 }, /*#**PURE***/React.createElement(“label”, null, “Tipo”), /*#**PURE***/React.createElement(“div”, {
 className: “type-tog”
 }, /*#**PURE***/React.createElement(“button”, {
 className: entryForm.type === “credito” ? “ac” : “”,
-onClick: () => setEntryForm(f => ({
-…f,
+onClick: function () {
+setEntryForm(function (f) {
+return Object.assign({}, f, {
 type: “credito”
-}))
-}, “\u2191 Cr\xE9dito”), /*#**PURE***/React.createElement(“button”, {
+});
+});
+}
+}, “Credito”), /*#**PURE***/React.createElement(“button”, {
 className: entryForm.type === “debito” ? “ad” : “”,
-onClick: () => setEntryForm(f => ({
-…f,
+onClick: function () {
+setEntryForm(function (f) {
+return Object.assign({}, f, {
 type: “debito”
-}))
-}, “\u2193 D\xE9bito”))), isGeral && /*#**PURE***/React.createElement(“div”, {
+});
+});
+}
+}, “Debito”))), isGeral && /*#**PURE***/React.createElement(“div”, {
 className: “fg-row”
 }, /*#**PURE***/React.createElement(“div”, {
 className: “fg”
 }, /*#**PURE***/React.createElement(“label”, null, “Sub-conta”), /*#**PURE***/React.createElement(“select”, {
 value: entryForm.targetSub,
-onChange: e => setEntryForm(f => ({
-…f,
+onChange: function (e) {
+setEntryForm(function (f) {
+return Object.assign({}, f, {
 targetSub: e.target.value
-}))
-}, subAccounts.map(s => /*#**PURE***/React.createElement(“option”, {
+});
+});
+}
+}, subAccounts.map(function (s) {
+return /*#**PURE***/React.createElement(“option”, {
 key: s.id,
 value: s.id
-}, s.emoji, “ “, s.name)))), /*#**PURE***/React.createElement(“div”, {
+}, s.emoji, “ “, s.name);
+}))), /*#**PURE***/React.createElement(“div”, {
 className: “fg”
 }, /*#**PURE***/React.createElement(“label”, null, “Caixa”), /*#**PURE***/React.createElement(“select”, {
 value: entryForm.targetBox,
-onChange: e => setEntryForm(f => ({
-…f,
+onChange: function (e) {
+setEntryForm(function (f) {
+return Object.assign({}, f, {
 targetBox: e.target.value
-}))
+});
+});
+}
 }, /*#**PURE***/React.createElement(“option”, {
 value: “operacional”
-}, “\uD83D\uDCB3 Operacional”), /*#**PURE***/React.createElement(“option”, {
+}, “Operacional”), /*#**PURE***/React.createElement(“option”, {
 value: “patrimonio”
-}, “\uD83C\uDFDB Patrim\xF4nio”)))), /*#**PURE***/React.createElement(“div”, {
+}, “Patrimonio”)))), /*#**PURE***/React.createElement(“div”, {
 className: “fg-row”
 }, /*#**PURE***/React.createElement(“div”, {
 className: “fg”
 }, /*#**PURE***/React.createElement(“label”, null, “Data”), /*#**PURE***/React.createElement(“input”, {
 type: “date”,
 value: entryForm.date,
-onChange: e => setEntryForm(f => ({
-…f,
+onChange: function (e) {
+setEntryForm(function (f) {
+return Object.assign({}, f, {
 date: e.target.value
-}))
+});
+});
+}
 })), /*#**PURE***/React.createElement(“div”, {
 className: “fg”
 }, /*#**PURE***/React.createElement(“label”, null, “Moeda”), /*#**PURE***/React.createElement(“select”, {
 value: entryForm.currency,
-onChange: e => setEntryForm(f => ({
-…f,
+onChange: function (e) {
+setEntryForm(function (f) {
+return Object.assign({}, f, {
 currency: e.target.value
-}))
+});
+});
+}
 }, /*#**PURE***/React.createElement(“option”, {
 value: “USD”
-}, “$ D\xF3lar (USD)”), /*#**PURE***/React.createElement(“option”, {
+}, “$ Dolar (USD)”), /*#**PURE***/React.createElement(“option”, {
 value: “BRL”
 }, “R$ Real (BRL)”)))), /*#**PURE***/React.createElement(“div”, {
 className: “fg”
-}, /*#**PURE***/React.createElement(“label”, null, “Descri\xE7\xE3o”), /*#**PURE***/React.createElement(“input”, {
+}, /*#**PURE***/React.createElement(“label”, null, “Descricao”), /*#**PURE***/React.createElement(“input”, {
 type: “text”,
-placeholder: “Ex: Dep\xF3sito, Pagamento fornecedor…”,
+placeholder: “Ex: Deposito, Pagamento…”,
 value: entryForm.info,
-onChange: e => setEntryForm(f => ({
-…f,
+onChange: function (e) {
+setEntryForm(function (f) {
+return Object.assign({}, f, {
 info: e.target.value
-}))
+});
+});
+}
 })), /*#**PURE***/React.createElement(“div”, {
 className: “fg-row”
 }, /*#**PURE***/React.createElement(“div”, {
 className: “fg”
-}, /*#**PURE***/React.createElement(“label”, null, “Valor (”, entryForm.currency === “USD” ? “$” : “R$”, “)”), /*#**PURE***/React.createElement(“input”, {
+}, /*#**PURE***/React.createElement(“label”, null, “Valor”), /*#**PURE***/React.createElement(“input”, {
 type: “number”,
 step: “0.01”,
 placeholder: “0.00”,
 value: entryForm.value,
-onChange: e => setEntryForm(f => ({
-…f,
+onChange: function (e) {
+setEntryForm(function (f) {
+return Object.assign({}, f, {
 value: e.target.value
-}))
+});
+});
+}
 })), /*#**PURE***/React.createElement(“div”, {
 className: “fg”
-}, /*#**PURE***/React.createElement(“label”, null, “\uD83D\uDCB1 C\xE2mbio (1 USD = ? BRL)”), /*#**PURE***/React.createElement(“input”, {
+}, /*#**PURE***/React.createElement(“label”, null, “Cambio (1 USD = ? BRL)”), /*#**PURE***/React.createElement(“input”, {
 type: “number”,
 step: “0.01”,
 placeholder: “5.80”,
 value: entryForm.exchange,
-onChange: e => setEntryForm(f => ({
-…f,
+onChange: function (e) {
+setEntryForm(function (f) {
+return Object.assign({}, f, {
 exchange: e.target.value
-}))
-}))), entryForm.value && entryForm.exchange && parseFloat(entryForm.exchange) > 0 && /*#**PURE***/React.createElement(“div”, {
+});
+});
+}
+}))), hasPreview && /*#**PURE***/React.createElement(“div”, {
 style: {
 background: “var(–bg0)”,
 border: “1px solid var(–border)”,
@@ -1204,7 +1231,7 @@ color: “var(–t3)”,
 fontWeight: 600,
 marginBottom: 4
 }
-}, “PR\xC9VIA DA CONVERS\xC3O”), /*#**PURE***/React.createElement(“div”, {
+}, “PREVIA”), /*#**PURE***/React.createElement(“div”, {
 style: {
 display: “flex”,
 justifyContent: “space-between”
@@ -1214,18 +1241,12 @@ className: “bal pos”,
 style: {
 fontSize: 14
 }
-}, entryForm.currency === “USD” ? fmtUSD(parseFloat(entryForm.value)) : fmtUSD(parseFloat(entryForm.value) / parseFloat(entryForm.exchange))), /*#**PURE***/React.createElement(“div”, {
+}, entryForm.currency === “USD” ? fU(parseFloat(ev)) : fU(parseFloat(ev) / parseFloat(ex))), /*#**PURE***/React.createElement(“div”, {
 style: {
 fontSize: 10,
 color: “var(–t3)”
 }
-}, “D\xF3lar”)), /*#**PURE***/React.createElement(“div”, {
-style: {
-fontSize: 18,
-color: “var(–yllw)”,
-alignSelf: “center”
-}
-}, “\u21C4”), /*#**PURE***/React.createElement(“div”, {
+}, “Dolar”)), /*#**PURE***/React.createElement(“div”, {
 style: {
 textAlign: “right”
 }
@@ -1235,7 +1256,7 @@ style: {
 fontSize: 14,
 color: “var(–t2)”
 }
-}, entryForm.currency === “BRL” ? fmtBRL(parseFloat(entryForm.value)) : fmtBRL(parseFloat(entryForm.value) * parseFloat(entryForm.exchange))), /*#**PURE***/React.createElement(“div”, {
+}, entryForm.currency === “BRL” ? fB(parseFloat(ev)) : fB(parseFloat(ev) * parseFloat(ex))), /*#**PURE***/React.createElement(“div”, {
 style: {
 fontSize: 10,
 color: “var(–t3)”
@@ -1244,26 +1265,31 @@ color: “var(–t3)”
 className: “f-actions”
 }, /*#**PURE***/React.createElement(“button”, {
 className: “btn btn-s”,
-onClick: () => {
+onClick: function () {
 setShowAddEntry(false);
 resetForm();
 }
 }, “Cancelar”), /*#**PURE***/React.createElement(“button”, {
 className: “btn btn-p”,
-onClick: () => {
+onClick: function () {
 if (editingEntry) updateEntry();else addEntry(isGeral ? entryForm.targetSub : selectedSub, isGeral ? entryForm.targetBox : selectedBox);
 }
 }, editingEntry ? “Salvar” : “Adicionar”))));
-};
-const renderSubModal = () => /*#**PURE***/React.createElement(“div”, {
+}
+
+// SUB MODAL
+function renderSubModal() {
+return /*#**PURE***/React.createElement(“div”, {
 className: “overlay”,
-onClick: () => {
+onClick: function () {
 setShowAddSub(false);
 setNewSubName(””);
 }
 }, /*#**PURE***/React.createElement(“div”, {
 className: “modal”,
-onClick: e => e.stopPropagation()
+onClick: function (e) {
+e.stopPropagation();
+}
 }, /*#**PURE***/React.createElement(“h3”, null, “Nova Sub-conta”), /*#**PURE***/React.createElement(“div”, {
 className: “fg-row”
 }, /*#**PURE***/React.createElement(“div”, {
@@ -1272,7 +1298,9 @@ className: “fg”
 type: “text”,
 maxLength: 2,
 value: newSubEmoji,
-onChange: e => setNewSubEmoji(e.target.value),
+onChange: function (e) {
+setNewSubEmoji(e.target.value);
+},
 style: {
 textAlign: “center”,
 fontSize: 20
@@ -1281,16 +1309,17 @@ fontSize: 20
 className: “fg”
 }, /*#**PURE***/React.createElement(“label”, null, “Nome”), /*#**PURE***/React.createElement(“input”, {
 type: “text”,
-placeholder: “Ex: Empresa Nova…”,
+placeholder: “Nome…”,
 value: newSubName,
-onChange: e => setNewSubName(e.target.value),
-onKeyDown: e => e.key === “Enter” && addSubAccount(),
+onChange: function (e) {
+setNewSubName(e.target.value);
+},
 autoFocus: true
 }))), /*#**PURE***/React.createElement(“div”, {
 className: “f-actions”
 }, /*#**PURE***/React.createElement(“button”, {
 className: “btn btn-s”,
-onClick: () => {
+onClick: function () {
 setShowAddSub(false);
 setNewSubName(””);
 }
@@ -1298,31 +1327,12 @@ setNewSubName(””);
 className: “btn btn-p”,
 onClick: addSubAccount
 }, “Criar”))));
-const css = `@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap'); *{margin:0;padding:0;box-sizing:border-box} :root{--bg0:#06080D;--bg1:#0C1018;--bg2:#131A28;--bg3:#1A2338;--bg-hover:#1E2A42;--border:#1C2640;--border-h:#2A3A5C;--t1:#EDF0F7;--t2:#8A95B0;--t3:#515E7A;--grn:#00E4B8;--grn-bg:rgba(0,228,184,0.07);--red:#FF5A5A;--red-bg:rgba(255,90,90,0.07);--blu:#4A9EFF;--blu-bg:rgba(74,158,255,0.07);--yllw:#F0C040;--r:10px;--r-sm:7px} body{background:var(--bg0)} .app{font-family:'Outfit',sans-serif;min-height:100vh;background:var(--bg0);color:var(--t1);max-width:1000px;margin:0 auto;padding:12px;padding-top:34px} .mono{font-family:'JetBrains Mono',monospace} .nav{display:flex;gap:4px;padding:4px;background:var(--bg2);border-radius:var(--r);margin-bottom:16px;border:1px solid var(--border)} .nav-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:none;border-radius:var(--r-sm);background:transparent;color:var(--t2);font-size:14px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif} .nav-btn:hover{color:var(--t1);background:var(--bg3)} .nav-btn.active{background:var(--blu);color:#fff;box-shadow:0 2px 12px rgba(74,158,255,0.3)} .hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 0 16px} .hdr h2{font-size:18px;font-weight:700;letter-spacing:-0.3px} .hdr-sub{font-size:11px;color:var(--t3);font-weight:600;letter-spacing:1.5px;text-transform:uppercase} .back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:var(--t2);font-size:13px;cursor:pointer;padding:6px 10px;border-radius:var(--r-sm);transition:all .15s;font-family:'Outfit',sans-serif} .back-btn:hover{color:var(--t1);background:var(--bg2)} .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:all .15s;cursor:pointer;position:relative;overflow:hidden} .card:hover{border-color:var(--border-h);background:var(--bg-hover)} .card-accent{position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px} .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px} .bal{font-family:'JetBrains Mono',monospace;font-weight:600} .pos{color:var(--grn)}.neg{color:var(--red)}.zero{color:var(--t3)} .bal-label{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;font-weight:600} .bal-box{padding:8px 10px;background:var(--bg1);border-radius:var(--r-sm)} .box-sec{margin-top:16px} .box-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r) var(--r) 0 0} .box-hdr h3{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px} .box-body{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);background:var(--bg1);overflow:hidden} .tbl-wrap{overflow-x:auto} .tbl{width:100%;border-collapse:collapse;min-width:650px} .tbl th{padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--t3);text-align:left;border-bottom:1px solid var(--border);background:var(--bg2)} .tbl td{padding:8px 10px;font-size:13px;border-bottom:1px solid var(--border)} .tbl tr:last-child td{border-bottom:none} .tbl tr:hover td{background:var(--bg-hover)} .dt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);white-space:nowrap} .val{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;white-space:nowrap} .badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px} .badge-c{background:var(--grn-bg);color:var(--grn)}.badge-d{background:var(--red-bg);color:var(--red)} .badge-sub{background:var(--blu-bg);color:var(--blu);font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600} .btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border:none;border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Outfit',sans-serif} .btn-p{background:var(--blu);color:#fff}.btn-p:hover{filter:brightness(1.15)} .btn-s{background:var(--bg1);color:var(--t1);border:1px solid var(--border)}.btn-s:hover{border-color:var(--t3)} .ibtn{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border:none;background:none;color:var(--t3);cursor:pointer;border-radius:var(--r-sm);transition:all .12s} .ibtn:hover{background:var(--bg2);color:var(--t1)}.ibtn.dng:hover{background:var(--red-bg);color:var(--red)} .empty{text-align:center;padding:28px 16px;color:var(--t3)}.empty p{font-size:13px;margin-bottom:10px} .add-row{display:flex;align-items:center;justify-content:center;padding:10px;cursor:pointer;transition:all .12s;color:var(--blu);font-size:12px;font-weight:600;gap:5px;border-top:1px solid var(--border)} .add-row:hover{background:var(--blu-bg)} .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:100;padding:12px;backdrop-filter:blur(6px)} .modal{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:20px;width:100%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,0.5);max-height:90vh;overflow-y:auto} .modal h3{font-size:16px;font-weight:700;margin-bottom:16px} .fg{margin-bottom:12px} .fg label{display:block;font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px} .fg input,.fg select{width:100%;padding:9px 12px;background:var(--bg0);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--t1);font-size:13px;font-family:'Outfit',sans-serif;transition:border-color .15s} .fg input:focus,.fg select:focus{outline:none;border-color:var(--blu)} .fg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px} .f-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px} .type-tog{display:flex;gap:3px;padding:3px;background:var(--bg0);border-radius:var(--r-sm);border:1px solid var(--border)} .type-tog button{flex:1;padding:7px;border:none;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;font-family:'Outfit',sans-serif;background:transparent;color:var(--t3)} .type-tog button.ac{background:var(--grn-bg);color:var(--grn);border:1px solid rgba(0,228,184,0.3)} .type-tog button.ad{background:var(--red-bg);color:var(--red);border:1px solid rgba(255,90,90,0.3)} @media(max-width:640px){.app{padding:8px}.card-grid{grid-template-columns:1fr}.fg-row{grid-template-columns:1fr}} ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg0)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px} .sync-bar{position:fixed;top:0;left:0;right:0;padding:6px 16px;font-size:11px;font-weight:600;text-align:center;z-index:200;font-family:'Outfit',sans-serif;transition:all .3s} .sync-saving{background:#1A2338;color:#F0C040;border-bottom:2px solid #F0C040} .sync-saved{background:#0D2818;color:#00E4B8;border-bottom:2px solid #00E4B8} .sync-error{background:#2D1515;color:#FF5A5A;border-bottom:2px solid #FF5A5A} .sync-loading{background:#1A2338;color:#4A9EFF;border-bottom:2px solid #4A9EFF} .loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px} .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blu);border-radius:50%;animation:spin .8s linear infinite} @keyframes spin{to{transform:rotate(360deg)}} @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}.anim{animation:fadeIn .2s ease-out}`;
-const SyncBar = function () {
-if (!syncStatus) return null;
-var labels = {
-loading: “Carregando…”,
-saving: “Salvando…”,
-saved: “Salvo na nuvem”,
-error: “Erro ao salvar”
-};
-var cls = {
-loading: “sync-loading”,
-saving: “sync-saving”,
-saved: “sync-saved”,
-error: “sync-error”
-};
-return /*#**PURE***/React.createElement(“div”, {
-className: “sync-bar “ + (cls[syncStatus] || “”)
-}, labels[syncStatus]);
-};
+}
+
+// LOADING
 if (subAccounts === null) {
 return /*#**PURE***/React.createElement(“div”, {
-className: “app”,
-style: {
-paddingTop: 12
-}
+className: “app”
 }, /*#**PURE***/React.createElement(SyncBar, null), /*#**PURE***/React.createElement(“div”, {
 className: “loading-screen”
 }, /*#**PURE***/React.createElement(“div”, {
@@ -1332,21 +1342,28 @@ style: {
 color: “var(–t2)”,
 fontSize: 14
 }
-}, “Carregando dados do Firebase…”)));
+}, “Carregando dados…”)));
 }
-return /*#**PURE***/React.createElement(React.Fragment, null, /*#**PURE***/React.createElement(“style”, null, css), /*#**PURE***/React.createElement(SyncBar, null), /*#**PURE***/React.createElement(“div”, {
+
+// MAIN RETURN
+return /*#**PURE***/React.createElement(“div”, {
 className: “app”
-}, view === “main” && /*#**PURE***/React.createElement(“nav”, {
+}, /*#**PURE***/React.createElement(SyncBar, null), view === “main” && /*#**PURE***/React.createElement(“nav”, {
 className: “nav”
 }, /*#**PURE***/React.createElement(“button”, {
-className: `nav-btn ${activeTab === "geral" ? "active" : ""}`,
-onClick: () => setActiveTab(“geral”)
-}, Ic.home, “ Conta Geral”), /*#**PURE***/React.createElement(“button”, {
-className: `nav-btn ${activeTab === "subcontas" ? "active" : ""}`,
-onClick: () => setActiveTab(“subcontas”)
-}, Ic.list, “ Sub-Contas”)), view === “main” && activeTab === “geral” && renderGeral(), view === “main” && activeTab === “subcontas” && renderSubContas(), view === “subdetail” && renderSubDetail(), showAddEntry && renderEntryModal(), showAddSub && renderSubModal()));
+className: “nav-btn “ + (activeTab === “geral” ? “active” : “”),
+onClick: function () {
+setActiveTab(“geral”);
 }
-ReactDOM.createRoot(document.getElementById(“root”)).render(/*#**PURE***/React.createElement(App, null));</script>
+}, “Conta Geral”), /*#**PURE***/React.createElement(“button”, {
+className: “nav-btn “ + (activeTab === “subcontas” ? “active” : “”),
+onClick: function () {
+setActiveTab(“subcontas”);
+}
+}, “Sub-Contas”)), view === “main” && activeTab === “geral” && renderGeral(), view === “main” && activeTab === “subcontas” && renderSubContas(), view === “subdetail” && renderSubDetail(), showAddEntry && renderEntryModal(), showAddSub && renderSubModal());
+}
+ReactDOM.createRoot(document.getElementById(“root”)).render(/*#**PURE***/React.createElement(App, null));
+</script>
 
 </body>
 </html>

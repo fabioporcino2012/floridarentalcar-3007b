@@ -243,7 +243,21 @@ function App() {
 // FIREBASE LOAD
 useEffect(function () {
 setSyncStatus(“loading”);
+var loaded = false;
+// Timeout fallback - if Firebase doesn’t respond in 6 seconds, use defaults
+var timeout = setTimeout(function() {
+if (!loaded) {
+console.warn(“Firebase timeout - using defaults”);
+loaded = true;
+setSubAccounts(SUBS0);
+setSyncStatus(“error”);
+firstLoad.current = false;
+}
+}, 6000);
 db.collection(“financeiro”).doc(“data”).get().then(function (doc) {
+if (loaded) return;
+loaded = true;
+clearTimeout(timeout);
 if (doc.exists && doc.data().subAccounts) {
 setSubAccounts(doc.data().subAccounts);
 } else {
@@ -257,7 +271,10 @@ setTimeout(function () {
 firstLoad.current = false;
 }, 500);
 }).catch(function (e) {
-console.error(e);
+if (loaded) return;
+loaded = true;
+clearTimeout(timeout);
+console.error(“Firebase error:”, e);
 setSubAccounts(SUBS0);
 setSyncStatus(“error”);
 firstLoad.current = false;

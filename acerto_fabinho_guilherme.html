@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acerto de Contas — Fabinho × Guilherme</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+  :root {
+    --bg:#0a0a0a;--surface:#111;--surface2:#181818;--border:#2a2a2a;
+    --text:#e8e8e8;--muted:#555;--green:#00e676;--green-dim:#00e67622;
+    --red:#ff4444;--red-dim:#ff444418;--yellow:#ffd600;--yellow-dim:#ffd60015;
+    --blue:#40a9ff;--blue-dim:#40a9ff15;--accent:#ffd600;--accent2:#ff9100;--accent3:#b084ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;min-height:100vh;padding:0}
+
+  .tabs-bar{display:flex;border-bottom:1px solid var(--border);background:var(--surface2);position:sticky;top:0;z-index:100;overflow-x:auto}
+  .tab-btn{padding:14px 24px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;flex-shrink:0}
+  .tab-btn:hover{color:var(--text)}
+  .tab-btn.t1.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .tab-btn.t2.active{color:var(--accent2);border-bottom-color:var(--accent2)}
+  .tab-btn.t3.active{color:var(--accent3);border-bottom-color:var(--accent3)}
+  .tab-content{display:none;padding:40px 24px}
+  .tab-content.active{display:block}
+
+  .header{border-bottom:1px solid var(--border);padding-bottom:24px;margin-bottom:40px;display:flex;justify-content:space-between;align-items:flex-end}
+  .header-title{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+  .header h1{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:700;letter-spacing:-.02em}
+  .header-date{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);text-align:right}
+
+  .section{margin-bottom:40px;background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden}
+  .section-header{padding:14px 20px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .section-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+  .section-total{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700}
+
+  .row{display:grid;grid-template-columns:1fr auto;padding:12px 20px;border-bottom:1px solid #1a1a1a;align-items:center;gap:20px;transition:background .15s}
+  .row:last-child{border-bottom:none}
+  .row:hover{background:#161616}
+  .row-label{font-size:13px;color:#ccc;line-height:1.4}
+  .row-value{font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:right;white-space:nowrap}
+  .debit{color:var(--red)}.credit{color:var(--green)}.warn{color:var(--yellow)}
+  .tag{display:inline-block;font-size:9px;font-family:'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:2px;margin-left:8px;vertical-align:middle;font-weight:600}
+  .tag-debit{background:var(--red-dim);color:var(--red);border:1px solid #ff444433}
+  .tag-credit{background:var(--green-dim);color:var(--green);border:1px solid #00e67633}
+  .tag-pending{background:var(--yellow-dim);color:var(--yellow);border:1px solid #ffd60033}
+  .cat-header{padding:10px 20px;background:#0f0f0f;border-bottom:1px solid #1a1a1a}
+  .cat-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .subtotal-row{display:grid;grid-template-columns:1fr auto;padding:14px 20px;gap:20px;align-items:center;background:#141414;border-top:1px solid var(--border)}
+  .subtotal-label{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .subtotal-value{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700;text-align:right}
+  .note{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;padding:10px 20px;background:#0d0d0d;border-top:1px solid #1a1a1a;font-style:italic}
+
+  .car-table{width:100%;border-collapse:collapse}
+  .car-table thead tr{background:#141414}
+  .car-table th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+  .car-table th.right{text-align:right}
+  .car-table td{padding:11px 16px;font-size:12px;border-bottom:1px solid #161616;vertical-align:middle}
+  .car-table tr:last-child td{border-bottom:none}
+  .car-table tr:hover td{background:#141414}
+  .vin{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.04em}
+  .model-name{font-size:13px;color:var(--text);font-weight:500}
+  .year-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:6px}
+  .money{font-family:'IBM Plex Mono',monospace;font-size:13px;text-align:right}
+  .profit-pos{color:var(--green);font-weight:600}
+  .carfax-val{color:var(--blue)}
+  .payoff-val{color:var(--yellow)}
+  .car-table tfoot td{padding:12px 16px;background:#141414;border-top:1px solid var(--border);font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700}
+  .legend-row{display:flex;gap:20px;padding:10px 20px;background:#0d0d0d;border-bottom:1px solid #1a1a1a;flex-wrap:wrap}
+  .legend-item{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+  .final-card{margin-top:40px;border:1px solid var(--accent);border-radius:4px;background:var(--surface);overflow:hidden}
+  .final-header{background:var(--accent);padding:14px 20px}
+  .final-header-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#000}
+  .final-row{display:grid;grid-template-columns:1fr auto;padding:13px 20px;border-bottom:1px solid #1e1e1e;gap:20px;align-items:center}
+  .final-row:last-child{border-bottom:none}
+  .final-row-label{font-size:13px;color:#aaa}
+  .final-row-value{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;text-align:right}
+  .verdict{background:var(--surface2);border-top:2px solid var(--accent);padding:24px 20px;display:flex;justify-content:space-between;align-items:center}
+  .verdict-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .verdict-name{font-size:22px;font-weight:700;color:var(--text)}
+  .verdict-amount{font-family:'IBM Plex Mono',monospace;font-size:36px;font-weight:700;text-align:right}
+
+  .orange{color:var(--accent2)}
+  .purple{color:var(--accent3)}
+
+  @media(max-width:700px){
+    .header{flex-direction:column;gap:12px;align-items:flex-start}
+    .verdict{flex-direction:column;gap:16px;align-items:flex-start}
+    .verdict-amount{font-size:28px}
+    .car-table th,.car-table td{padding:8px 10px}
+  }
+
+  .group-label{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);padding:8px 4px 6px;margin-bottom:8px;border-left:3px solid var(--accent);padding-left:12px}
+  .group-subtotal-bar{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#0d0d0d;border:1px solid #222;border-radius:0 0 4px 4px;margin-top:-1px;margin-bottom:4px}
+  .group-subtotal-label{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .group-subtotal-value{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;text-align:right}
+
+  .refs-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:#0d0d0d;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+  .refs-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+  .refs-links{display:flex;gap:12px;flex-wrap:wrap}
+  .ref-link{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue);text-decoration:none;padding:5px 12px;border:1px solid #40a9ff33;border-radius:3px;background:var(--blue-dim);transition:all .2s}
+  .ref-link:hover{background:#40a9ff22;border-color:#40a9ff66;color:#fff}
+  .ref-icon{font-size:13px}
+</style>
+</head>
+<body>
+
+<div class="tabs-bar">
+  <button class="tab-btn t1 active" onclick="switchTab('fabinho')">⚖ Fabinho × Guilherme</button>
+  <button class="tab-btn t2" onclick="switchTab('painho')">🚗 Estoque Painho</button>
+  <button class="tab-btn t3" onclick="switchTab('frc')">🔄 Fabinho → FRC</button>
+</div>
+
+  <!-- LINKS DE REFERÊNCIA -->
+  <div class="refs-bar">
+    <div class="refs-label">📎 Planilhas de Referência</div>
+    <div class="refs-links">
+      <a class="ref-link" href="https://docs.google.com/spreadsheets/d/1Sny7JozSpfEDLLiXo-e2xNlPDktQyhppY2TWqBEaOOQ/edit?gid=0#gid=0" target="_blank">
+        <span class="ref-icon">📊</span> Planilha 1 — Referência Principal
+      </a>
+      <a class="ref-link" href="https://docs.google.com/spreadsheets/d/1lB7CIEXYkY-Jkfhul-s3EDt6MPol2f7jqgnuA6h_6Nw/edit?gid=518955691#gid=518955691" target="_blank">
+        <span class="ref-icon">📊</span> Planilha 2 — Referência Secundária
+      </a>
+    </div>
+  </div>
+
+
+<!-- ══════════ ABA 1: FABINHO × GUILHERME ══════════ -->
+<div id="tab-fabinho" class="tab-content active">
+  <div class="header">
+    <div>
+      <div class="header-title">Trust Car Sales — Acerto de Contas</div>
+      <h1 style="color:var(--accent)">FABINHO × GUILHERME</h1>
+    </div>
+    <div class="header-date">Referência: 01 de março de 2026<br>Gerado em: abril/2026</div>
+  </div>
+
+  <!-- ─── GRUPO A: OPERAÇÃO ANTIGA ─────────────────────────── -->
+  <div class="group-label">A — Operação Antiga</div>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span style="color:var(--accent)">A1</span> Débitos — Você deve a Guilherme</div>
+      <div class="section-total debit" id="a1-total">...</div>
+    </div>
+    <div class="row"><div class="row-label">Dívida base — operação antiga <span class="tag tag-debit">ponto final</span></div><div class="row-value debit">−$330,000.00</div></div>
+    <div class="row"><div class="row-label">Contas pagas por Guilherme em seu nome <span class="tag tag-debit">confirmado</span></div><div class="row-value debit">−$13,984.25</div></div>
+    <div class="row"><div class="row-label">Contas a pagar confirmadas <span class="tag tag-debit">a abater</span></div><div class="row-value debit">−$70,062.75</div></div>
+    <div class="row"><div class="row-label">Contas a pagar pendentes <span class="tag tag-pending">pendente</span></div><div class="row-value debit">−$887.49</div></div>
+    <div class="subtotal-row">
+      <div class="subtotal-label">Subtotal Débitos</div>
+      <div class="subtotal-value debit" id="a1-sub">...</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span style="color:var(--accent)">A2</span> Créditos — Guilherme deve a você</div>
+      <div class="section-total credit" id="a2-total">...</div>
+    </div>
+    <div class="row"><div class="row-label">Receita em caixa disponível em 01/03 <span class="tag tag-credit">caixa</span></div><div class="row-value credit">+$25,462.71</div></div>
+    <div class="row"><div class="row-label">Westlake — recebido por Guilherme (seu) <span class="tag tag-credit">a devolver</span></div><div class="row-value credit">+$38,100.00</div></div>
+    <div class="row"><div class="row-label">Carros — recebido por Guilherme (seu) <span class="tag tag-credit">a devolver</span></div><div class="row-value credit">+$7,745.00</div></div>
+    <div class="subtotal-row">
+      <div class="subtotal-label">Subtotal Créditos</div>
+      <div class="subtotal-value credit" id="a2-sub">...</div>
+    </div>
+  </div>
+
+  <div class="group-subtotal-bar">
+    <div class="group-subtotal-label">Saldo Grupo A — Operação Antiga</div>
+    <div class="group-subtotal-value" id="ga-sub">...</div>
+  </div>
+
+  <!-- ─── GRUPO B: ESTOQUE TRUST ────────────────────────────── -->
+  <div class="group-label" style="margin-top:32px">B — Estoque Trust (Forma de Pagamento)</div>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span style="color:var(--accent)">B1</span> Vendidos — Já Realizados</div>
+      <div class="section-total credit" id="b1v-total">...</div>
+    </div>
+    <div class="row"><div class="row-label">KIA OPTIMA 2019 — 5XXGT4L31KG316740 <span class="tag tag-credit">vendido</span></div><div class="row-value credit">+$6,699.00</div></div>
+    <div class="row"><div class="row-label">JEEP GRAND CHEROKEE 2021 — 1C4RJEAG5MC861434 <span class="tag tag-credit">vendido</span></div><div class="row-value credit">+$17,999.00</div></div>
+    <div class="subtotal-row">
+      <div class="subtotal-label">Subtotal Vendidos</div>
+      <div class="subtotal-value credit" id="b1v-sub">...</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span style="color:var(--accent)">B2</span> Em Estoque — Provisionados</div>
+      <div class="section-total warn" id="b2e-total">...</div>
+    </div>
+    <div class="note" style="border-top:none;border-bottom:1px solid #1a1a1a">* Provisionados como forma de pagamento — abatimento ocorre na venda.</div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#01</span>CADILLAC XTS 2017 — 1GYKNDRS1HZ256378 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$11,999.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#02</span>LINCOLN NAUTILUS 2020 — 2LMPJ6K95LBL09167 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$13,899.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#03</span>MERCEDES E350 2007 — WDBUF56X97B181453 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$5,999.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#04</span>AUDI A5 2016 — WAUD2AFR8GA029366 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$11,499.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#05</span>LAND ROVER DISCOVERY SE 2018 — SALRG2RK0JA055135 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$14,600.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#06</span>BMW 5 SERIES 2020 — WBAJR7C05LCD77683 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$18,599.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#07</span>MERCEDES GLA250 2016 — WDCTG4EB4GJ257896 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$10,999.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#08</span>CHEVROLET SUBURBAN 2015 — 1GNSKJKC8FR601782 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$9,399.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#09</span>AUDI A3 2016 — WAU38LFF4G1031918 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$10,299.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#10</span>VOLVO XC60 2018 — LYV102RK6JB097794 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$11,999.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#11</span>ALFA ROMEO STELVIO 2018 — ZASFAKPN1J7B86166 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$11,999.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#12</span>MERCEDES C250 2013 — WDDGF4HB3DR242198 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$6,999.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#13</span>KIA OPTIMA 2018 — 5XXGT4L37JG261029 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$7,299.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#14</span>NISSAN SENTRA SV 2015 — 3N1AB7AP8FL686922 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$4,799.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#15</span>CHEVROLET SPARK 2015 — KL8CD6S90FC731429 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$5,499.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#16</span>JEEP PATRIOT 2015 — 1C4NJPBAXFD126031 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$5,499.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#17</span>VOLKSWAGEN JETTA 2015 — 3VWD17AJ8FM254265 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$5,299.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#18</span>AUDI A4 2015 — WAUAFAFL7FN021091 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$7,999.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#19</span>DODGE JOURNEY 2019 — 3C4PDCEG1KT717412 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$8,499.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#20</span>SONATA 2015 — 5NPE34AF9FH215475 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$6,999.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#21</span>ALFA ROMEO STELVIO 2019 — ZASPAJAN0K7C71640 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$14,999.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#22</span>TRAX 2020 — 3GNCJPSB2LL257015 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$9,699.00</div></div>
+    <div class="row"><div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#23</span>CHRYSLER 200 2015 — 1C3CCCAB9FN685783 <span class="tag tag-pending">provisionado</span></div><div class="row-value warn">+$4,800.00</div></div>
+    <div class="subtotal-row">
+      <div class="subtotal-label">Subtotal Provisionados</div>
+      <div class="subtotal-value warn" id="b2e-sub">...</div>
+    </div>
+  </div>
+
+  <div class="group-subtotal-bar">
+    <div class="group-subtotal-label">Saldo Grupo B — Estoque Trust</div>
+    <div class="group-subtotal-value credit" id="gb-sub">...</div>
+  </div>
+
+  <!-- ─── GRUPO C: CARTEIRA BHPH ───────────────────────────── -->
+  <div class="group-label" style="margin-top:32px">C — Carteira BHPH (Cenário Conservador)</div>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span style="color:var(--accent)">C1</span> BHPH — Carfax × 80%</div>
+      <div class="section-total credit" id="b2-total">...</div>
+    </div>
+    <div class="legend-row">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Carfax Value = valor de mercado</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Payoff = o que o cliente te deve (se pagar)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Conservador = Carfax × 80%</div>
+    </div>
+    <table class="car-table">
+      <thead><tr><th>Veículo</th><th>VIN</th><th class="right">Carfax Value</th><th class="right">Payoff (se pagar)</th><th class="right">Conservador −20%</th></tr></thead>
+      <tbody id="car-tbody"></tbody>
+      <tfoot><tr>
+        <td colspan="2" style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.1em">Total BHPH</td>
+        <td class="money right carfax-val" id="tfoot-carfax"></td>
+        <td class="money right payoff-val" id="tfoot-payoff"></td>
+        <td class="money right profit-pos" id="tfoot-result"></td>
+      </tr></tfoot>
+    </table>
+    <div class="note">* Conservador = Carfax × 80%. Repo se cliente não pagar.</div>
+  </div>
+
+  <div class="group-subtotal-bar">
+    <div class="group-subtotal-label">Saldo Grupo C — BHPH</div>
+    <div class="group-subtotal-value credit" id="gc-sub">...</div>
+  </div>
+
+
+  <!-- ─── GRUPO D: WESTLAKE ─────────────────────────────────── -->
+  <div class="group-label" style="margin-top:32px">D — Westlake (Lucro por Carro)</div>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span style="color:var(--accent)">D1</span> Vendidos — Já Realizados</div>
+      <div class="section-total credit" id="d1v-total">+$16,389.20</div>
+    </div>
+    <div class="note" style="border-top:none;border-bottom:1px solid #1a1a1a">* Valor = lucro líquido (venda − custo). Já realizados.</div>
+    <div class="row">
+      <div class="row-label">CADILLAC XTS 2018 — 2G61M5S3XJ9135445 <span class="tag tag-credit">vendido</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $10,857.86 → venda $12,999.00</span></div>
+      <div class="row-value credit">+$2,141.14</div>
+    </div>
+    <div class="row">
+      <div class="row-label">INFINITI QX60 2018 — 5N1DL0MM5JC511950 <span class="tag tag-credit">vendido</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $7,408.62 → venda $11,499.00</span></div>
+      <div class="row-value credit">+$4,090.38</div>
+    </div>
+    <div class="row">
+      <div class="row-label">AUDI A4 2018 — WAUKMAF47JN001600 <span class="tag tag-credit">vendido</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $5,994.98 → venda $7,999.00</span></div>
+      <div class="row-value credit">+$2,004.02</div>
+    </div>
+    <div class="row">
+      <div class="row-label">LAND ROVER DISCOVERY 2017 — SALCP2BG5HH701749 <span class="tag tag-credit">vendido</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $9,159.76 → venda $11,999.00</span></div>
+      <div class="row-value credit">+$2,839.24</div>
+    </div>
+    <div class="row">
+      <div class="row-label">KIA SEDONA 2016 — KNDMB5C10G6198051 <span class="tag tag-credit">vendido</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $4,682.13 → venda $7,499.00</span></div>
+      <div class="row-value credit">+$2,816.87</div>
+    </div>
+    <div class="row">
+      <div class="row-label">AUDI Q5 2023 — WA1LFAFP0FA068480 <span class="tag tag-credit">vendido</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $6,215.85 → venda $7,299.00</span></div>
+      <div class="row-value credit">+$1,083.15</div>
+    </div>
+    <div class="row">
+      <div class="row-label">MERCEDES GLC300 2017 — WDC0G4JB0HF136327 <span class="tag tag-credit">vendido</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $10,884.60 → venda $12,299.00</span></div>
+      <div class="row-value credit">+$1,414.40</div>
+    </div>
+    <div class="subtotal-row">
+      <div class="subtotal-label">Subtotal Vendidos</div>
+      <div class="subtotal-value credit">+$16,389.20</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span style="color:var(--accent)">D2</span> Em Estoque — Provisionados</div>
+      <div class="section-total warn" id="d2e-total">+$13,770.85</div>
+    </div>
+    <div class="note" style="border-top:none;border-bottom:1px solid #1a1a1a">* Provisionados — abatimento ocorre na venda.</div>
+    <div class="row">
+      <div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#01</span>LAND ROVER VELAR 2020 — SALYB2EX0LA258511 <span class="tag tag-pending">estoque</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $15,209.06 → venda $17,999.00</span></div>
+      <div class="row-value credit">+$2,789.94</div>
+    </div>
+    <div class="row">
+      <div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#02</span>MINI COOPER 2023 — WMZ53BR0XP3P81288 <span class="tag tag-pending">estoque</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $16,217.83 → venda $18,999.00</span></div>
+      <div class="row-value credit">+$2,781.17</div>
+    </div>
+    <div class="row">
+      <div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#03</span>KIA SORENTO 2019 — 5XYPG4A51KG607081 <span class="tag tag-pending">estoque</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $12,150.75 → venda $12,899.00</span></div>
+      <div class="row-value credit">+$748.25</div>
+    </div>
+    <div class="row">
+      <div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#04</span>ALFA ROMEO STELVIO 2018 — ZASFAKAN7J7B66660 <span class="tag tag-pending">estoque</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $6,000.00 → venda $9,799.00</span></div>
+      <div class="row-value credit">+$3,799.00</div>
+    </div>
+    <div class="row">
+      <div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#05</span>KIA SOUL 2017 — KNDJN2A21H7500124 <span class="tag tag-pending">estoque</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $4,872.71 → venda $6,999.00</span></div>
+      <div class="row-value credit">+$2,126.29</div>
+    </div>
+    <div class="row">
+      <div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#06</span>HONDA HR-V 2016 — 3CZRU5H38GM740761 <span class="tag tag-pending">estoque</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $10,124.52 → venda $10,299.00</span></div>
+      <div class="row-value credit">+$174.48</div>
+    </div>
+    <div class="row">
+      <div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#07</span>PORSCHE MACAN 2016 — WP1AB2A54GLB55632 <span class="tag tag-pending">estoque</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $17,937.78 → venda $16,299.00</span></div>
+      <div class="row-value debit">−$1,638.78</div>
+    </div>
+    <div class="row">
+      <div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#08</span>AUDI A3 2016 — WAUB8GFF5G1044468 <span class="tag tag-pending">estoque</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $5,140.84 → venda $6,499.00</span></div>
+      <div class="row-value credit">+$1,358.16</div>
+    </div>
+    <div class="row">
+      <div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#09</span>JEEP WRANGLER 2017 — 1C4BJWEG4HL626532 <span class="tag tag-pending">estoque</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $14,911.56 → venda $15,399.00</span></div>
+      <div class="row-value credit">+$487.44</div>
+    </div>
+    <div class="row">
+      <div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#10</span>LAND ROVER EVOQUE 2015 — SALVP2BGXFH012778 <span class="tag tag-pending">estoque</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $7,854.10 → venda $8,999.00</span></div>
+      <div class="row-value credit">+$1,144.90</div>
+    </div>
+    <div class="subtotal-row">
+      <div class="subtotal-label">Subtotal Em Estoque</div>
+      <div class="subtotal-value warn">+$13,770.85</div>
+    </div>
+  </div>
+
+  <div class="group-subtotal-bar">
+    <div class="group-subtotal-label">Saldo Grupo D — Westlake</div>
+    <div class="group-subtotal-value credit" id="gd-sub">+$30,160.05</div>
+  </div>
+
+  
+  <!-- ─── GRUPO E: LENDBUZZ ─────────────────────────────────── -->
+  <div class="group-label" style="margin-top:32px">E — Lendbuzz (Lucro por Carro)</div>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span style="color:var(--accent)">E1</span> Vendidos — Já Realizados</div>
+      <div class="section-total credit" id="e1v-total">+$7,333.67</div>
+    </div>
+    <div class="note" style="border-top:none;border-bottom:1px solid #1a1a1a">* Valor = lucro líquido (venda − custo). Já realizados.</div>
+    <div class="row">
+      <div class="row-label">VOLKSWAGEN ATLAS 2018 — 1V2HR2CAXJC511352 <span class="tag tag-credit">vendido</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $9,916.73 → venda $12,499.00</span></div>
+      <div class="row-value credit">+$2,582.27</div>
+    </div>
+    <div class="row">
+      <div class="row-label">MITSUBISHI OUTLANDER 2020 — JA4A3A33LZ038255 <span class="tag tag-credit">vendido</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $7,461.60 → venda $9,499.00</span></div>
+      <div class="row-value credit">+$2,037.40</div>
+    </div>
+    <div class="row">
+      <div class="row-label">KIA TELLURIDE 2021 — 5XYP64HC7MG106416 <span class="tag tag-credit">vendido</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $18,585.00 → venda $21,299.00</span></div>
+      <div class="row-value credit">+$2,714.00</div>
+    </div>
+    <div class="subtotal-row">
+      <div class="subtotal-label">Subtotal Vendidos</div>
+      <div class="subtotal-value credit">+$7,333.67</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span style="color:var(--accent)">E2</span> Em Estoque — Provisionados</div>
+      <div class="section-total warn" id="e2e-total">+$10,381.00</div>
+    </div>
+    <div class="note" style="border-top:none;border-bottom:1px solid #1a1a1a">* Provisionados — abatimento ocorre na venda.</div>
+    <div class="row">
+      <div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#01</span>CADILLAC XT5 2017 — 1GYKNBRS4HZ176111 <span class="tag tag-pending">estoque</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $9,920.00 → venda $12,499.00</span></div>
+      <div class="row-value credit">+$2,579.00</div>
+    </div>
+    <div class="row">
+      <div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#02</span>GMC ACADIA DENALI 2017 — 1GKKNXLS1HZ186613 <span class="tag tag-pending">estoque</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $8,840.00 → venda $11,499.00</span></div>
+      <div class="row-value credit">+$2,659.00</div>
+    </div>
+    <div class="row">
+      <div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#03</span>BUICK CASCADA 2019 — W04WH3N51KG341484 <span class="tag tag-pending">estoque</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $11,430.00 → venda $13,999.00</span></div>
+      <div class="row-value credit">+$2,569.00</div>
+    </div>
+    <div class="row">
+      <div class="row-label"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-right:8px;min-width:24px;display:inline-block;font-weight:700">#04</span>NISSAN PATHFINDER 2019 — 5N1DR2MN8KC594875 <span class="tag tag-pending">estoque</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-left:10px">custo $10,425.00 → venda $12,999.00</span></div>
+      <div class="row-value credit">+$2,574.00</div>
+    </div>
+    <div class="subtotal-row">
+      <div class="subtotal-label">Subtotal Em Estoque</div>
+      <div class="subtotal-value warn">+$10,381.00</div>
+    </div>
+  </div>
+
+  <div class="group-subtotal-bar">
+    <div class="group-subtotal-label">Saldo Grupo E — Lendbuzz</div>
+    <div class="group-subtotal-value credit" id="ge-sub">+$17,714.67</div>
+  </div>
+
+    <!-- ─── SALDO FINAL ───────────────────────────────────────── -->
+  <div class="final-card">
+    <div class="final-header"><div class="final-header-title">⚖ Saldo Final Consolidado</div></div>
+    <div class="final-row"><div class="final-row-label">A — Operação Antiga (débitos − créditos)</div><div class="final-row-value" id="f-ga"></div></div>
+    <div class="final-row"><div class="final-row-label">B — Estoque Trust (vendidos + provisionados)</div><div class="final-row-value credit" id="f-gb"></div></div>
+    <div class="final-row"><div class="final-row-label">C — BHPH Cenário Conservador</div><div class="final-row-value credit" id="f-b2"></div></div>
+    <div class="final-row"><div class="final-row-label">D — Westlake Lucro Total</div><div class="final-row-value" id="f-b3"></div></div>
+    <div class="final-row"><div class="final-row-label">E — Lendbuzz Lucro Total</div><div class="final-row-value" id="f-b4"></div></div>
+    <div class="verdict">
+      <div><div class="verdict-label" id="verdict-dir"></div><div class="verdict-name" id="verdict-name"></div></div>
+      <div class="verdict-amount" id="verdict-value"></div>
+    </div>
+  </div>
+
+</div>
+<!-- ══════════ ABA 2: PAINHO ══════════ -->
+<div id="tab-painho" class="tab-content">
+  <div class="header">
+    <div>
+      <div class="header-title">Trust Car Sales — Estoque</div>
+      <h1 style="color:var(--accent2)">ESTOQUE PAINHO</h1>
+    </div>
+    <div class="header-date">Referência: abril/2026</div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span style="color:var(--accent2)">01</span> Veículos em Estoque</div>
+      <div class="section-total orange" id="painho-total-header">...</div>
+    </div>
+    <table class="car-table">
+      <thead><tr><th>Veículo</th><th>VIN</th><th>Cor</th><th class="right">Preço de Venda</th></tr></thead>
+      <tbody id="painho-tbody"></tbody>
+      <tfoot><tr>
+        <td colspan="3" style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.1em">Total Estoque</td>
+        <td class="money right orange" id="painho-tfoot"></td>
+      </tr></tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════ ABA 3: FABINHO → FRC ══════════ -->
+<div id="tab-frc" class="tab-content">
+  <div class="header">
+    <div>
+      <div class="header-title">Trust Car Sales — Transferências</div>
+      <h1 style="color:var(--accent3)">FABINHO → FRC</h1>
+    </div>
+    <div class="header-date">Referência: abril/2026</div>
+  </div>
+  <div class="section">
+    <div class="section-header">
+      <div class="section-title"><span style="color:var(--accent3)">01</span> Veículos Transferidos para Frota FRC</div>
+      <div class="section-total purple" id="frc-total-header">...</div>
+    </div>
+    <table class="car-table">
+      <thead><tr><th>Veículo</th><th>VIN</th><th class="right">Valor de Transferência</th></tr></thead>
+      <tbody id="frc-tbody"></tbody>
+      <tfoot><tr>
+        <td colspan="2" style="color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.1em">Total Transferido</td>
+        <td class="money right purple" id="frc-tfoot"></td>
+      </tr></tfoot>
+    </table>
+    <div class="note">* Veículos adquiridos via Trust e transferidos para a frota Florida Rental Car.</div>
+  </div>
+</div>
+
+<script>
+  function switchTab(name) {
+    document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+    document.getElementById('tab-'+name).classList.add('active');
+    document.querySelector('.tab-btn[onclick*="\''+name+'\'"]').classList.add('active');
+  }
+
+  const fmt = (v,sign=true) => {
+    const abs=Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    if(!sign) return '$'+abs;
+    return v>=0?'+$'+abs:'−$'+abs;
+  };
+
+  // ── GRUPO A: OPERAÇÃO ANTIGA
+  const a1_debits = [-330000,-13984.25,-70062.75,-887.49];
+  const a2_credits = [25462.71,38100,7745];
+  const a1_sum = a1_debits.reduce((s,v)=>s+v,0);
+  const a2_sum = a2_credits.reduce((s,v)=>s+v,0);
+  const ga_net = a1_sum + a2_sum;
+
+  document.getElementById('a1-sub').textContent   = fmt(a1_sum);
+  document.getElementById('a1-total').textContent = fmt(a1_sum);
+  document.getElementById('a2-sub').textContent   = fmt(a2_sum);
+  document.getElementById('a2-total').textContent = fmt(a2_sum);
+  document.getElementById('ga-sub').textContent   = fmt(ga_net);
+  document.getElementById('ga-sub').className     = 'group-subtotal-value '+(ga_net>=0?'credit':'debit');
+
+  // ── GRUPO B: ESTOQUE TRUST
+  const b1v_vals = [6699, 17999]; // vendidos
+  const b2e_vals = [11999,13899,5999,11499,14600,18599,10999,9399,10299,11999,11999,6999,7299,4799,5499,5499,5299,7999,8499,6999,14999,9699,4800]; // provisionados
+  const b1v_sum = b1v_vals.reduce((s,v)=>s+v,0);
+  const b2e_sum = b2e_vals.reduce((s,v)=>s+v,0);
+  const gb_net  = b1v_sum + b2e_sum;
+
+  document.getElementById('b1v-sub').textContent   = fmt(b1v_sum);
+  document.getElementById('b1v-total').textContent = fmt(b1v_sum);
+  document.getElementById('b2e-sub').textContent   = fmt(b2e_sum);
+  document.getElementById('b2e-total').textContent = fmt(b2e_sum);
+  document.getElementById('gb-sub').textContent    = fmt(gb_net);
+  document.getElementById('gb-sub').className      = 'group-subtotal-value credit';
+
+
+  // ── BLOCO 2
+  const cars=[
+    {vin:'KNAFG526687155236',ano:2008,modelo:'KIA RONDO',carfax:1990,payoff:4787.04},
+    {vin:'SALSF25478A181420',ano:2008,modelo:'LAND ROVER RANGE ROVER',carfax:4460,payoff:3581.05},
+    {vin:'SALVP2BGXFH026034',ano:2015,modelo:'LAND ROVER RANGE ROVER EVOQUE',carfax:8340,payoff:5080.55},
+    {vin:'3N1AB7APXEL619088',ano:2014,modelo:'NISSAN SENTRA',carfax:3150,payoff:7976.21},
+    {vin:'1G1JC5SH5F4109172',ano:2015,modelo:'CHEVROLET SONIC',carfax:4810,payoff:6001.11},
+    {vin:'WVGBV7AX2HK050425',ano:2017,modelo:'VOLKSWAGEN TIGUAN',carfax:7950,payoff:10815.30},
+    {vin:'WBANU53519C122230',ano:2009,modelo:'BMW 5 SERIES',carfax:6270,payoff:7527.83},
+    {vin:'WAUGFA3EN068062',ano:2014,modelo:'AUDI A6',carfax:6890,payoff:9026.97},
+    {vin:'SALCR2BG0HH684434',ano:2017,modelo:'LAND ROVER DISCOVERY',carfax:8080,payoff:2251.18},
+    {vin:'3FA6P0LU8KR143887',ano:2019,modelo:'FORD FUSION',carfax:9600,payoff:10536.18},
+    {vin:'WA1DGAFP7DA064599',ano:2013,modelo:'AUDI Q5',carfax:8520,payoff:5405.38},
+    {vin:'2C4RC1N74JR229976',ano:2018,modelo:'CHRYSLER PACIFICA',carfax:7830,payoff:9784.06},
+    {vin:'WBA3A5G55FNS85036',ano:2015,modelo:'BMW 3 SERIES',carfax:5770,payoff:5943.69},
+    {vin:'3N1CN7AP7GL879063',ano:2016,modelo:'NISSAN VERSA',carfax:4630,payoff:5484.42},
+    {vin:'2HKRM4H34DH642599',ano:2013,modelo:'HONDA CR-V',carfax:8500,payoff:5021.87},
+    {vin:'4JGDF7CE5DA150214',ano:2013,modelo:'MERCEDES G450',carfax:8370,payoff:10221.85},
+  ];
+  let tCarfax=0,tPayoff=0,tConserv=0;
+  const tbody=document.getElementById('car-tbody');
+  cars.forEach(c=>{
+    const conserv=c.carfax*0.8;
+    tCarfax+=c.carfax;tPayoff+=c.payoff;tConserv+=conserv;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><div class="model-name"><span class="year-badge">${c.ano}</span>${c.modelo}</div></td><td class="vin">${c.vin}</td><td class="money right carfax-val">${fmt(c.carfax,false)}</td><td class="money right payoff-val">${fmt(c.payoff,false)}</td><td class="money right profit-pos">${fmt(conserv,false)}</td>`;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('tfoot-carfax').textContent=fmt(tCarfax,false);
+  document.getElementById('tfoot-payoff').textContent=fmt(tPayoff,false);
+  document.getElementById('tfoot-result').textContent=fmt(tConserv,false);
+  document.getElementById('b2-total').textContent=fmt(tConserv,false);
+
+  // ── SALDO FINAL
+
+  // ── GRUPO D: WESTLAKE (valores pré-calculados)
+  const wlTotLucro = 30160.05;
+  document.getElementById('f-b3').textContent = fmt(wlTotLucro);
+  document.getElementById('f-b3').className   = 'final-row-value ' + (wlTotLucro>=0?'credit':'debit');
+
+  // ── GRUPO E: LENDBUZZ (valores pré-calculados)
+  const lbTotLucro = 17714.67;
+  document.getElementById('f-b4').textContent = fmt(lbTotLucro);
+  document.getElementById('f-b4').className   = 'final-row-value ' + (lbTotLucro>=0?'credit':'debit');
+
+
+  // Subtotais de grupo para saldo final
+  const gc_net = tConserv;
+  document.getElementById('gc-sub').textContent = fmt(gc_net);
+  document.getElementById('gc-sub').className   = 'group-subtotal-value credit';
+
+  // f- ids
+  document.getElementById('f-ga').textContent = fmt(ga_net);
+  document.getElementById('f-ga').className   = 'final-row-value '+(ga_net>=0?'credit':'debit');
+  document.getElementById('f-gb').textContent = fmt(gb_net);
+  document.getElementById('f-gb').className   = 'final-row-value credit';
+  document.getElementById('f-b2').textContent = fmt(tConserv,false);
+
+  const grand = ga_net + gb_net + tConserv + wlTotLucro + lbTotLucro;
+
+  // f-b1 substituído por f-ga e f-gb (ver acima)
+  const vDir=document.getElementById('verdict-dir');
+  const vName=document.getElementById('verdict-name');
+  const vVal=document.getElementById('verdict-value');
+  if(grand<0){vDir.textContent='Fabinho deve a';vName.textContent='Guilherme';vVal.textContent=fmt(Math.abs(grand),false);vVal.style.color='var(--red)';}
+  else{vDir.textContent='Guilherme deve a';vName.textContent='Fabinho';vVal.textContent=fmt(grand,false);vVal.style.color='var(--green)';}
+
+  // ── PAINHO
+  const painhoCars=[
+    {vin:'WDCTG4GB5GJ236567',ano:2016,modelo:'MERCEDES GLA250',cor:'BLACK',venda:13949},
+    {vin:'WBA3N3C57FK233407',ano:2015,modelo:'BMW 4 SERIES',cor:'SILVER',venda:10999},
+    {vin:'WDBRF52H77F917271',ano:2007,modelo:'MERCEDES C230',cor:'RED',venda:3999},
+    {vin:'5XXGT4L35JG212556',ano:2018,modelo:'KIA OPTIMA',cor:'SILVER',venda:7999},
+    {vin:'JF2GPAKC0GH338194',ano:2016,modelo:'SUBARU CROSSTREK',cor:'WHITE',venda:11499},
+    {vin:'WDC0G4JB8JV084070',ano:2018,modelo:'MERCEDES GLC300',cor:'RED',venda:10999},
+    {vin:'SJKCH5CP4HA015454',ano:2017,modelo:'INFINITI QX30',cor:'BLACK',venda:10499},
+    {vin:'WDC0G4JB3HF258065',ano:2017,modelo:'MERCEDES GLC300',cor:'BLUE',venda:11299},
+    {vin:'3VWD07AJ5EM400333',ano:2014,modelo:'VOLKSWAGEN JETTA',cor:'BLUE',venda:6699},
+    {vin:'1FM5K7D83HGA54156',ano:2017,modelo:'FORD EXPLORER XLT',cor:'SILVER',venda:10999},
+    {vin:'WBXHT3C35J5L28006',ano:2018,modelo:'BMW X1',cor:'WHITE',venda:11999},
+  ];
+  let totalPainho=0;
+  const ptbody=document.getElementById('painho-tbody');
+  painhoCars.forEach(c=>{
+    totalPainho+=c.venda;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><div class="model-name"><span class="year-badge">${c.ano}</span>${c.modelo}</div></td><td class="vin">${c.vin}</td><td style="font-size:12px;color:var(--muted)">${c.cor}</td><td class="money right orange">${fmt(c.venda,false)}</td>`;
+    ptbody.appendChild(tr);
+  });
+  document.getElementById('painho-tfoot').textContent=fmt(totalPainho,false);
+  document.getElementById('painho-total-header').textContent=fmt(totalPainho,false);
+
+  // ── FRC
+  const frcCars=[
+    {vin:'JA4J3TA8XNZ038124',ano:2022,modelo:'MITSUBISHI OUTLANDER',venda:16999},
+    {vin:'2GNAXJEVXN6136507',ano:2022,modelo:'CHEVROLET EQUINOX',venda:10799},
+    {vin:'1V2ER2CA0LC506134',ano:2020,modelo:'VOLKSWAGEN ATLAS SE',venda:18399},
+    {vin:'KNDPM3AC3M7845788',ano:2021,modelo:'KIA SPORTAGE',venda:11199},
+    {vin:'5NMS24AJ5MH331793',ano:2021,modelo:'HYUNDAI SANTA FE',venda:14999},
+    {vin:'5TDZARFH7KS048925',ano:2019,modelo:'TOYOTA HIGHLANDER',venda:20499},
+    {vin:'1FMCU0H68LUA24209',ano:2020,modelo:'FORD ESCAPE',venda:11499},
+    {vin:'JN8AT2MT6JW491012',ano:2018,modelo:'NISSAN ROGUE',venda:8999},
+    {vin:'1GNERGKW5JJ188314',ano:2018,modelo:'CHEVROLET TRAVERSE',venda:13899},
+    {vin:'2C4RC1DG9MR530734',ano:2021,modelo:'CHRYSLER VOYAGER',venda:8999},
+  ];
+  let totalFrc=0;
+  const ftbody=document.getElementById('frc-tbody');
+  frcCars.forEach(c=>{
+    totalFrc+=c.venda;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><div class="model-name"><span class="year-badge">${c.ano}</span>${c.modelo}</div></td><td class="vin">${c.vin}</td><td class="money right purple">${fmt(c.venda,false)}</td>`;
+    ftbody.appendChild(tr);
+  });
+  document.getElementById('frc-tfoot').textContent=fmt(totalFrc,false);
+  document.getElementById('frc-total-header').textContent=fmt(totalFrc,false);
+</script>
+</body>
+</html>

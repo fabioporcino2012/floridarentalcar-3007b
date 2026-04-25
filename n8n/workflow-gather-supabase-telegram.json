@@ -1,0 +1,205 @@
+{
+  "name": "FRC · Gather → Supabase → Telegram NRO",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "from:support@gather.town newer_than:1d"
+        },
+        "options": {
+          "downloadAttachments": false
+        }
+      },
+      "id": "11111111-1111-1111-1111-111111111111",
+      "name": "Gmail Trigger (clickup@frc)",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [-720, 0],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_GMAIL_CRED_ID",
+          "name": "Gmail clickup@floridarentalcar.com.br"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parser do email do Gather Town\n// Recebe item do Gmail Trigger e extrai metadados estruturados.\n\nconst out = [];\n\nfor (const item of $input.all()) {\n  const msg = item.json;\n\n  const headers = msg.headers || msg.payload?.headers || {};\n  const getHeader = (name) => {\n    if (Array.isArray(headers)) {\n      const h = headers.find((x) => x.name?.toLowerCase() === name.toLowerCase());\n      return h?.value || '';\n    }\n    return headers[name] || headers[name.toLowerCase()] || '';\n  };\n\n  const subject = msg.subject || getHeader('Subject') || '';\n  const fromAddress = msg.from?.value?.[0]?.address || msg.from || getHeader('From') || '';\n  const messageId = msg.id || msg.messageId || getHeader('Message-ID') || '';\n  const threadId = msg.threadId || '';\n\n  const html = msg.html || msg.payload?.html || '';\n  const textRaw = msg.text || msg.textPlain || msg.snippet || '';\n  const text = (textRaw || stripHtml(html)).replace(/\\r/g, '').trim();\n\n  function stripHtml(s) {\n    if (!s) return '';\n    return s\n      .replace(/<style[\\s\\S]*?<\\/style>/gi, '')\n      .replace(/<script[\\s\\S]*?<\\/script>/gi, '')\n      .replace(/<br\\s*\\/?>/gi, '\\n')\n      .replace(/<\\/(p|div|li|h[1-6])>/gi, '\\n')\n      .replace(/<[^>]+>/g, '')\n      .replace(/&nbsp;/g, ' ')\n      .replace(/&amp;/g, '&')\n      .replace(/&quot;/g, '\"')\n      .replace(/&#39;/g, \"'\")\n      .replace(/&lt;/g, '<')\n      .replace(/&gt;/g, '>')\n      .replace(/\\n{3,}/g, '\\n\\n')\n      .trim();\n  }\n\n  // Título: subject costuma vir como \"Gather meeting summary: <título>\" ou similar\n  let meetingTitle = subject\n    .replace(/^(re:|fwd:)\\s*/i, '')\n    .replace(/^.*?(meeting|summary)[^:]*:\\s*/i, '')\n    .trim();\n  if (!meetingTitle) meetingTitle = subject;\n\n  // Data da reunião: tenta achar no corpo, senão usa data do email\n  const dateLine = text.match(/\\b(?:date|when|data)[:\\-]?\\s*(.+)/i)?.[1];\n  let meetingDate = null;\n  if (dateLine) {\n    const d = new Date(dateLine);\n    if (!isNaN(d)) meetingDate = d.toISOString();\n  }\n  if (!meetingDate) {\n    const internalDate = msg.internalDate ? Number(msg.internalDate) : null;\n    if (internalDate) meetingDate = new Date(internalDate).toISOString();\n    else if (getHeader('Date')) {\n      const d = new Date(getHeader('Date'));\n      if (!isNaN(d)) meetingDate = d.toISOString();\n    }\n  }\n\n  // Duração\n  const durMatch = text.match(/(\\d+)\\s*(min|minute|minuto)/i);\n  const durationMin = durMatch ? parseInt(durMatch[1], 10) : null;\n\n  // Espaço (Gather space)\n  const spaceMatch = text.match(/space[:\\s]+([^\\n]+)/i);\n  const spaceName = spaceMatch ? spaceMatch[1].trim() : null;\n\n  // Participantes — bloco \"Attendees\" / \"Participants\"\n  const attendees = extractList(text, /(?:attendees|participants|participantes)[:\\s]*\\n([\\s\\S]*?)(?:\\n\\n|\\n[A-Z][a-z]+:|$)/i);\n\n  // Resumo\n  const summary = extractBlock(text, /(?:summary|resumo)[:\\s]*\\n([\\s\\S]*?)(?:\\n\\n[A-Z]|\\n(?:action items|takeaways|key takeaways|next steps|recording|transcript)|$)/i);\n\n  // Action items\n  const actionItems = extractList(text, /(?:action items|next steps|tarefas)[:\\s]*\\n([\\s\\S]*?)(?:\\n\\n[A-Z]|\\n(?:takeaways|key takeaways|recording|transcript|summary)|$)/i);\n\n  // Key takeaways\n  const keyTakeaways = extractList(text, /(?:key takeaways|takeaways|destaques)[:\\s]*\\n([\\s\\S]*?)(?:\\n\\n[A-Z]|\\n(?:action items|recording|transcript|summary)|$)/i);\n\n  // Links\n  const recordingUrl = (text.match(/https?:\\/\\/\\S*(?:recording|playback|video)\\S*/i) || [])[0] || null;\n  const transcriptUrl = (text.match(/https?:\\/\\/\\S*(?:transcript|transcri)\\S*/i) || [])[0] || null;\n\n  function extractBlock(src, regex) {\n    const m = src.match(regex);\n    return m ? m[1].trim() : null;\n  }\n  function extractList(src, regex) {\n    const block = extractBlock(src, regex);\n    if (!block) return [];\n    return block\n      .split('\\n')\n      .map((l) => l.replace(/^[\\-*•·\\d.\\s]+/, '').trim())\n      .filter(Boolean);\n  }\n\n  out.push({\n    json: {\n      email_id: messageId,\n      thread_id: threadId,\n      subject,\n      from_address: typeof fromAddress === 'string' ? fromAddress : JSON.stringify(fromAddress),\n      meeting_title: meetingTitle,\n      meeting_date: meetingDate,\n      duration_min: durationMin,\n      attendees,\n      summary,\n      action_items: actionItems,\n      key_takeaways: keyTakeaways,\n      recording_url: recordingUrl,\n      transcript_url: transcriptUrl,\n      space_name: spaceName,\n      raw_text: text.slice(0, 50000),\n      raw_html: (html || '').slice(0, 50000),\n      received_at: new Date().toISOString(),\n      sent_to_telegram: false\n    }\n  });\n}\n\nreturn out;"
+      },
+      "id": "22222222-2222-2222-2222-222222222222",
+      "name": "Parse Gather Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-480, 0]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "tableId": "gather_meetings",
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.email_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            { "fieldId": "email_id",       "fieldValue": "={{ $json.email_id }}" },
+            { "fieldId": "thread_id",      "fieldValue": "={{ $json.thread_id }}" },
+            { "fieldId": "subject",        "fieldValue": "={{ $json.subject }}" },
+            { "fieldId": "from_address",   "fieldValue": "={{ $json.from_address }}" },
+            { "fieldId": "meeting_title",  "fieldValue": "={{ $json.meeting_title }}" },
+            { "fieldId": "meeting_date",   "fieldValue": "={{ $json.meeting_date }}" },
+            { "fieldId": "duration_min",   "fieldValue": "={{ $json.duration_min }}" },
+            { "fieldId": "attendees",      "fieldValue": "={{ JSON.stringify($json.attendees) }}" },
+            { "fieldId": "summary",        "fieldValue": "={{ $json.summary }}" },
+            { "fieldId": "action_items",   "fieldValue": "={{ JSON.stringify($json.action_items) }}" },
+            { "fieldId": "key_takeaways",  "fieldValue": "={{ JSON.stringify($json.key_takeaways) }}" },
+            { "fieldId": "recording_url",  "fieldValue": "={{ $json.recording_url }}" },
+            { "fieldId": "transcript_url", "fieldValue": "={{ $json.transcript_url }}" },
+            { "fieldId": "space_name",     "fieldValue": "={{ $json.space_name }}" },
+            { "fieldId": "raw_text",       "fieldValue": "={{ $json.raw_text }}" },
+            { "fieldId": "raw_html",       "fieldValue": "={{ $json.raw_html }}" },
+            { "fieldId": "received_at",    "fieldValue": "={{ $json.received_at }}" },
+            { "fieldId": "sent_to_telegram", "fieldValue": "={{ false }}" }
+          ]
+        }
+      },
+      "id": "33333333-3333-3333-3333-333333333333",
+      "name": "Supabase · upsert gather_meetings",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [-220, 0],
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_SUPABASE_CRED_ID",
+          "name": "Supabase FRC (service_role)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Monta a mensagem HTML para o Telegram NRO.\nconst MAX = 3500;\nconst esc = (s) => String(s ?? '')\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;');\n\nconst out = [];\nfor (const it of $input.all()) {\n  const j = it.json;\n  const date = j.meeting_date ? new Date(j.meeting_date).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '—';\n  const dur = j.duration_min ? `${j.duration_min} min` : '—';\n\n  const list = (arr, max = 8) => {\n    if (!arr || !arr.length) return '—';\n    const a = Array.isArray(arr) ? arr : (() => { try { return JSON.parse(arr); } catch { return []; } })();\n    const head = a.slice(0, max).map((x) => `• ${esc(x)}`).join('\\n');\n    return a.length > max ? `${head}\\n• <i>(+${a.length - max})</i>` : head;\n  };\n\n  const summary = j.summary ? esc(j.summary).slice(0, 1200) : '—';\n\n  let msg = '';\n  msg += `🎙️ <b>FRC · Reunião Gather</b>\\n`;\n  msg += `<b>${esc(j.meeting_title || 'Sem título')}</b>\\n`;\n  msg += `🕒 ${esc(date)}  ·  ⏱️ ${esc(dur)}\\n`;\n  if (j.space_name) msg += `🏢 ${esc(j.space_name)}\\n`;\n  msg += `\\n<b>Participantes</b>\\n${list(j.attendees, 12)}\\n`;\n  msg += `\\n<b>Resumo</b>\\n${summary}\\n`;\n  msg += `\\n<b>Action items</b>\\n${list(j.action_items, 10)}\\n`;\n  if (j.key_takeaways && (Array.isArray(j.key_takeaways) ? j.key_takeaways.length : true)) {\n    msg += `\\n<b>Takeaways</b>\\n${list(j.key_takeaways, 6)}\\n`;\n  }\n  const links = [];\n  if (j.recording_url) links.push(`<a href=\"${esc(j.recording_url)}\">Gravação</a>`);\n  if (j.transcript_url) links.push(`<a href=\"${esc(j.transcript_url)}\">Transcript</a>`);\n  if (links.length) msg += `\\n${links.join('  ·  ')}\\n`;\n\n  if (msg.length > MAX) msg = msg.slice(0, MAX) + '\\n…';\n\n  out.push({ json: { ...j, telegram_text: msg } });\n}\nreturn out;"
+      },
+      "id": "44444444-4444-4444-4444-444444444444",
+      "name": "Format Telegram Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [40, 0]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_NRO_CHAT_ID }}",
+        "text": "={{ $json.telegram_text }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "55555555-5555-5555-5555-555555555555",
+      "name": "Telegram NRO · sendMessage",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [300, 0],
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_TELEGRAM_CRED_ID",
+          "name": "Telegram Bot FRC"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "gather_meetings",
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.email_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            { "fieldId": "sent_to_telegram",    "fieldValue": "={{ true }}" },
+            { "fieldId": "telegram_message_id", "fieldValue": "={{ $json.message_id || $json.result?.message_id }}" },
+            { "fieldId": "telegram_chat_id",    "fieldValue": "={{ $env.TELEGRAM_NRO_CHAT_ID }}" }
+          ]
+        }
+      },
+      "id": "66666666-6666-6666-6666-666666666666",
+      "name": "Supabase · mark sent",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [560, 0],
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_SUPABASE_CRED_ID",
+          "name": "Supabase FRC (service_role)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "errorMessage": "Falha ao processar email Gather. Ver execution log.",
+        "options": {}
+      },
+      "id": "77777777-7777-7777-7777-777777777777",
+      "name": "Stop On Error",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [300, 220]
+    }
+  ],
+  "connections": {
+    "Gmail Trigger (clickup@frc)": {
+      "main": [[{ "node": "Parse Gather Email", "type": "main", "index": 0 }]]
+    },
+    "Parse Gather Email": {
+      "main": [[{ "node": "Supabase · upsert gather_meetings", "type": "main", "index": 0 }]]
+    },
+    "Supabase · upsert gather_meetings": {
+      "main": [[{ "node": "Format Telegram Message", "type": "main", "index": 0 }]]
+    },
+    "Format Telegram Message": {
+      "main": [[{ "node": "Telegram NRO · sendMessage", "type": "main", "index": 0 }]]
+    },
+    "Telegram NRO · sendMessage": {
+      "main": [[{ "node": "Supabase · mark sent", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "errorWorkflow": "",
+    "timezone": "America/Sao_Paulo"
+  },
+  "pinData": {},
+  "versionId": "1.0.0",
+  "triggerCount": 1,
+  "tags": [
+    { "name": "FRC" },
+    { "name": "Gather" },
+    { "name": "ClickUp" }
+  ]
+}

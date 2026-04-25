@@ -102,7 +102,7 @@
     },
     {
       "parameters": {
-        "chatId": "={{ $env.TELEGRAM_NRO_CHAT_ID }}",
+        "chatId": "-1003879102663",
         "text": "={{ $json.telegram_text }}",
         "additionalFields": {
           "parse_mode": "HTML",
@@ -140,7 +140,7 @@
           "fieldValues": [
             { "fieldId": "sent_to_telegram",    "fieldValue": "={{ true }}" },
             { "fieldId": "telegram_message_id", "fieldValue": "={{ $json.message_id || $json.result?.message_id }}" },
-            { "fieldId": "telegram_chat_id",    "fieldValue": "={{ $env.TELEGRAM_NRO_CHAT_ID }}" }
+            { "fieldId": "telegram_chat_id",    "fieldValue": "-1003879102663" }
           ]
         }
       },

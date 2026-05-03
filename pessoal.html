@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0a0a0c">
-<title>Fabinho Life System</title>
+<title>Fabinho — Operação 75kg</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{background:#0a0a0c;color:#e5e5e5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
@@ -17,9 +18,9 @@ input,textarea,button,select{font-family:inherit}
 .ll{width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#f5a623,#e8890c);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#000;animation:pls 1.5s infinite}
 @keyframes pls{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(15,15,17,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid #1f1f23;padding-bottom:env(safe-area-inset-bottom,8px);z-index:100}
-.nv{display:flex;justify-content:space-around;padding:8px 4px 4px}
-.nb{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:2px;min-width:42px}
-.nb svg{width:20px;height:20px}.nb span{font-size:9px;letter-spacing:.2px}
+.nv{display:flex;justify-content:space-around;padding:8px 2px 4px}
+.nb{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:2px;min-width:36px}
+.nb svg{width:18px;height:18px}.nb span{font-size:8.5px;letter-spacing:.2px}
 .c{background:#151517;border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid #1f1f23}
 .ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .ct{font-size:15px;font-weight:700;color:#fff}
@@ -52,6 +53,20 @@ input,textarea,button,select{font-family:inherit}
 .db{background:#1a1a1e;border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid}
 .bw{display:flex;gap:2px;align-items:flex-end;height:20px}
 .bb{flex:1;border-radius:2px;min-height:2px}
+.lemas{background:linear-gradient(135deg,#1a1a10,#151517);border:1px solid #2a2a1a;border-radius:16px;padding:14px;margin-bottom:12px}
+.lema-tag{display:inline-block;font-size:9px;font-weight:800;letter-spacing:1px;color:#f5a623;background:#2a2a1a;padding:3px 8px;border-radius:6px;margin-bottom:8px}
+.lema-txt{font-size:15px;color:#fff;font-weight:600;line-height:1.4}
+.lema-sub{font-size:12px;color:#888;margin-top:6px;line-height:1.5;font-style:italic}
+.obj-card{background:#1a1a1e;border-radius:12px;padding:10px;border-left:3px solid}
+.obj-num{font-size:9px;font-weight:800;color:#666;letter-spacing:1px}
+.obj-ttl{font-size:13px;font-weight:700;color:#fff;margin-top:2px;line-height:1.3}
+.obj-prog{font-size:11px;color:#888;margin-top:4px}
+.kpi{background:#1a1a1e;border-radius:10px;padding:10px;text-align:center}
+.kpi-v{font-size:20px;font-weight:800}
+.kpi-l{font-size:9px;color:#888;letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+.kpi-s{font-size:10px;color:#666;margin-top:2px}
+.princ{padding:8px 10px;background:#1a1a1e;border-radius:8px;border-left:3px solid #f5a623;font-size:12px;color:#ccc;line-height:1.4}
+.princ b{color:#f5a623;font-weight:700}
 </style>
 </head>
 <body>
@@ -61,208 +76,435 @@ input,textarea,button,select{font-family:inherit}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
 <script type="text/babel">
 const{useState,useEffect,useCallback}=React;
-const SK="fabinho-life-v6";
+const SK="fabinho-life-v7";
+const SK_OLD="fabinho-life-v6";
 const MN=["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const DN=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
 const td=()=>new Date().toISOString().split("T")[0];
+const wkKey=()=>{const d=new Date();const f=new Date(d.getFullYear(),0,1);const dd=Math.floor((d-f)/864e5);return`${d.getFullYear()}-W${Math.ceil((dd+f.getDay()+1)/7)}`};
+
+// ─── 3 LEMAS DA OPERAÇÃO 75KG ───────────────────────────────
+const LEMAS=[
+{t:“SÓ HOJE”,f:“Só hoje vou beber a água. Só hoje vou evitar o doce. Só hoje vou treinar.”,s:“Amanhã eu decido amanhã. A vida inteira é uma sequência de só hoje.”},
+{t:“REGRA DOS 5 SEGUNDOS”,f:“Quando bater a resistência: 5-4-3-2-1 e executa.”,s:“Antes que o cérebro arranje desculpa.”},
+{t:“PEQUENOS OBJETIVOS É AVANÇAR”,f:“Não preciso da semana perfeita.”,s:“Preciso de 1 ato de disciplina por vez, repetido.”},
+];
+
+// ─── 4 PRINCÍPIOS NÃO-NEGOCIÁVEIS ───────────────────────────
+const PRINC=[
+{n:“Rotina antes do trabalho”,d:“Treino, oração, leitura, planejamento — tudo antes do primeiro Slack ou WhatsApp.”},
+{n:“Mede ou não existe”,d:“Sem registro no Oura + balança + checklist, o dia não conta.”},
+{n:“Falhar é parte. Desistir não é”,d:“Dia ruim, marca como ruim e segue. Nunca deixa um dia virar uma semana.”},
+{n:“Domingo é reset”,d:“1h pra revisar a semana, planejar a próxima e olhar os 3 horizontes.”},
+];
+
+// ─── 8 OBJETIVOS CENTRAIS ───────────────────────────────────
+const OBJ75=[
+{id:“o1”,n:1,t:“Chegar a 75kg”,cat:“Físico — peso”,ic:“⚖️”,cl:”#22c55e”,mt:“weight”,tg:75,sf:“kg”,dir:“down”},
+{id:“o2”,n:2,t:“18% gordura + mais massa”,cat:“Físico — composição”,ic:“💪”,cl:”#22c55e”,mt:“fat”,tg:18,sf:”%”,dir:“down”},
+{id:“o3”,n:3,t:“Correr 5km, 3x/semana”,cat:“Físico — cardio”,ic:“🏃”,cl:”#38bdf8”,mt:“runs”,tg:3,sf:“x”,dir:“up”,weekly:true},
+{id:“o4”,n:4,t:“Recovery: sauna + plunge + hot tube”,cat:“Físico — recovery”,ic:“🧊”,cl:”#06b6d4”,mt:“recovery”,tg:5,sf:“x”,dir:“up”,weekly:true},
+{id:“o5”,n:5,t:“Paciência: rotina antes do trabalho”,cat:“Mental — disciplina”,ic:“🧠”,cl:”#a78bfa”,mt:“adesao”,tg:80,sf:”%”,dir:“up”},
+{id:“o6”,n:6,t:“Beber a água necessária”,cat:“Físico — hidratação”,ic:“💧”,cl:”#38bdf8”,mt:“water”,tg:7,sf:“d”,dir:“up”,weekly:true},
+{id:“o7”,n:7,t:“Comer menos doce”,cat:“Físico — nutrição”,ic:“🚫🍬”,cl:”#ef4444”,mt:“sweet”,tg:0,sf:“d”,dir:“down”,weekly:true},
+{id:“o8”,n:8,t:“Abdômen, core e postura”,cat:“Físico — estrutura”,ic:“🪨”,cl:”#f5a623”,mt:“core”,tg:5,sf:“x”,dir:“up”,weekly:true},
+];
+
+// ─── 3 PILARES DE RETOMADA ──────────────────────────────────
+const RETOM=[
+{id:“r1”,t:“Estudar”,d:“Aprender algo novo todo dia”,ic:“📚”,cl:”#818cf8”},
+{id:“r2”,t:“Sonhar grande”,d:“Desenhar objetivos com clareza”,ic:“✨”,cl:”#f472b6”},
+{id:“r3”,t:“Bíblia diária”,d:“Leitura como hábito não-negociável”,ic:“🙏”,cl:”#a78bfa”},
+];
 
 // ─── ASSESSMENT CATEGORIES ──────────────────────────────────
 const ACAT=[
-  {id:"body",nm:"Corpo & Saúde",ic:"💪",cl:"#22c55e",qs:[{id:"q1",t:"Consistente com exercícios?",tp:"score"},{id:"q2",t:"Alimentação equilibrada?",tp:"score"},{id:"q3",t:"Sono de qualidade?",tp:"score"},{id:"q4",t:"Energia alta?",tp:"score"},{id:"q5",t:"Melhor coisa pela saúde:",tp:"text"},{id:"q6",t:"O que melhorar:",tp:"text"}]},
-  {id:"mind",nm:"Mente & Crescimento",ic:"🧠",cl:"#38bdf8",qs:[{id:"q7",t:"Investi em aprendizado?",tp:"score"},{id:"q8",t:"Li/ouvi/estudei?",tp:"score"},{id:"q9",t:"Foco e clareza?",tp:"score"},{id:"q10",t:"Controlei estresse?",tp:"score"},{id:"q11",t:"Maior aprendizado:",tp:"text"}]},
-  {id:"emo",nm:"Emoções & Felicidade",ic:"❤️",cl:"#f472b6",qs:[{id:"q12",t:"Feliz e realizado?",tp:"score"},{id:"q13",t:"Pratiquei gratidão?",tp:"score"},{id:"q14",t:"Diversão autêntica?",tp:"score"},{id:"q15",t:"Paz e propósito?",tp:"score"},{id:"q16",t:"Maior alegria:",tp:"text"}]},
-  {id:"rel",nm:"Relacionamentos",ic:"👨‍👩‍👧‍👧",cl:"#fb923c",qs:[{id:"q17",t:"Tempo com esposa?",tp:"score"},{id:"q18",t:"Presente com filhas?",tp:"score"},{id:"q19",t:"Contato com amigos?",tp:"score"},{id:"q20",t:"Relações profissionais?",tp:"score"},{id:"q21",t:"Reconhecer alguém:",tp:"text"}]},
-  {id:"biz",nm:"Negócios & Carreira",ic:"🚀",cl:"#f5a623",qs:[{id:"q22",t:"FRC avançou?",tp:"score"},{id:"q23",t:"Decisões estratégicas?",tp:"score"},{id:"q24",t:"Equipe executou?",tp:"score"},{id:"q25",t:"Novos projetos?",tp:"score"},{id:"q26",t:"Maior conquista:",tp:"text"}]},
-  {id:"fin",nm:"Finanças",ic:"💰",cl:"#60a5fa",qs:[{id:"q28",t:"Situação melhorou?",tp:"score"},{id:"q29",t:"Disciplina financeira?",tp:"score"},{id:"q30",t:"Investi/poupei?",tp:"score"},{id:"q31",t:"Caminho liberdade?",tp:"score"},{id:"q32",t:"Meta próximo mês:",tp:"text"}]},
-  {id:"faith",nm:"Fé & Propósito",ic:"🙏",cl:"#a78bfa",qs:[{id:"q33",t:"Conectei com Deus?",tp:"score"},{id:"q34",t:"Integridade?",tp:"score"},{id:"q35",t:"Contribuí para outros?",tp:"score"},{id:"q36",t:"Vivendo propósito?",tp:"score"},{id:"q37",t:"Reflexão espiritual:",tp:"text"}]},
-  {id:"rpm",nm:"RPM — Resultado/Propósito/Ação",ic:"⚡",cl:"#ef4444",qs:[{id:"q38",t:"RESULTADO mais importante:",tp:"text"},{id:"q39",t:"POR QUE importava:",tp:"text"},{id:"q40",t:"AÇÃO MASSIVA próximo mês:",tp:"text"},{id:"q41",t:"Alinhamento com visão (0-10):",tp:"score"},{id:"q42",t:"Se mudasse UMA coisa:",tp:"text"}]},
-  {id:"ov",nm:"Avaliação Geral",ic:"⭐",cl:"#fbbf24",qs:[{id:"q43",t:"Satisfação geral:",tp:"score"},{id:"q44",t:"Fui quem quero ser?",tp:"score"},{id:"q45",t:"Progredi nos sonhos?",tp:"score"},{id:"q46",t:"Nota geral do mês:",tp:"score"},{id:"q47",t:"Palavra do mês:",tp:"text"},{id:"q48",t:"Compromisso #1:",tp:"text"}]},
+{id:“body”,nm:“Corpo & Saúde”,ic:“💪”,cl:”#22c55e”,qs:[{id:“q1”,t:“Consistente com exercícios?”,tp:“score”},{id:“q2”,t:“Alimentação equilibrada?”,tp:“score”},{id:“q3”,t:“Sono de qualidade?”,tp:“score”},{id:“q4”,t:“Energia alta?”,tp:“score”},{id:“q5”,t:“Melhor coisa pela saúde:”,tp:“text”},{id:“q6”,t:“O que melhorar:”,tp:“text”}]},
+{id:“mind”,nm:“Mente & Crescimento”,ic:“🧠”,cl:”#38bdf8”,qs:[{id:“q7”,t:“Investi em aprendizado?”,tp:“score”},{id:“q8”,t:“Li/ouvi/estudei?”,tp:“score”},{id:“q9”,t:“Foco e clareza?”,tp:“score”},{id:“q10”,t:“Controlei estresse?”,tp:“score”},{id:“q11”,t:“Maior aprendizado:”,tp:“text”}]},
+{id:“emo”,nm:“Emoções & Felicidade”,ic:“❤️”,cl:”#f472b6”,qs:[{id:“q12”,t:“Feliz e realizado?”,tp:“score”},{id:“q13”,t:“Pratiquei gratidão?”,tp:“score”},{id:“q14”,t:“Diversão autêntica?”,tp:“score”},{id:“q15”,t:“Paz e propósito?”,tp:“score”},{id:“q16”,t:“Maior alegria:”,tp:“text”}]},
+{id:“rel”,nm:“Relacionamentos”,ic:“👨‍👩‍👧‍👧”,cl:”#fb923c”,qs:[{id:“q17”,t:“Tempo com esposa?”,tp:“score”},{id:“q18”,t:“Presente com filhas?”,tp:“score”},{id:“q19”,t:“Contato com amigos?”,tp:“score”},{id:“q20”,t:“Relações profissionais?”,tp:“score”},{id:“q21”,t:“Reconhecer alguém:”,tp:“text”}]},
+{id:“biz”,nm:“Negócios & Carreira”,ic:“🚀”,cl:”#f5a623”,qs:[{id:“q22”,t:“FRC avançou?”,tp:“score”},{id:“q23”,t:“Decisões estratégicas?”,tp:“score”},{id:“q24”,t:“Equipe executou?”,tp:“score”},{id:“q25”,t:“Novos projetos?”,tp:“score”},{id:“q26”,t:“Maior conquista:”,tp:“text”}]},
+{id:“fin”,nm:“Finanças”,ic:“💰”,cl:”#60a5fa”,qs:[{id:“q28”,t:“Situação melhorou?”,tp:“score”},{id:“q29”,t:“Disciplina financeira?”,tp:“score”},{id:“q30”,t:“Investi/poupei?”,tp:“score”},{id:“q31”,t:“Caminho liberdade?”,tp:“score”},{id:“q32”,t:“Meta próximo mês:”,tp:“text”}]},
+{id:“faith”,nm:“Fé & Propósito”,ic:“🙏”,cl:”#a78bfa”,qs:[{id:“q33”,t:“Conectei com Deus?”,tp:“score”},{id:“q34”,t:“Integridade?”,tp:“score”},{id:“q35”,t:“Contribuí para outros?”,tp:“score”},{id:“q36”,t:“Vivendo propósito?”,tp:“score”},{id:“q37”,t:“Reflexão espiritual:”,tp:“text”}]},
+{id:“rpm”,nm:“RPM — Resultado/Propósito/Ação”,ic:“⚡”,cl:”#ef4444”,qs:[{id:“q38”,t:“RESULTADO mais importante:”,tp:“text”},{id:“q39”,t:“POR QUE importava:”,tp:“text”},{id:“q40”,t:“AÇÃO MASSIVA próximo mês:”,tp:“text”},{id:“q41”,t:“Alinhamento com visão (0-10):”,tp:“score”},{id:“q42”,t:“Se mudasse UMA coisa:”,tp:“text”}]},
+{id:“ov”,nm:“Avaliação Geral”,ic:“⭐”,cl:”#fbbf24”,qs:[{id:“q43”,t:“Satisfação geral:”,tp:“score”},{id:“q44”,t:“Fui quem quero ser?”,tp:“score”},{id:“q45”,t:“Progredi nos sonhos?”,tp:“score”},{id:“q46”,t:“Nota geral do mês:”,tp:“score”},{id:“q47”,t:“Palavra do mês:”,tp:“text”},{id:“q48”,t:“Compromisso #1:”,tp:“text”}]},
 ];
 
 // ─── 12 PILARES ─────────────────────────────────────────────
 const PDEF=[
-  {id:"sf",ic:"💪",nm:"Saúde Física",cl:"#22c55e",q:"Meu corpo está forte, com energia e disciplina nos treinos?",ds:"Academia 6x, alimentação, sono, hidratação 3L, Oura Ring"},
-  {id:"sm",ic:"🧠",nm:"Saúde Mental",cl:"#38bdf8",q:"Estou com clareza, foco e controle emocional?",ds:"Estresse, ansiedade, meditação, equilíbrio emocional"},
-  {id:"fe",ic:"🙏",nm:"Fé",cl:"#a78bfa",q:"Estou conectado com Deus e vivendo Sua vontade?",ds:"Bíblia diária, oração, versículos, permissão divina"},
-  {id:"cj",ic:"❤️",nm:"Cônjuge",cl:"#f472b6",q:"Estou sendo o melhor marido para Thereza?",ds:"Tempo de qualidade, presença, amor, Escalade"},
-  {id:"fm",ic:"👨‍👩‍👧‍👧",nm:"Família",cl:"#fb923c",q:"Estou presente e construindo memórias com minhas filhas?",ds:"3 filhas, viagens família, Painho, estar presente"},
-  {id:"am",ic:"🤝",nm:"Amigos / Networking",cl:"#facc15",q:"Estou cercado das pessoas certas e gerando valor?",ds:"Networking intencional, novos ambientes, branding pessoal"},
-  {id:"tb",ic:"🏢",nm:"Trabalho / Negócio",cl:"#f59e0b",q:"FRC cresce e minha equipe executa com excelência?",ds:"FRC 1000 carros, equipe, planejamento estratégico"},
-  {id:"fn",ic:"💰",nm:"Finanças",cl:"#60a5fa",q:"Estou construindo riqueza e liberdade financeira?",ds:"Cofre 200k, quitar investidores, MICA, reserva"},
-  {id:"di",ic:"📚",nm:"Desenv. Intelectual",cl:"#818cf8",q:"Estou estudando, lendo e evoluindo?",ds:"3 livros/ano, GPT, cursos, podcasts"},
-  {id:"hb",ic:"🎯",nm:"Hobbies / Prazer",cl:"#34d399",q:"Estou aproveitando a vida e tendo prazer autêntico?",ds:"WSOP poker, relógios, viagens, desfrute"},
-  {id:"lb",ic:"✈️",nm:"Liberdade / Estilo de Vida",cl:"#06b6d4",q:"Vivo a vida que escolhi, com controle do meu tempo?",ds:"Viagens, rotinas fortes, não viver no limite"},
-  {id:"lg",ic:"🏛️",nm:"Legado / Impacto",cl:"#d97706",q:"Estou deixando marca e transbordando para outros?",ds:"Família, comunidade, provedor, propósito"},
+{id:“sf”,ic:“💪”,nm:“Saúde Física”,cl:”#22c55e”,q:“Meu corpo está forte, com energia e disciplina nos treinos?”,ds:“Academia 6x, alimentação, sono, hidratação 3L, Oura Ring”},
+{id:“sm”,ic:“🧠”,nm:“Saúde Mental”,cl:”#38bdf8”,q:“Estou com clareza, foco e controle emocional?”,ds:“Estresse, ansiedade, meditação, equilíbrio emocional”},
+{id:“fe”,ic:“🙏”,nm:“Fé”,cl:”#a78bfa”,q:“Estou conectado com Deus e vivendo Sua vontade?”,ds:“Bíblia diária, oração, versículos, permissão divina”},
+{id:“cj”,ic:“❤️”,nm:“Cônjuge”,cl:”#f472b6”,q:“Estou sendo o melhor marido para Thereza?”,ds:“Tempo de qualidade, presença, amor, Escalade”},
+{id:“fm”,ic:“👨‍👩‍👧‍👧”,nm:“Família”,cl:”#fb923c”,q:“Estou presente e construindo memórias com minhas filhas?”,ds:“3 filhas, viagens família, Painho, estar presente”},
+{id:“am”,ic:“🤝”,nm:“Amigos / Networking”,cl:”#facc15”,q:“Estou cercado das pessoas certas e gerando valor?”,ds:“Networking intencional, novos ambientes, branding pessoal”},
+{id:“tb”,ic:“🏢”,nm:“Trabalho / Negócio”,cl:”#f59e0b”,q:“FRC cresce e minha equipe executa com excelência?”,ds:“FRC 1000 carros, equipe, planejamento estratégico”},
+{id:“fn”,ic:“💰”,nm:“Finanças”,cl:”#60a5fa”,q:“Estou construindo riqueza e liberdade financeira?”,ds:“Cofre 200k, quitar investidores, MICA, reserva”},
+{id:“di”,ic:“📚”,nm:“Desenv. Intelectual”,cl:”#818cf8”,q:“Estou estudando, lendo e evoluindo?”,ds:“3 livros/ano, GPT, cursos, podcasts”},
+{id:“hb”,ic:“🎯”,nm:“Hobbies / Prazer”,cl:”#34d399”,q:“Estou aproveitando a vida e tendo prazer autêntico?”,ds:“WSOP poker, relógios, viagens, desfrute”},
+{id:“lb”,ic:“✈️”,nm:“Liberdade / Estilo de Vida”,cl:”#06b6d4”,q:“Vivo a vida que escolhi, com controle do meu tempo?”,ds:“Viagens, rotinas fortes, não viver no limite”},
+{id:“lg”,ic:“🏛️”,nm:“Legado / Impacto”,cl:”#d97706”,q:“Estou deixando marca e transbordando para outros?”,ds:“Família, comunidade, provedor, propósito”},
 ];
 
-// ─── ROTINA COMPLETA (hacks integrados) ─────────────────────
+// ─── ROTINA OPERAÇÃO 75KG ───────────────────────────────────
+// Categorias: m=Manhã/Recovery, w=Trabalho, h=Hidratação/Saúde, f=Família, g=Crescimento (Bíblia/Estudo)
 const RTPL=[
-  {tm:"05:00",tk:"Acordar",ct:"m",tp:"Levante imediatamente. Não negocie com o travesseiro.",ic:"🌅"},
-  {tm:"05:10",tk:"Vitaminas + Sol",ct:"m",tp:"Luz natural 10min regula ritmo circadiano.",ic:"☀️"},
-  {tm:"05:30",tk:"Academia + Aeróbico 30min",ct:"m",tp:"Corpo forte = mente forte. Produtividade pós-treino.",ic:"🏋️"},
-  {tm:"06:45",tk:"Sauna / Banho gelado",ct:"m",tp:"Desconforto controlado gera resiliência mental.",ic:"🧊"},
-  {tm:"07:15",tk:"Banho + Preparação",ct:"m",tp:"Vista-se como a pessoa que quer ser.",ic:"🚿"},
-  {tm:"07:45",tk:"Café da manhã (proteína)",ct:"h",tp:"Proteína toda refeição. Sem açúcar refinado.",ic:"🥚"},
-  {tm:"08:00",tk:"PLADIN — Planejar o dia",ct:"w",tp:"Pense, Leia missão, Atribua, Defina agenda, Imprevistos, Mentalize.",ic:"📋"},
-  {tm:"08:30",tk:"Bloco foco #1 — Alto Impacto",ct:"w",tp:"90min sem celular. Só o que REALMENTE importa. Pareto 80/20.",ic:"🎯"},
-  {tm:"10:00",tk:"Reuniões / Alinhamento",ct:"w",tp:"Pauta → Plano de ação → Quem faz → Prazo → Entrega.",ic:"👥"},
-  {tm:"11:30",tk:"Conferir relatórios / Cobrar",ct:"w",tp:"GPS semanal. Números não mentem. Antecipação é poder.",ic:"📊"},
-  {tm:"12:00",tk:"Almoço (proteína + sem açúcar)",ct:"h",tp:"Prep meal. Mounjaro. Água 3L/dia. Nutrólogo.",ic:"🥗"},
-  {tm:"13:00",tk:"Bloco foco #2 — Estratégico",ct:"w",tp:"Comprar carros, treinar time, redução custo = Pareto.",ic:"⚡"},
-  {tm:"15:00",tk:"Giro rápido / Operacional",ct:"w",tp:"Só faça o que SÓ VOCÊ pode fazer. Delegue o resto.",ic:"🔄"},
-  {tm:"17:00",tk:"Inbox zero + Pendências",ct:"w",tp:"2x/dia. Regra 2min: se leva <2min, faça agora.",ic:"📧"},
-  {tm:"18:00",tk:"Presente com família",ct:"f",tp:"Celular longe. Olho no olho. Qualidade > quantidade.",ic:"👨‍👩‍👧‍👧"},
-  {tm:"19:30",tk:"Jantar leve",ct:"h",tp:"Nada pesado pós 20h. Impacta direto no sono.",ic:"🍽️"},
-  {tm:"20:00",tk:"Bíblia / Livro / Meditação",ct:"g",tp:"30min. Consistência intelectual + espiritual.",ic:"📖"},
-  {tm:"20:30",tk:"Água (completar 3L)",ct:"h",tp:"Hidratação total antes de dormir.",ic:"💧"},
-  {tm:"21:00",tk:"Revisão dia + Planejar amanhã",ct:"g",tp:"O que fiz bem? O que melhorar? Gratidão.",ic:"📝"},
-  {tm:"21:30",tk:"Desligar telas",ct:"h",tp:"Sem telas 1h antes. Quarto frio 18-20°C. Magnésio.",ic:"📵"},
-  {tm:"22:00",tk:"Dormir",ct:"h",tp:"Escurecer total. Oura Ring. Meta 7-8h.",ic:"😴"},
+{tm:“05:00”,tk:“Acordar (5-4-3-2-1)”,ct:“m”,tp:“Regra dos 5 segundos. Não negocie com o travesseiro.”,ic:“🌅”},
+{tm:“05:05”,tk:“Água 500ml + sol 10min”,ct:“h”,tp:“Hidratação imediata + luz natural regula circadiano.”,ic:“💧”},
+{tm:“05:15”,tk:“Oração de gratidão”,ct:“g”,tp:“Conexão antes do mundo bater na porta.”,ic:“🙏”},
+{tm:“05:30”,tk:“Treino força (gym em casa)”,ct:“m”,tp:“Sem deslocamento, sem desculpa. Foco em força.”,ic:“🏋️”},
+{tm:“06:30”,tk:“Corrida 5km (Seg/Qua/Sex)”,ct:“m”,tp:“Meta semanal: 3x. Só hoje conta.”,ic:“🏃”},
+{tm:“07:00”,tk:“Core + postura (10min)”,ct:“m”,tp:“Abdômen, prancha, mobilidade. Não-negociável.”,ic:“🪨”},
+{tm:“07:15”,tk:“Recovery: sauna OU plunge OU hot tube”,ct:“m”,tp:“Mín. 3x/semana. Desconforto controlado = resiliência.”,ic:“🧊”},
+{tm:“07:45”,tk:“Banho + suplementação”,ct:“h”,tp:“Creatina, Omega-3, D3+K2, eletrólitos.”,ic:“💊”},
+{tm:“08:00”,tk:“Café com proteína (sem doce)”,ct:“h”,tp:“Proteína toda refeição. Mounjaro. Zero açúcar refinado.”,ic:“🥚”},
+{tm:“08:15”,tk:“Bíblia + estudo (30min)”,ct:“g”,tp:“3 pilares de retomada: Estudar + Bíblia diária.”,ic:“📖”},
+{tm:“08:45”,tk:“Água 500ml + planejar dia”,ct:“h”,tp:“PLADIN. Antes do primeiro Slack/WhatsApp.”,ic:“📋”},
+{tm:“09:00”,tk:“Bloco foco #1 — Alto impacto”,ct:“w”,tp:“90min sem celular. Pareto 80/20.”,ic:“🎯”},
+{tm:“10:30”,tk:“Reuniões / Alinhamento”,ct:“w”,tp:“Pauta → Plano → Quem → Prazo → Entrega.”,ic:“👥”},
+{tm:“12:00”,tk:“Almoço (proteína + zero doce)”,ct:“h”,tp:“Prep meal. Mounjaro. Sem sobremesa.”,ic:“🥗”},
+{tm:“12:30”,tk:“Água 500ml”,ct:“h”,tp:“Hidratação contínua.”,ic:“💧”},
+{tm:“13:00”,tk:“Bloco foco #2 — Estratégico”,ct:“w”,tp:“FRC. Só você pode fazer = você faz. Resto delega.”,ic:“⚡”},
+{tm:“15:30”,tk:“Água 500ml + giro operacional”,ct:“w”,tp:“Hidratação + check rápido pendências.”,ic:“🔄”},
+{tm:“17:00”,tk:“Inbox zero + cobrar entregas”,ct:“w”,tp:“2x/dia. Regra dos 2min.”,ic:“📧”},
+{tm:“18:00”,tk:“1h família (sem celular)”,ct:“f”,tp:“Thereza + filhas. Olho no olho. Qualidade > quantidade.”,ic:“👨‍👩‍👧‍👧”},
+{tm:“19:30”,tk:“Jantar leve (zero doce)”,ct:“h”,tp:“Nada pesado pós 20h. Impacta sono direto.”,ic:“🍽️”},
+{tm:“20:00”,tk:“Estudo / Sonhar grande”,ct:“g”,tp:“3 pilares de retomada: aprender algo novo + visualizar metas.”,ic:“📚”},
+{tm:“20:30”,tk:“Água final (completar dia)”,ct:“h”,tp:“Hidratação total. Magnésio.”,ic:“💧”},
+{tm:“21:00”,tk:“Revisão dia + amanhã”,ct:“g”,tp:“O que fiz bem? O que melhorar? Marca o dia (bom/ruim).”,ic:“📝”},
+{tm:“21:30”,tk:“Telas off (Oura on)”,ct:“h”,tp:“Sem telas 1h antes. Quarto 18-20°C.”,ic:“📵”},
+{tm:“22:00”,tk:“Dormir (meta 7-8h)”,ct:“h”,tp:“Escurecer total. Mede readiness amanhã.”,ic:“😴”},
 ];
-const CC={"m":"#f5a623","w":"#38bdf8","h":"#22c55e","f":"#f472b6","g":"#a78bfa"};
-const CL={"m":"Manhã","w":"Trabalho","h":"Saúde","f":"Família","g":"Crescimento"};
+const CC={“m”:”#f5a623”,“w”:”#38bdf8”,“h”:”#22c55e”,“f”:”#f472b6”,“g”:”#a78bfa”};
+const CL={“m”:“Manhã/Treino”,“w”:“Trabalho”,“h”:“Saúde/Água”,“f”:“Família”,“g”:“Espiritual/Estudo”};
 
 // ─── DEFAULT DATA ───────────────────────────────────────────
 const DEF={
-  profile:{name:"Fabinho"},
-  gratitude:["GC recebido","450 carros na frota","WSOP Aria","Cybertruck quitada","App Turo ativo","Florida Clube ativo","Zerou Fort Motors / Rodrigo / Justino / Flavinho"],
-  vision:[
-    "Toda honra e glória ao Senhor. Deus, que sua palavra se cumpra.",
-    "Só busque o que vai te levar para o próximo nível. Antecipação é poder.",
-    "Se apaixone pela rotina, resultado é consequência.",
-    "Enriquecer é a maestria do que você faz para outras pessoas.",
-    "Quem dá mais, recebe mais. Foco em ganhar e em não perder."
-  ],
-  pilares:PDEF.map(p=>({...p,score:0,notes:""})),
-  dreams:{
-    shortTerm:[{t:"FRC 1.000 carros (2026/27)",d:false},{t:"WSOP 40 dias over 100k prize",d:false},{t:"Cofre 200k até 10/11/2026",d:false},{t:"75kg e 20% gordura",d:false},{t:"Superar 15% crescimento FRC",d:false},{t:"4 viagens família EUA",d:false},{t:"2 viagens internacionais",d:false},{t:"Tony Robbins evento",d:false},{t:"Fluxo caixa FRC 400k",d:false},{t:"Grupo Porcino resolvido",d:false},{t:"Quitar investidores restantes",d:false},{t:"Meditação 150x / 3 livros",d:false}],
-    mediumTerm:[{t:"Ferrari Puro Sangue (04/2027)",d:false},{t:"RM 6702 Branco+Azul (01/2028)",d:false},{t:"Trust 2.000 carros",d:false},{t:"Thereza Escalade nova",d:false},{t:"Casa perfeita: Spa/Garagem/Deck",d:false},{t:"Amex Centurion",d:false},{t:"Rolex/AP Skeleton/Patek Rosé",d:false},{t:"Painho com casa dele",d:false}],
-    longTerm:[{t:"Viver de rendas total",d:false},{t:"Gulfstream G800",d:false},{t:"Cullinan Rolls Royce",d:false},{t:"Casa Quintas do Lago",d:false},{t:"Faculdade 3 filhas",d:false},{t:"Israel/Egito/Arezzo/Napa",d:false},{t:"Transbordar: família e comunidade",d:false},{t:"Fundo carros investidores (2029)",d:false}],
-  },
-  health:{meds:[{name:"Mounjaro",dose:"",notes:"Controle apetite"}],oura:{sleep:"",readiness:"",activity:"",hrv:"",rhr:"",temp:""},bio:{weight:"",fat:"",muscle:"",water:"",bone:"",metAge:"",viscFat:""},targets:{weight:"75",fat:"20",muscle:"60"},notes:"",lastAnalysis:""},
-  finances:{
-    frc:{desc:"Florida Rental Car",bal:"",rev25:"10000000",proj26:"14000000",notes:"Meta 1000 carros. Fluxo 400k"},
-    personal:{desc:"Conta Pessoal",bal:"",income:"",expenses:"",notes:"Emergência 5 meses = 100k"},
-    patrimonio:{desc:"Patrimônio Total",realEstate:"",vehicles:"",investments:"",notes:"Cofre 200k 11/2026"},
-    porcino:{desc:"Grupo Porcino",bal:"",notes:"Em andamento"},
-    cc:{desc:"Conta Corrente",bal:"",notes:"Sobra, não limite"},
-  },
-  investidores:[{name:"Flavinho",val:"450000",st:"Parcial"},{name:"Justino",val:"350000",st:"Parcial"},{name:"Lake Bessie",val:"",st:"Pendente"},{name:"Solara",val:"",st:"Pendente"}],
-  rc:{},journal:[],assessments:{},
-  checkDates:[{tp:"Check-up Sangue",last:"2025-02-01",next:"",iv:"6 meses"},{tp:"Dentista",last:"2025-10-01",next:"",iv:"6 meses"},{tp:"Dermatologista",last:"",next:"",iv:"12 meses"},{tp:"Oftalmologista",last:"",next:"",iv:"12 meses"},{tp:"Bio Impedância",last:"",next:"",iv:"3 meses"},{tp:"Nutrólogo",last:"",next:"",iv:"3 meses"}],
+profile:{name:“Fabinho”},
+gratitude:[“GC recebido”,“450 carros na frota”,“WSOP Aria”,“Cybertruck quitada”,“App Turo ativo”,“Florida Clube ativo”,“Zerou Fort Motors / Rodrigo / Justino / Flavinho”],
+vision:[
+“Toda honra e glória ao Senhor. Deus, que sua palavra se cumpra.”,
+“Só busque o que vai te levar para o próximo nível. Antecipação é poder.”,
+“Se apaixone pela rotina, resultado é consequência.”,
+“Enriquecer é a maestria do que você faz para outras pessoas.”,
+“Quem dá mais, recebe mais. Foco em ganhar e em não perder.”
+],
+pilares:PDEF.map(p=>({…p,score:0,notes:””})),
+dreams:{
+shortTerm:[{t:“Operação 75kg — peso/gordura/core”,d:false},{t:“FRC 1.000 carros (2026/27)”,d:false},{t:“WSOP 40 dias over 100k prize”,d:false},{t:“Cofre 200k até 10/11/2026”,d:false},{t:“Superar 15% crescimento FRC”,d:false},{t:“4 viagens família EUA”,d:false},{t:“2 viagens internacionais”,d:false},{t:“Tony Robbins evento”,d:false},{t:“Fluxo caixa FRC 400k”,d:false},{t:“Grupo Porcino resolvido”,d:false},{t:“Quitar investidores restantes”,d:false},{t:“Meditação 150x / 3 livros”,d:false}],
+mediumTerm:[{t:“Ferrari Puro Sangue (04/2027)”,d:false},{t:“RM 6702 Branco+Azul (01/2028)”,d:false},{t:“Trust 2.000 carros”,d:false},{t:“Thereza Escalade nova”,d:false},{t:“Casa perfeita: Spa/Garagem/Deck”,d:false},{t:“Amex Centurion”,d:false},{t:“Rolex/AP Skeleton/Patek Rosé”,d:false},{t:“Painho com casa dele”,d:false}],
+longTerm:[{t:“Viver de rendas total”,d:false},{t:“Gulfstream G800”,d:false},{t:“Cullinan Rolls Royce”,d:false},{t:“Casa Quintas do Lago”,d:false},{t:“Faculdade 3 filhas”,d:false},{t:“Israel/Egito/Arezzo/Napa”,d:false},{t:“Transbordar: família e comunidade”,d:false},{t:“Fundo carros investidores (2029)”,d:false}],
+},
+health:{
+meds:[{name:“Mounjaro”,dose:””,notes:“Controle apetite”}],
+oura:{sleep:””,readiness:””,activity:””,hrv:””,rhr:””,temp:””},
+bio:{weight:””,fat:””,muscle:””,water:””,bone:””,metAge:””,viscFat:””},
+rythm:{date:””,totalChol:””,ldl:””,hdl:””,triglyc:””,glucose:””,hba1c:””,insulin:””,vitD:””,b12:””,ferritin:””,testostT:””,testostF:””,cortisol:””,tsh:””,crp:””,notes:””},
+notes:””,
+lastAnalysis:””
+},
+finances:{
+frc:{desc:“Florida Rental Car”,bal:””,rev25:“10000000”,proj26:“14000000”,notes:“Meta 1000 carros. Fluxo 400k”},
+personal:{desc:“Conta Pessoal”,bal:””,income:””,expenses:””,notes:“Emergência 5 meses = 100k”},
+patrimonio:{desc:“Patrimônio Total”,realEstate:””,vehicles:””,investments:””,notes:“Cofre 200k 11/2026”},
+porcino:{desc:“Grupo Porcino”,bal:””,notes:“Em andamento”},
+cc:{desc:“Conta Corrente”,bal:””,notes:“Sobra, não limite”},
+},
+investidores:[{name:“Flavinho”,val:“450000”,st:“Parcial”},{name:“Justino”,val:“350000”,st:“Parcial”},{name:“Lake Bessie”,val:””,st:“Pendente”},{name:“Solara”,val:””,st:“Pendente”}],
+rc:{},
+journal:[],
+assessments:{},
+// ── Operação 75kg ──
+op75:{
+targets:{weight:75,fat:18,muscle:60},
+weekly:{},  // {wkKey:{runs:0,recovery:0,water:0,sweet:0,core:0}}
+retomada:{},// {date:{r1:bool,r2:bool,r3:bool}}
+pesoHist:[] // [{d:date,w:kg,fat:%,muscle:kg}]
+},
+checkDates:[
+{tp:“Check-up Sangue (Rythm Health)”,last:“2026-04-27”,next:””,iv:“1 mês”},
+{tp:“Dentista”,last:“2025-10-01”,next:””,iv:“6 meses”},
+{tp:“Dermatologista”,last:””,next:””,iv:“12 meses”},
+{tp:“Oftalmologista”,last:””,next:””,iv:“12 meses”},
+{tp:“Bio Impedância”,last:””,next:””,iv:“1 mês”},
+{tp:“Nutrólogo”,last:””,next:””,iv:“3 meses”}
+],
 };
 
 // ─── HELPERS ────────────────────────────────────────────────
 const LS={g(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}},s(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
-function dm(t,s){const r={...t};for(const k in s){if(s[k]&&typeof s[k]==="object"&&!Array.isArray(s[k]))r[k]=dm(t[k]||{},s[k]);else r[k]=s[k]}return r}
+function dm(t,s){const r={…t};for(const k in s){if(s[k]&&typeof s[k]===“object”&&!Array.isArray(s[k]))r[k]=dm(t[k]||{},s[k]);else r[k]=s[k]}return r}
 const dU=d=>{if(!d)return null;return Math.ceil((new Date(d)-new Date())/864e5)};
-const sCol=d=>{if(d===null)return"#555";if(d<0)return"#ef4444";if(d<30)return"#f59e0b";return"#22c55e"};
+const sCol=d=>{if(d===null)return”#555”;if(d<0)return”#ef4444”;if(d<30)return”#f59e0b”;return”#22c55e”};
 
-function gFb(a,cid){const qs=ACAT.find(c=>c.id===cid)?.qs.filter(q=>q.tp==="score")||[];const sc=qs.map(q=>a[q.id]||0).filter(s=>s>0);if(!sc.length)return{av:0,lv:"—",msg:"",em:"❓"};const av=sc.reduce((a,b)=>a+b,0)/sc.length;if(av>=9)return{av,lv:"Extraordinário",msg:"Excelência! Mantenha e inspire.",em:"🏆"};if(av>=7)return{av,lv:"Forte",msg:"Dobre nos 20% que geram 80%.",em:"💪"};if(av>=5)return{av,lv:"Progresso",msg:"Foque em 1-2 melhorias específicas.",em:"📈"};if(av>=3)return{av,lv:"Atenção",msg:"UMA ação. Comece HOJE.",em:"⚠️"};return{av,lv:"Crítico",msg:"Priorize esta área urgente.",em:"🚨"}}
+function gFb(a,cid){const qs=ACAT.find(c=>c.id===cid)?.qs.filter(q=>q.tp===“score”)||[];const sc=qs.map(q=>a[q.id]||0).filter(s=>s>0);if(!sc.length)return{av:0,lv:”—”,msg:””,em:“❓”};const av=sc.reduce((a,b)=>a+b,0)/sc.length;if(av>=9)return{av,lv:“Extraordinário”,msg:“Excelência! Mantenha e inspire.”,em:“🏆”};if(av>=7)return{av,lv:“Forte”,msg:“Dobre nos 20% que geram 80%.”,em:“💪”};if(av>=5)return{av,lv:“Progresso”,msg:“Foque em 1-2 melhorias específicas.”,em:“📈”};if(av>=3)return{av,lv:“Atenção”,msg:“UMA ação. Comece HOJE.”,em:“⚠️”};return{av,lv:“Crítico”,msg:“Priorize esta área urgente.”,em:“🚨”}}
 
-function gAR(as,yr){const ms=Object.entries(as||{}).filter(([k])=>k.startsWith(yr)).sort();if(ms.length<2)return null;const cs={};ACAT.forEach(cat=>{const sqs=cat.qs.filter(q=>q.tp==="score");const ma=[];ms.forEach(([,d])=>{const sc=sqs.map(q=>d[q.id]||0).filter(s=>s>0);if(sc.length)ma.push(sc.reduce((a,b)=>a+b,0)/sc.length)});if(ma.length){const av=ma.reduce((a,b)=>a+b,0)/ma.length;cs[cat.id]={av:av.toFixed(1),tr:ma.length>=2?ma[ma.length-1]-ma[0]:0,ma,nm:cat.nm,ic:cat.ic,cl:cat.cl}}});const avs=Object.values(cs).map(c=>+c.av);const oA=avs.length?(avs.reduce((a,b)=>a+b,0)/avs.length).toFixed(1):0;const so=Object.values(cs).sort((a,b)=>b.av-a.av);return{cs,oA,best:so[0],worst:so[so.length-1],imp:Object.values(cs).sort((a,b)=>b.tr-a.tr)[0],mc:ms.length}}
+function gAR(as,yr){const ms=Object.entries(as||{}).filter(([k])=>k.startsWith(yr)).sort();if(ms.length<2)return null;const cs={};ACAT.forEach(cat=>{const sqs=cat.qs.filter(q=>q.tp===“score”);const ma=[];ms.forEach(([,d])=>{const sc=sqs.map(q=>d[q.id]||0).filter(s=>s>0);if(sc.length)ma.push(sc.reduce((a,b)=>a+b,0)/sc.length)});if(ma.length){const av=ma.reduce((a,b)=>a+b,0)/ma.length;cs[cat.id]={av:av.toFixed(1),tr:ma.length>=2?ma[ma.length-1]-ma[0]:0,ma,nm:cat.nm,ic:cat.ic,cl:cat.cl}}});const avs=Object.values(cs).map(c=>+c.av);const oA=avs.length?(avs.reduce((a,b)=>a+b,0)/avs.length).toFixed(1):0;const so=Object.values(cs).sort((a,b)=>b.av-a.av);return{cs,oA,best:so[0],worst:so[so.length-1],imp:Object.values(cs).sort((a,b)=>b.tr-a.tr)[0],mc:ms.length}}
+
+// Adesão dos últimos 7 dias da rotina
+function gAdesao7(rc){const tot=RTPL.length;let dias=0,soma=0;const now=new Date();for(let i=0;i<7;i++){const dt=new Date(now);dt.setDate(dt.getDate()-i);const k=dt.toISOString().split(“T”)[0];const c=rc?.[k];if(c){const dn=Object.values(c).filter(Boolean).length;soma+=dn/tot*100;dias++}}return dias?Math.round(soma/dias):0}
+
+// Readiness média 7 dias (só se valor único — Oura é último valor por enquanto)
+function gReadiness(d){return d.health?.oura?.readiness||”—”}
+
+// Progresso de objetivo
+function gObjProg(o,d){const wk=wkKey();const w=d.op75?.weekly?.[wk]||{};
+if(o.mt===“weight”){const v=parseFloat(d.health?.bio?.weight);if(!v)return{pct:0,cur:”—”,txt:`Meta: ${o.tg}kg`};const start=85;const pct=Math.max(0,Math.min(100,(start-v)/(start-o.tg)*100));return{pct:Math.round(pct),cur:`${v}kg`,txt:`Meta: ${o.tg}kg`}}
+if(o.mt===“fat”){const v=parseFloat(d.health?.bio?.fat);if(!v)return{pct:0,cur:”—”,txt:`Meta: ${o.tg}%`};const start=28;const pct=Math.max(0,Math.min(100,(start-v)/(start-o.tg)*100));return{pct:Math.round(pct),cur:`${v}%`,txt:`Meta: ${o.tg}%`}}
+if(o.mt===“adesao”){const a=gAdesao7(d.rc);return{pct:Math.min(100,Math.round(a/o.tg*100)),cur:`${a}%`,txt:`Meta: ${o.tg}%+`}}
+if(o.weekly){const v=w[o.mt]||0;if(o.dir===“down”){const pct=v<=o.tg?100:Math.max(0,100-(v-o.tg)*30);return{pct:Math.round(pct),cur:`${v}${o.sf}`,txt:`Meta: ≤${o.tg}${o.sf}/sem`}}const pct=Math.min(100,Math.round(v/o.tg*100));return{pct,cur:`${v}${o.sf}`,txt:`Meta: ${o.tg}${o.sf}/sem`}}
+return{pct:0,cur:”—”,txt:””}}
 
 // ═══════════════════════════════════════════════════════════
 // APP
 // ═══════════════════════════════════════════════════════════
 function App(){
-  const[data,setData]=useState(DEF);const[tab,setTab]=useState("home");const[ok,setOk]=useState(false);
-  useEffect(()=>{const s=LS.g(SK);if(s)setData(dm(DEF,s));setOk(true)},[]);
-  const sv=useCallback(nd=>{setData(nd);LS.s(SK,nd)},[]);
-  const up=(p,v)=>{const nd=JSON.parse(JSON.stringify(data));const ks=p.split(".");let o=nd;for(let i=0;i<ks.length-1;i++)o=o[ks[i]];o[ks[ks.length-1]]=v;sv(nd)};
-  if(!ok)return<div className="loading"><div className="ll">F</div></div>;
-  const tabs=[
-    {id:"home",l:"Home",d:"M3 12l9-8 9 8M5 10v10h4v-6h6v6h4V10"},
-    {id:"dreams",l:"Sonhos",d:"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"},
-    {id:"pilares",l:"Pilares",d:"M4 21V7l8-4 8 4v14M8 21V11M12 21V7M16 21V11"},
-    {id:"health",l:"Saúde",d:"M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"},
-    {id:"money",l:"Finanças",d:"M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"},
-    {id:"routine",l:"Rotina",d:"M13 2L3 14h9l-1 8 10-12h-9l1-8z"},
-    {id:"journal",l:"Diário",d:"M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"},
-  ];
-  const P={home:<Home d={data} go={setTab}/>,dreams:<Sonhos d={data} sv={sv} up={up}/>,pilares:<Pilares d={data} sv={sv}/>,health:<Saude d={data} sv={sv} up={up}/>,money:<Fin d={data} sv={sv} up={up}/>,routine:<Rotina d={data} sv={sv}/>,journal:<Diario d={data} sv={sv}/>};
-  return<div className="app">{P[tab]||P.home}<nav className="nav"><div className="nv">{tabs.map(t=><button key={t.id} className="nb" onClick={()=>setTab(t.id)} style={{color:tab===t.id?"#f5a623":"#8e8e93"}}><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" style={{opacity:tab===t.id?1:.5}}><path d={t.d}/></svg><span style={{fontWeight:tab===t.id?700:400}}>{t.l}</span></button>)}</div></nav></div>;
+const[data,setData]=useState(DEF);const[tab,setTab]=useState(“home”);const[ok,setOk]=useState(false);
+useEffect(()=>{
+let s=LS.g(SK);
+if(!s){const old=LS.g(SK_OLD);if(old){s=old;LS.s(SK,old)}}
+if(s)setData(dm(DEF,s));
+setOk(true);
+},[]);
+const sv=useCallback(nd=>{setData(nd);LS.s(SK,nd)},[]);
+const up=(p,v)=>{const nd=JSON.parse(JSON.stringify(data));const ks=p.split(”.”);let o=nd;for(let i=0;i<ks.length-1;i++){if(!o[ks[i]])o[ks[i]]={};o=o[ks[i]]}o[ks[ks.length-1]]=v;sv(nd)};
+if(!ok)return<div className="loading"><div className="ll">F</div></div>;
+const tabs=[
+{id:“home”,l:“Home”,d:“M3 12l9-8 9 8M5 10v10h4v-6h6v6h4V10”},
+{id:“op75”,l:“75kg”,d:“M6.5 6.5h11v11h-11zM12 2v4M12 18v4M2 12h4M18 12h4”},
+{id:“dreams”,l:“Sonhos”,d:“M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z”},
+{id:“pilares”,l:“Pilares”,d:“M4 21V7l8-4 8 4v14M8 21V11M12 21V7M16 21V11”},
+{id:“health”,l:“Saúde”,d:“M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z”},
+{id:“money”,l:”$”,d:“M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6”},
+{id:“routine”,l:“Rotina”,d:“M13 2L3 14h9l-1 8 10-12h-9l1-8z”},
+{id:“journal”,l:“Diário”,d:“M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z”},
+];
+const P={home:<Home d={data} go={setTab}/>,op75:<Op75 d={data} sv={sv} up={up}/>,dreams:<Sonhos d={data} sv={sv}/>,pilares:<Pilares d={data} sv={sv}/>,health:<Saude d={data} sv={sv} up={up}/>,money:<Fin d={data} sv={sv} up={up}/>,routine:<Rotina d={data} sv={sv}/>,journal:<Diario d={data} sv={sv}/>};
+return<div className="app">{P[tab]||P.home}<nav className="nav"><div className="nv">{tabs.map(t=><button key={t.id} className=“nb” onClick={()=>setTab(t.id)} style={{color:tab===t.id?”#f5a623”:”#8e8e93”}}><svg width=“18” height=“18” fill=“none” viewBox=“0 0 24 24” stroke=“currentColor” strokeWidth=“2” style={{opacity:tab===t.id?1:.5}}><path d={t.d}/></svg><span style={{fontWeight:tab===t.id?700:400}}>{t.l}</span></button>)}</div></nav></div>;
 }
 
 // ─── EDITABLE FIELD ─────────────────────────────────────────
-function EF({label,value,onSave,type="text",suffix=""}){
-  const[ed,setEd]=useState(false);const[tmp,setTmp]=useState(value||"");
-  const s=()=>{onSave(tmp);setEd(false)};
-  if(ed)return<div style={{marginBottom:6}}><div style={{fontSize:10,color:"#666",textTransform:"uppercase",letterSpacing:.5,marginBottom:3}}>{label}</div><div style={{display:"flex",gap:6}}><input type={type} value={tmp} onChange={e=>setTmp(e.target.value)} className="inp" autoFocus onKeyDown={e=>e.key==="Enter"&&s()}/><button style={{width:30,height:30,borderRadius:8,background:"#22c55e",border:"none",color:"#000",cursor:"pointer",fontWeight:700,flexShrink:0}} onClick={s}>✓</button></div></div>;
-  return<div className="fr" onClick={()=>{setTmp(value||"");setEd(true)}}><span className="fl">{label}</span><span className="fv">{value?`${value}${suffix}`:"Editar"}</span></div>;
+function EF({label,value,onSave,type=“text”,suffix=””}){
+const[ed,setEd]=useState(false);const[tmp,setTmp]=useState(value||””);
+const s=()=>{onSave(tmp);setEd(false)};
+if(ed)return<div style={{marginBottom:6}}><div style={{fontSize:10,color:”#666”,textTransform:“uppercase”,letterSpacing:.5,marginBottom:3}}>{label}</div><div style={{display:“flex”,gap:6}}><input type={type} value={tmp} onChange={e=>setTmp(e.target.value)} className=“inp” autoFocus onKeyDown={e=>e.key===“Enter”&&s()}/><button style={{width:30,height:30,borderRadius:8,background:”#22c55e”,border:“none”,color:”#000”,cursor:“pointer”,fontWeight:700,flexShrink:0}} onClick={s}>✓</button></div></div>;
+return<div className=“fr” onClick={()=>{setTmp(value||””);setEd(true)}}><span className="fl">{label}</span><span className="fv">{value?`${value}${suffix}`:“Editar”}</span></div>;
 }
 
 // ═══════════════════════════════════════════════════════════
 // HOME
 // ═══════════════════════════════════════════════════════════
 function Home({d,go}){
-  const t=new Date();const day=td();
-  const ch=d.rc?.[day]||{};const dn=Object.values(ch).filter(Boolean).length;const tot=RTPL.length;const pct=tot?Math.round(dn/tot*100):0;
-  const sc=d.pilares.filter(p=>p.score>0);const avg=sc.length?(sc.reduce((a,b)=>a+b.score,0)/sc.length).toFixed(1):"—";
-  const vi=d.vision||[];const rv=vi[t.getMinutes()%vi.length]||"";
-  // streak
-  let streak=0;for(let i=0;i<90;i++){const dt=new Date(t);dt.setDate(dt.getDate()-i);const dk=dt.toISOString().split("T")[0];const c=d.rc?.[dk];if(c&&Object.values(c).filter(Boolean).length>=tot*.5)streak++;else if(i>0)break}
+const t=new Date();const day=td();
+const ch=d.rc?.[day]||{};const dn=Object.values(ch).filter(Boolean).length;const tot=RTPL.length;const pct=tot?Math.round(dn/tot*100):0;
+const sc=d.pilares.filter(p=>p.score>0);const avg=sc.length?(sc.reduce((a,b)=>a+b.score,0)/sc.length).toFixed(1):”—”;
+const lema=LEMAS[t.getDate()%LEMAS.length];
+const ret=d.op75?.retomada?.[day]||{};
+const adesao=gAdesao7(d.rc);
+// streak
+let streak=0;for(let i=0;i<90;i++){const dt=new Date(t);dt.setDate(dt.getDate()-i);const dk=dt.toISOString().split(“T”)[0];const c=d.rc?.[dk];if(c&&Object.values(c).filter(Boolean).length>=tot*.5)streak++;else if(i>0)break}
 
-  return<div className="pg">
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 0 10px"}}><div><div style={{fontSize:22,fontWeight:700,color:"#fff"}}>Olá, {d.profile.name} 👋</div><div style={{fontSize:13,color:"#888"}}>{DN[t.getDay()]}, {t.getDate()} de {MN[t.getMonth()]}</div></div><div style={{width:44,height:44,borderRadius:14,background:"linear-gradient(135deg,#f5a623,#e8890c)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,fontWeight:800,color:"#000"}}>F</div></div>
+return<div className="pg">
+<div style={{display:“flex”,justifyContent:“space-between”,alignItems:“center”,padding:“14px 0 10px”}}><div><div style={{fontSize:22,fontWeight:700,color:”#fff”}}>Olá, {d.profile.name} 👋</div><div style={{fontSize:13,color:”#888”}}>{DN[t.getDay()]}, {t.getDate()} de {MN[t.getMonth()]}</div></div><div style={{width:44,height:44,borderRadius:14,background:“linear-gradient(135deg,#f5a623,#e8890c)”,display:“flex”,alignItems:“center”,justifyContent:“center”,fontSize:20,fontWeight:800,color:”#000”}}>F</div></div>
 
-    {rv&&<div className="c" style={{borderColor:"#2a2a1a",background:"linear-gradient(135deg,#1a1a10,#151517)",padding:14}}><p style={{fontSize:14,color:"#f5a623",fontStyle:"italic",lineHeight:1.6,textAlign:"center"}}>"{rv}"</p></div>}
+```
+{/* LEMA DO DIA */}
+<div className="lemas"><span className="lema-tag">LEMA DE HOJE</span><div className="lema-txt">"{lema.f}"</div><div className="lema-sub">{lema.t} — {lema.s}</div></div>
 
-    <div className="c" onClick={()=>go("routine")} style={{cursor:"pointer"}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}><div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:28,fontWeight:800,color:pct>=80?"#22c55e":pct>=50?"#f5a623":"#888"}}>{pct}%</span><div><div style={{fontSize:13,fontWeight:600,color:"#fff"}}>{dn}/{tot} tarefas hoje</div>{streak>0&&<div style={{fontSize:11,color:"#f5a623"}}>🔥 {streak} dias seguidos</div>}</div></div><span className="cl">Abrir →</span></div>
-      <div className="pb" style={{height:8}}><div className="pf" style={{width:`${pct}%`,background:pct>=80?"#22c55e":pct>=50?"#f5a623":"#ef4444"}}/></div>
+{/* ROTINA HOJE */}
+<div className="c" onClick={()=>go("routine")} style={{cursor:"pointer"}}>
+  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}><div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:28,fontWeight:800,color:pct>=80?"#22c55e":pct>=50?"#f5a623":"#888"}}>{pct}%</span><div><div style={{fontSize:13,fontWeight:600,color:"#fff"}}>{dn}/{tot} tarefas hoje</div>{streak>0&&<div style={{fontSize:11,color:"#f5a623"}}>🔥 {streak} dias seguidos</div>}</div></div><span className="cl">Abrir →</span></div>
+  <div className="pb" style={{height:8}}><div className="pf" style={{width:`${pct}%`,background:pct>=80?"#22c55e":pct>=50?"#f5a623":"#ef4444"}}/></div>
+</div>
+
+{/* OPERAÇÃO 75KG SHORTCUT */}
+<div className="c" onClick={()=>go("op75")} style={{cursor:"pointer",borderColor:"#f5a623",background:"linear-gradient(135deg,#1a1410,#151517)"}}>
+  <div className="ch"><h3 className="ct" style={{color:"#f5a623"}}>🎯 Operação 75kg</h3><span className="cl">Ver →</span></div>
+  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
+    <div className="kpi"><div className="kpi-v" style={{color:"#22c55e"}}>{d.health?.bio?.weight||"—"}<span style={{fontSize:11}}>kg</span></div><div className="kpi-l">Peso</div><div className="kpi-s">→ 75kg</div></div>
+    <div className="kpi"><div className="kpi-v" style={{color:"#f5a623"}}>{d.health?.bio?.fat||"—"}<span style={{fontSize:11}}>%</span></div><div className="kpi-l">Gordura</div><div className="kpi-s">→ 18%</div></div>
+    <div className="kpi"><div className="kpi-v" style={{color:adesao>=80?"#22c55e":"#ef4444"}}>{adesao}<span style={{fontSize:11}}>%</span></div><div className="kpi-l">Adesão 7d</div><div className="kpi-s">→ 80%+</div></div>
+  </div>
+</div>
+
+{/* 3 PILARES DE RETOMADA — checkbox diário */}
+<div className="c">
+  <div className="ch"><h3 className="ct">⚡ Retomada (não-negociável)</h3><span style={{fontSize:11,color:"#666"}}>{Object.values(ret).filter(Boolean).length}/3 hoje</span></div>
+  {RETOM.map(r=>{const ck=!!ret[r.id];return<div key={r.id} className="ir" style={{cursor:"pointer"}} onClick={()=>{const nd=JSON.parse(JSON.stringify(d));if(!nd.op75)nd.op75={};if(!nd.op75.retomada)nd.op75.retomada={};if(!nd.op75.retomada[day])nd.op75.retomada[day]={};nd.op75.retomada[day][r.id]=!ck;LS.s(SK,nd);location.reload()}}>
+    <div className="cks" style={{borderColor:ck?r.cl:"#444",background:ck?r.cl:"transparent"}}>{ck&&<span style={{color:"#000",fontSize:11}}>✓</span>}</div>
+    <span style={{fontSize:16}}>{r.ic}</span>
+    <div style={{flex:1}}><div style={{fontSize:13,fontWeight:600,color:"#fff",textDecoration:ck?"line-through":"none",opacity:ck?.6:1}}>{r.t}</div><div style={{fontSize:11,color:"#666"}}>{r.d}</div></div>
+  </div>})}
+</div>
+
+{/* KPIs RÁPIDOS */}
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
+  <div className="c" style={{textAlign:"center",padding:12,cursor:"pointer"}} onClick={()=>go("pilares")}><div style={{fontSize:20,fontWeight:700,color:"#f5a623"}}>{avg}</div><div style={{fontSize:10,color:"#888"}}>12 Pilares</div></div>
+  <div className="c" style={{textAlign:"center",padding:12,cursor:"pointer"}} onClick={()=>go("health")}><div style={{fontSize:20,fontWeight:700,color:"#22c55e"}}>{d.health?.oura?.sleep||"—"}</div><div style={{fontSize:10,color:"#888"}}>Sleep</div></div>
+  <div className="c" style={{textAlign:"center",padding:12,cursor:"pointer"}} onClick={()=>go("health")}><div style={{fontSize:20,fontWeight:700,color:"#38bdf8"}}>{d.health?.oura?.readiness||"—"}</div><div style={{fontSize:10,color:"#888"}}>Ready</div></div>
+</div>
+
+{/* PRINCÍPIOS */}
+<div className="c">
+  <h3 className="ca">🛡️ Princípios não-negociáveis</h3>
+  <div style={{display:"flex",flexDirection:"column",gap:6}}>
+    {PRINC.map((p,i)=><div key={i} className="princ"><b>{i+1}. {p.n}.</b> {p.d}</div>)}
+  </div>
+</div>
+
+<div className="c" onClick={()=>go("pilares")} style={{cursor:"pointer"}}><div className="ch"><h3 className="ct">⚖️ 12 Pilares</h3><span className="cl">Ver →</span></div>
+  <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:3}}>{d.pilares.map(p=><div key={p.id} style={{textAlign:"center"}}><div style={{fontSize:12}}>{p.ic}</div><div style={{height:32,background:"#2a2a2e",borderRadius:3,display:"flex",alignItems:"flex-end",margin:"3px auto",width:12}}><div style={{width:"100%",height:`${p.score*10}%`,background:p.cl,borderRadius:3,minHeight:p.score?2:0}}/></div><div style={{fontSize:8,color:"#666"}}>{p.score||"—"}</div></div>)}</div>
+</div>
+
+<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+  <div className="c" onClick={()=>go("dreams")} style={{cursor:"pointer",padding:12}}><h3 style={{fontSize:13,fontWeight:700,color:"#22c55e",marginBottom:6}}>🙏 Gratidão</h3>{(d.gratitude||[]).slice(0,3).map((g,i)=><div key={i} style={{fontSize:11,color:"#8fce8f",padding:"1px 0"}}>✅ {g.length>18?g.slice(0,18)+"…":g}</div>)}<div style={{fontSize:10,color:"#666",marginTop:3}}>{(d.gratitude||[]).length} itens →</div></div>
+  <div className="c" onClick={()=>go("money")} style={{cursor:"pointer",padding:12}}><h3 style={{fontSize:13,fontWeight:700,color:"#60a5fa",marginBottom:6}}>💰 Investidores</h3>{(d.investidores||[]).map((inv,i)=><div key={i} style={{fontSize:11,padding:"1px 0"}}><span style={{color:inv.st==="Quitado"?"#22c55e":inv.st==="Parcial"?"#f5a623":"#ef4444"}}>●</span> <span style={{color:"#ccc"}}>{inv.name}</span></div>)}</div>
+</div>
+
+<div className="c" onClick={()=>go("journal")} style={{cursor:"pointer"}}><div className="ch"><h3 className="ct">📋 Avaliação Mensal</h3><span className="cl">{Object.keys(d.assessments||{}).length} feitas →</span></div><p style={{fontSize:12,color:"#888",margin:0}}>Tony Robbins + Wheel of Life + RPM</p></div>
+<div style={{height:90}}/>
+```
+
+  </div>;
+}
+
+// ═══════════════════════════════════════════════════════════
+// OPERAÇÃO 75KG — nova aba dedicada
+// ═══════════════════════════════════════════════════════════
+function Op75({d,sv,up}){
+const wk=wkKey();
+const w=d.op75?.weekly?.[wk]||{runs:0,recovery:0,water:0,sweet:0,core:0};
+const upW=(k,delta)=>{const nd=JSON.parse(JSON.stringify(d));if(!nd.op75)nd.op75={weekly:{}};if(!nd.op75.weekly)nd.op75.weekly={};if(!nd.op75.weekly[wk])nd.op75.weekly[wk]={runs:0,recovery:0,water:0,sweet:0,core:0};nd.op75.weekly[wk][k]=Math.max(0,(nd.op75.weekly[wk][k]||0)+delta);sv(nd)};
+const adesao=gAdesao7(d.rc);
+const addPeso=()=>{const ww=prompt(“Peso (kg)?”);if(!ww)return;const ff=prompt(”% Gordura?”);const mm=prompt(“Massa muscular (kg)?”);const nd=JSON.parse(JSON.stringify(d));if(!nd.op75)nd.op75={};if(!nd.op75.pesoHist)nd.op75.pesoHist=[];nd.op75.pesoHist.push({d:td(),w:ww,fat:ff||””,muscle:mm||””});if(!nd.health)nd.health={bio:{}};nd.health.bio.weight=ww;if(ff)nd.health.bio.fat=ff;if(mm)nd.health.bio.muscle=mm;sv(nd)};
+const hist=d.op75?.pesoHist||[];
+
+return<div className="pg">
+<div className="sh"><span style={{fontSize:32}}>🎯</span><div><h1>Operação 75kg</h1><p>Sistema integrado: corpo, mente, espírito</p></div></div>
+
+```
+{/* MISSÃO */}
+<div className="c" style={{borderColor:"#f5a623",background:"linear-gradient(135deg,#1a1410,#151517)"}}>
+  <h3 className="ca">🔥 A Missão</h3>
+  <p style={{fontSize:13,color:"#ccc",lineHeight:1.6}}>Não é dieta, não é academia, não é devocional isolado. É um modo de operar a vida em que <b style={{color:"#f5a623"}}>cada decisão compõe juros</b> sobre quem eu quero ser daqui 12 meses.</p>
+  <p style={{fontSize:12,color:"#888",lineHeight:1.5,marginTop:8,fontStyle:"italic"}}>O gargalo não é dinheiro nem ferramenta. É execução diária.</p>
+</div>
+
+{/* 3 LEMAS */}
+<div className="c">
+  <h3 className="ca">⚡ Os 3 Lemas</h3>
+  {LEMAS.map((l,i)=><div key={i} style={{padding:"10px 0",borderBottom:i<2?"1px solid #1f1f23":"none"}}>
+    <div style={{fontSize:10,fontWeight:800,color:"#f5a623",letterSpacing:1,marginBottom:4}}>{l.t}</div>
+    <div style={{fontSize:13,color:"#fff",fontWeight:600,lineHeight:1.4}}>{l.f}</div>
+    <div style={{fontSize:11,color:"#888",marginTop:3,fontStyle:"italic"}}>{l.s}</div>
+  </div>)}
+</div>
+
+{/* 8 OBJETIVOS COM PROGRESSO */}
+<div className="c">
+  <h3 className="ca">🎯 Os 8 Objetivos Centrais</h3>
+  <div style={{display:"flex",flexDirection:"column",gap:8}}>
+    {OBJ75.map(o=>{const p=gObjProg(o,d);return<div key={o.id} className="obj-card" style={{borderLeftColor:o.cl}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
+        <div style={{flex:1}}><div className="obj-num">#{o.n} · {o.cat.toUpperCase()}</div><div className="obj-ttl">{o.ic} {o.t}</div></div>
+        <div style={{textAlign:"right",marginLeft:8}}><div style={{fontSize:18,fontWeight:800,color:o.cl}}>{p.cur}</div><div style={{fontSize:9,color:"#666"}}>{p.txt}</div></div>
+      </div>
+      <div className="pb"><div className="pf" style={{width:`${p.pct}%`,background:o.cl}}/></div>
+    </div>})}
+  </div>
+</div>
+
+{/* PESO + COMPOSIÇÃO */}
+<div className="c">
+  <div className="ch"><h3 className="ca" style={{margin:0}}>⚖️ Peso & Composição</h3><button className="ba" style={{borderColor:"#22c55e",color:"#22c55e"}} onClick={addPeso}>+</button></div>
+  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6,marginBottom:10}}>
+    <div className="kpi"><div className="kpi-v" style={{color:"#22c55e"}}>{d.health?.bio?.weight||"—"}</div><div className="kpi-l">Peso (kg)</div><div className="kpi-s">→ {d.op75?.targets?.weight||75}kg</div></div>
+    <div className="kpi"><div className="kpi-v" style={{color:"#f5a623"}}>{d.health?.bio?.fat||"—"}</div><div className="kpi-l">Gordura %</div><div className="kpi-s">→ {d.op75?.targets?.fat||18}%</div></div>
+    <div className="kpi"><div className="kpi-v" style={{color:"#38bdf8"}}>{d.health?.bio?.muscle||"—"}</div><div className="kpi-l">Músculo (kg)</div><div className="kpi-s">→ {d.op75?.targets?.muscle||60}kg</div></div>
+  </div>
+  {hist.length>0&&<div style={{marginTop:10}}>
+    <div style={{fontSize:11,color:"#666",marginBottom:6}}>Histórico ({hist.length} medições)</div>
+    {hist.slice(-5).reverse().map((h,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:11,padding:"4px 0",borderBottom:"1px solid #1a1a1e"}}><span style={{color:"#888"}}>{h.d}</span><span style={{color:"#fff"}}>{h.w}kg {h.fat&&`· ${h.fat}%`} {h.muscle&&`· ${h.muscle}kg músc.`}</span></div>)}
+  </div>}
+</div>
+
+{/* SEMANA ATUAL */}
+<div className="c">
+  <h3 className="ca">📅 Esta semana ({wk})</h3>
+  {[
+    {k:"runs",l:"🏃 Corridas 5km",tg:3,c:"#38bdf8"},
+    {k:"recovery",l:"🧊 Recovery (sauna/plunge/hot)",tg:5,c:"#06b6d4"},
+    {k:"water",l:"💧 Dias com água completa",tg:7,c:"#22c55e"},
+    {k:"core",l:"🪨 Sessões core/postura",tg:5,c:"#f5a623"},
+    {k:"sweet",l:"🍬 Doces (meta: ZERO)",tg:0,c:"#ef4444",inv:true},
+  ].map(r=>{const v=w[r.k]||0;const pct=r.inv?(v===0?100:Math.max(0,100-v*30)):Math.min(100,v/r.tg*100);return<div key={r.k} style={{padding:"10px 0",borderBottom:"1px solid #1f1f23"}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+      <div style={{flex:1}}><div style={{fontSize:13,color:"#fff",fontWeight:600}}>{r.l}</div><div style={{fontSize:10,color:"#666"}}>{v} / {r.inv?"≤"+r.tg:r.tg}</div></div>
+      <div style={{display:"flex",gap:4}}><button className="ba" style={{borderColor:r.c,color:r.c,width:28,height:28}} onClick={()=>upW(r.k,-1)}>−</button><button className="ba" style={{borderColor:r.c,color:r.c,width:28,height:28,background:r.c+"20"}} onClick={()=>upW(r.k,1)}>+</button></div>
     </div>
+    <div className="pb"><div className="pf" style={{width:`${pct}%`,background:r.c}}/></div>
+  </div>})}
+</div>
 
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,marginBottom:12}}>
-      <div className="c" style={{textAlign:"center",padding:12,cursor:"pointer"}} onClick={()=>go("pilares")}><div style={{fontSize:20,fontWeight:700,color:"#f5a623"}}>{avg}</div><div style={{fontSize:10,color:"#888"}}>Pilares</div></div>
-      <div className="c" style={{textAlign:"center",padding:12,cursor:"pointer"}} onClick={()=>go("health")}><div style={{fontSize:20,fontWeight:700,color:"#22c55e"}}>{d.health?.oura?.sleep||"—"}</div><div style={{fontSize:10,color:"#888"}}>Sleep</div></div>
-      <div className="c" style={{textAlign:"center",padding:12,cursor:"pointer"}} onClick={()=>go("health")}><div style={{fontSize:20,fontWeight:700,color:"#38bdf8"}}>{d.health?.bio?.weight?d.health.bio.weight+"kg":"—"}</div><div style={{fontSize:10,color:"#888"}}>Peso</div></div>
-    </div>
+{/* MÉTRICAS DE SUCESSO */}
+<div className="c">
+  <h3 className="ca">📊 Métricas de Sucesso</h3>
+  <div style={{fontSize:12,color:"#aaa",lineHeight:1.7}}>
+    <div>• Peso semanal: caminho até <b style={{color:"#22c55e"}}>75kg</b></div>
+    <div>• % gordura mensal: caminho até <b style={{color:"#22c55e"}}>18%</b></div>
+    <div>• Corridas/sem: meta <b style={{color:"#38bdf8"}}>3 (15km)</b></div>
+    <div>• Recovery/sem: <b style={{color:"#06b6d4"}}>sauna + plunge + hot tube</b></div>
+    <div>• Adesão checklist diário: <b style={{color:adesao>=80?"#22c55e":"#ef4444"}}>{adesao}%</b> (meta 80%+)</div>
+    <div>• Exame Rythm Health mensal: evolução</div>
+    <div>• Oura readiness: média semanal acima de 80</div>
+  </div>
+</div>
 
-    <div className="c" onClick={()=>go("pilares")} style={{cursor:"pointer"}}><div className="ch"><h3 className="ct">⚖️ 12 Pilares</h3><span className="cl">Ver →</span></div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:3}}>{d.pilares.map(p=><div key={p.id} style={{textAlign:"center"}}><div style={{fontSize:12}}>{p.ic}</div><div style={{height:32,background:"#2a2a2e",borderRadius:3,display:"flex",alignItems:"flex-end",margin:"3px auto",width:12}}><div style={{width:"100%",height:`${p.score*10}%`,background:p.cl,borderRadius:3,minHeight:p.score?2:0}}/></div><div style={{fontSize:8,color:"#666"}}>{p.score||"—"}</div></div>)}</div>
-    </div>
+{/* TARGETS EDITÁVEIS */}
+<div className="c">
+  <h3 className="ca">🎯 Targets</h3>
+  <EF label="Meta peso (kg)" value={d.op75?.targets?.weight} onSave={v=>up("op75.targets.weight",parseFloat(v))}/>
+  <EF label="Meta gordura (%)" value={d.op75?.targets?.fat} onSave={v=>up("op75.targets.fat",parseFloat(v))}/>
+  <EF label="Meta músculo (kg)" value={d.op75?.targets?.muscle} onSave={v=>up("op75.targets.muscle",parseFloat(v))}/>
+</div>
 
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
-      <div className="c" onClick={()=>go("dreams")} style={{cursor:"pointer",padding:12}}><h3 style={{fontSize:13,fontWeight:700,color:"#22c55e",marginBottom:6}}>🙏 Gratidão</h3>{(d.gratitude||[]).slice(0,3).map((g,i)=><div key={i} style={{fontSize:11,color:"#8fce8f",padding:"1px 0"}}>✅ {g.length>18?g.slice(0,18)+"…":g}</div>)}<div style={{fontSize:10,color:"#666",marginTop:3}}>{(d.gratitude||[]).length} itens →</div></div>
-      <div className="c" onClick={()=>go("money")} style={{cursor:"pointer",padding:12}}><h3 style={{fontSize:13,fontWeight:700,color:"#60a5fa",marginBottom:6}}>💰 Investidores</h3>{(d.investidores||[]).map((inv,i)=><div key={i} style={{fontSize:11,padding:"1px 0"}}><span style={{color:inv.st==="Quitado"?"#22c55e":inv.st==="Parcial"?"#f5a623":"#ef4444"}}>●</span> <span style={{color:"#ccc"}}>{inv.name}</span></div>)}</div>
-    </div>
+<div style={{height:90}}/>
+```
 
-    <div className="c" onClick={()=>go("journal")} style={{cursor:"pointer"}}><div className="ch"><h3 className="ct">📋 Avaliação Mensal</h3><span className="cl">{Object.keys(d.assessments||{}).length} feitas →</span></div><p style={{fontSize:12,color:"#888",margin:0}}>Tony Robbins + Wheel of Life + RPM</p></div>
-    <div style={{height:90}}/>
   </div>;
 }
 
 // ═══════════════════════════════════════════════════════════
 // SONHOS — Gratidão + Visão + Metas
 // ═══════════════════════════════════════════════════════════
-function Sonhos({d,sv,up}){
-  const[nw,setNw]=useState("");const[at,setAt]=useState(null);const[gO,setGO]=useState(false);const[gN,setGN]=useState("");const[gE,setGE]=useState(-1);const[gT,setGT]=useState("");
-  const addG=()=>{if(!gN.trim())return;const nd=JSON.parse(JSON.stringify(d));if(!nd.gratitude)nd.gratitude=[];nd.gratitude.push(gN.trim());sv(nd);setGN("")};
-  const rmG=i=>{const nd=JSON.parse(JSON.stringify(d));nd.gratitude.splice(i,1);sv(nd)};
-  const svG=(i,v)=>{const nd=JSON.parse(JSON.stringify(d));nd.gratitude[i]=v;sv(nd);setGE(-1)};
-  const svV=(i,v)=>{const nd=JSON.parse(JSON.stringify(d));nd.vision[i]=v;sv(nd)};
-  const add=c=>{if(!nw.trim())return;const nd=JSON.parse(JSON.stringify(d));nd.dreams[c].push({t:nw.trim(),d:false});sv(nd);setNw("");setAt(null)};
-  const tog=(c,i)=>{const nd=JSON.parse(JSON.stringify(d));nd.dreams[c][i].d=!nd.dreams[c][i].d;sv(nd)};
-  const rm=(c,i)=>{const nd=JSON.parse(JSON.stringify(d));nd.dreams[c].splice(i,1);sv(nd)};
-  const secs=[{k:"shortTerm",t:"🎯 Curto Prazo",s:"2025-2026",c:"#22c55e"},{k:"mediumTerm",t:"🚀 Médio Prazo",s:"2027-2028",c:"#f5a623"},{k:"longTerm",t:"🌟 Longo Prazo",s:"5+ anos",c:"#a78bfa"}];
+function Sonhos({d,sv}){
+const[nw,setNw]=useState(””);const[at,setAt]=useState(null);const[gO,setGO]=useState(false);const[gN,setGN]=useState(””);const[gE,setGE]=useState(-1);const[gT,setGT]=useState(””);
+const addG=()=>{if(!gN.trim())return;const nd=JSON.parse(JSON.stringify(d));if(!nd.gratitude)nd.gratitude=[];nd.gratitude.push(gN.trim());sv(nd);setGN(””)};
+const rmG=i=>{const nd=JSON.parse(JSON.stringify(d));nd.gratitude.splice(i,1);sv(nd)};
+const svG=(i,v)=>{const nd=JSON.parse(JSON.stringify(d));nd.gratitude[i]=v;sv(nd);setGE(-1)};
+const svV=(i,v)=>{const nd=JSON.parse(JSON.stringify(d));nd.vision[i]=v;sv(nd)};
+const add=c=>{if(!nw.trim())return;const nd=JSON.parse(JSON.stringify(d));nd.dreams[c].push({t:nw.trim(),d:false});sv(nd);setNw(””);setAt(null)};
+const tog=(c,i)=>{const nd=JSON.parse(JSON.stringify(d));nd.dreams[c][i].d=!nd.dreams[c][i].d;sv(nd)};
+const rm=(c,i)=>{const nd=JSON.parse(JSON.stringify(d));nd.dreams[c].splice(i,1);sv(nd)};
+const secs=[{k:“shortTerm”,t:“🎯 Curto Prazo”,s:“2025-2026”,c:”#22c55e”},{k:“mediumTerm”,t:“🚀 Médio Prazo”,s:“2027-2028”,c:”#f5a623”},{k:“longTerm”,t:“🌟 Longo Prazo”,s:“5+ anos”,c:”#a78bfa”}];
 
-  return<div className="pg">
-    <div className="sh"><span style={{fontSize:32}}>🌟</span><div><h1>Sonhos & Visão</h1><p>Gratidão, direção, conquistas</p></div></div>
-    <div className="c" style={{borderColor:gO?"#22c55e":"#1f1f23"}}>
-      <div style={{cursor:"pointer",display:"flex",alignItems:"center",gap:8,paddingBottom:gO?10:0}} onClick={()=>setGO(!gO)}><span style={{color:"#22c55e",transition:"transform .2s",display:"inline-block",transform:gO?"rotate(90deg)":"none"}}>▶</span><h3 className="ct" style={{color:"#22c55e"}}>🙏 Gratidão ({(d.gratitude||[]).length})</h3></div>
-      {gO&&<div>{(d.gratitude||[]).map((g,i)=><div key={i} className="ir">{gE===i?<><input value={gT} onChange={e=>setGT(e.target.value)} className="inp" style={{flex:1}} autoFocus onKeyDown={e=>e.key==="Enter"&&svG(i,gT)}/><button style={{width:28,height:28,borderRadius:7,background:"#22c55e",border:"none",color:"#000",cursor:"pointer",fontWeight:700,flexShrink:0}} onClick={()=>svG(i,gT)}>✓</button></>:<><span style={{color:"#22c55e"}}>✅</span><span style={{flex:1,fontSize:14,color:"#ccc",cursor:"pointer"}} onClick={()=>{setGE(i);setGT(g)}}>{g}</span><button className="bd" onClick={()=>rmG(i)}>✕</button></>}</div>)}
-        <div style={{display:"flex",gap:8,marginTop:8}}><input value={gN} onChange={e=>setGN(e.target.value)} placeholder="Adicionar gratidão..." className="inp" style={{flex:1}} onKeyDown={e=>e.key==="Enter"&&addG()}/><button style={{width:30,height:30,borderRadius:8,background:"#22c55e",border:"none",color:"#000",cursor:"pointer",fontSize:16,fontWeight:700,flexShrink:0}} onClick={addG}>+</button></div>
-      </div>}
-    </div>
-    <div className="c"><h3 className="ca">✨ Minhas 5 Direções</h3><p style={{fontSize:11,color:"#666",marginBottom:10}}>Leia todo dia. Estas frases guiam suas decisões.</p>
-      {(d.vision||[]).map((v,i)=><div key={i} style={{marginBottom:8}}><div style={{fontSize:10,color:"#f5a623",fontWeight:700,marginBottom:3}}>DIREÇÃO {i+1}</div><textarea value={v} onChange={e=>svV(i,e.target.value)} className="ta" rows={2} style={{fontSize:13,background:"#0f0f11",borderColor:"#2a2a1a"}}/></div>)}
-    </div>
-    {secs.map(s=><div className="c" key={s.k}><div className="ch"><div><h3 className="ct" style={{color:s.c}}>{s.t}</h3><div style={{fontSize:11,color:"#666"}}>{s.s}</div></div><button className="ba" style={{borderColor:s.c,color:s.c}} onClick={()=>setAt(s.k)}>+</button></div>
-      {d.dreams[s.k].map((x,i)=><div key={i} className="ir"><button className="ck" style={{borderColor:s.c,background:x.d?s.c:"transparent"}} onClick={()=>tog(s.k,i)}>{x.d&&<span style={{color:"#000",fontSize:12}}>✓</span>}</button><span style={{flex:1,fontSize:14,color:"#ccc",textDecoration:x.d?"line-through":"none",opacity:x.d?.5:1}}>{x.t}</span><button className="bd" onClick={()=>rm(s.k,i)}>✕</button></div>)}
-      {at===s.k&&<div style={{display:"flex",gap:8,marginTop:8}}><input value={nw} onChange={e=>setNw(e.target.value)} placeholder="Nova meta..." className="inp" style={{flex:1}} autoFocus onKeyDown={e=>e.key==="Enter"&&add(s.k)}/><button style={{width:30,height:30,borderRadius:8,background:s.c,border:"none",color:"#000",cursor:"pointer",fontWeight:700,flexShrink:0}} onClick={()=>add(s.k)}>✓</button></div>}
-    </div>)}
-    <div style={{height:90}}/>
+return<div className="pg">
+<div className="sh"><span style={{fontSize:32}}>🌟</span><div><h1>Sonhos & Visão</h1><p>Gratidão, direção, conquistas</p></div></div>
+<div className=“c” style={{borderColor:gO?”#22c55e”:”#1f1f23”}}>
+<div style={{cursor:“pointer”,display:“flex”,alignItems:“center”,gap:8,paddingBottom:gO?10:0}} onClick={()=>setGO(!gO)}><span style={{color:”#22c55e”,transition:“transform .2s”,display:“inline-block”,transform:gO?“rotate(90deg)”:“none”}}>▶</span><h3 className=“ct” style={{color:”#22c55e”}}>🙏 Gratidão ({(d.gratitude||[]).length})</h3></div>
+{gO&&<div>{(d.gratitude||[]).map((g,i)=><div key={i} className="ir">{gE===i?<><input value={gT} onChange={e=>setGT(e.target.value)} className=“inp” style={{flex:1}} autoFocus onKeyDown={e=>e.key===“Enter”&&svG(i,gT)}/><button style={{width:28,height:28,borderRadius:7,background:”#22c55e”,border:“none”,color:”#000”,cursor:“pointer”,fontWeight:700,flexShrink:0}} onClick={()=>svG(i,gT)}>✓</button></>:<><span style={{color:”#22c55e”}}>✅</span><span style={{flex:1,fontSize:14,color:”#ccc”,cursor:“pointer”}} onClick={()=>{setGE(i);setGT(g)}}>{g}</span><button className=“bd” onClick={()=>rmG(i)}>✕</button></>}</div>)}
+<div style={{display:“flex”,gap:8,marginTop:8}}><input value={gN} onChange={e=>setGN(e.target.value)} placeholder=“Adicionar gratidão…” className=“inp” style={{flex:1}} onKeyDown={e=>e.key===“Enter”&&addG()}/><button style={{width:30,height:30,borderRadius:8,background:”#22c55e”,border:“none”,color:”#000”,cursor:“pointer”,fontSize:16,fontWeight:700,flexShrink:0}} onClick={addG}>+</button></div>
+</div>}
+</div>
+<div className="c"><h3 className="ca">✨ Minhas 5 Direções</h3><p style={{fontSize:11,color:”#666”,marginBottom:10}}>Leia todo dia. Estas frases guiam suas decisões.</p>
+{(d.vision||[]).map((v,i)=><div key={i} style={{marginBottom:8}}><div style={{fontSize:10,color:”#f5a623”,fontWeight:700,marginBottom:3}}>DIREÇÃO {i+1}</div><textarea value={v} onChange={e=>svV(i,e.target.value)} className=“ta” rows={2} style={{fontSize:13,background:”#0f0f11”,borderColor:”#2a2a1a”}}/></div>)}
+</div>
+{secs.map(s=><div className="c" key={s.k}><div className="ch"><div><h3 className="ct" style={{color:s.c}}>{s.t}</h3><div style={{fontSize:11,color:”#666”}}>{s.s}</div></div><button className=“ba” style={{borderColor:s.c,color:s.c}} onClick={()=>setAt(s.k)}>+</button></div>
+{d.dreams[s.k].map((x,i)=><div key={i} className="ir"><button className=“ck” style={{borderColor:s.c,background:x.d?s.c:“transparent”}} onClick={()=>tog(s.k,i)}>{x.d&&<span style={{color:”#000”,fontSize:12}}>✓</span>}</button><span style={{flex:1,fontSize:14,color:”#ccc”,textDecoration:x.d?“line-through”:“none”,opacity:x.d?.5:1}}>{x.t}</span><button className=“bd” onClick={()=>rm(s.k,i)}>✕</button></div>)}
+{at===s.k&&<div style={{display:“flex”,gap:8,marginTop:8}}><input value={nw} onChange={e=>setNw(e.target.value)} placeholder=“Nova meta…” className=“inp” style={{flex:1}} autoFocus onKeyDown={e=>e.key===“Enter”&&add(s.k)}/><button style={{width:30,height:30,borderRadius:8,background:s.c,border:“none”,color:”#000”,cursor:“pointer”,fontWeight:700,flexShrink:0}} onClick={()=>add(s.k)}>✓</button></div>}
+</div>)}
+<div style={{height:90}}/>
+
   </div>;
 }
 
@@ -270,54 +512,69 @@ function Sonhos({d,sv,up}){
 // PILARES — 12 pillars
 // ═══════════════════════════════════════════════════════════
 function Pilares({d,sv}){
-  const upS=(id,s)=>{const nd=JSON.parse(JSON.stringify(d));const p=nd.pilares.find(x=>x.id===id);if(p)p.score=s;sv(nd)};
-  const upN=(id,n)=>{const nd=JSON.parse(JSON.stringify(d));const p=nd.pilares.find(x=>x.id===id);if(p)p.notes=n;sv(nd)};
-  const sc=d.pilares.filter(p=>p.score>0);const avg=sc.length?(sc.reduce((a,b)=>a+b.score,0)/sc.length).toFixed(1):0;
-  return<div className="pg">
-    <div className="sh"><span style={{fontSize:32}}>⚖️</span><div><h1>12 Pilares</h1><p>Avalie cada área de 1 a 10</p></div></div>
-    <div className="c" style={{textAlign:"center",padding:20}}><div style={{fontSize:40,fontWeight:800,color:"#f5a623"}}>{avg}</div><div style={{fontSize:12,color:"#888"}}>Média Geral</div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:3,marginTop:14}}>{d.pilares.map(p=><div key={p.id} style={{textAlign:"center"}}><div style={{fontSize:12}}>{p.ic}</div><div style={{height:40,background:"#2a2a2e",borderRadius:3,display:"flex",alignItems:"flex-end",margin:"3px auto",width:12}}><div style={{width:"100%",height:`${p.score*10}%`,background:p.cl,borderRadius:3,minHeight:p.score?2:0}}/></div><div style={{fontSize:8,color:"#666"}}>{p.score||"—"}</div></div>)}</div>
-    </div>
-    {d.pilares.map(p=><div className="c" key={p.id}><div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}><span style={{fontSize:22}}>{p.ic}</span><div style={{flex:1}}><div style={{fontSize:15,fontWeight:700,color:p.cl}}>{p.nm}</div><div style={{fontSize:11,color:"#888"}}>{p.ds}</div></div><div style={{fontSize:22,fontWeight:800,color:p.score?p.cl:"#333"}}>{p.score||"—"}</div></div>
-      <p style={{fontSize:13,color:"#aaa",margin:"8px 0",fontStyle:"italic",lineHeight:1.4}}>"{p.q}"</p>
-      <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>{[1,2,3,4,5,6,7,8,9,10].map(s=><button key={s} className="sb" style={{background:s<=p.score?p.cl:"#2a2a2e",color:s<=p.score?"#000":"#666"}} onClick={()=>upS(p.id,s)}>{s}</button>)}</div>
-      <textarea value={p.notes} onChange={e=>upN(p.id,e.target.value)} placeholder="Meta, reflexão, ação..." className="ta" rows={2} style={{marginTop:8,fontSize:13}}/>
-    </div>)}
-    <div style={{height:90}}/>
+const upS=(id,s)=>{const nd=JSON.parse(JSON.stringify(d));const p=nd.pilares.find(x=>x.id===id);if(p)p.score=s;sv(nd)};
+const upN=(id,n)=>{const nd=JSON.parse(JSON.stringify(d));const p=nd.pilares.find(x=>x.id===id);if(p)p.notes=n;sv(nd)};
+const sc=d.pilares.filter(p=>p.score>0);const avg=sc.length?(sc.reduce((a,b)=>a+b.score,0)/sc.length).toFixed(1):0;
+return<div className="pg">
+<div className="sh"><span style={{fontSize:32}}>⚖️</span><div><h1>12 Pilares</h1><p>Avalie cada área de 1 a 10</p></div></div>
+<div className=“c” style={{textAlign:“center”,padding:20}}><div style={{fontSize:40,fontWeight:800,color:”#f5a623”}}>{avg}</div><div style={{fontSize:12,color:”#888”}}>Média Geral</div>
+<div style={{display:“grid”,gridTemplateColumns:“repeat(6,1fr)”,gap:3,marginTop:14}}>{d.pilares.map(p=><div key={p.id} style={{textAlign:“center”}}><div style={{fontSize:12}}>{p.ic}</div><div style={{height:40,background:”#2a2a2e”,borderRadius:3,display:“flex”,alignItems:“flex-end”,margin:“3px auto”,width:12}}><div style={{width:“100%”,height:`${p.score*10}%`,background:p.cl,borderRadius:3,minHeight:p.score?2:0}}/></div><div style={{fontSize:8,color:”#666”}}>{p.score||”—”}</div></div>)}</div>
+</div>
+{d.pilares.map(p=><div className="c" key={p.id}><div style={{display:“flex”,alignItems:“center”,gap:10,marginBottom:4}}><span style={{fontSize:22}}>{p.ic}</span><div style={{flex:1}}><div style={{fontSize:15,fontWeight:700,color:p.cl}}>{p.nm}</div><div style={{fontSize:11,color:”#888”}}>{p.ds}</div></div><div style={{fontSize:22,fontWeight:800,color:p.score?p.cl:”#333”}}>{p.score||”—”}</div></div>
+<p style={{fontSize:13,color:”#aaa”,margin:“8px 0”,fontStyle:“italic”,lineHeight:1.4}}>”{p.q}”</p>
+<div style={{display:“flex”,gap:3,flexWrap:“wrap”}}>{[1,2,3,4,5,6,7,8,9,10].map(s=><button key={s} className=“sb” style={{background:s<=p.score?p.cl:”#2a2a2e”,color:s<=p.score?”#000”:”#666”}} onClick={()=>upS(p.id,s)}>{s}</button>)}</div>
+<textarea value={p.notes} onChange={e=>upN(p.id,e.target.value)} placeholder=“Meta, reflexão, ação…” className=“ta” rows={2} style={{marginTop:8,fontSize:13}}/>
+</div>)}
+<div style={{height:90}}/>
+
   </div>;
 }
 
 // ═══════════════════════════════════════════════════════════
-// SAÚDE
+// SAÚDE — Oura, Bio, Rythm Health, Check-ups
 // ═══════════════════════════════════════════════════════════
 function Saude({d,sv,up}){
-  return<div className="pg">
-    <div className="sh"><span style={{fontSize:32}}>❤️</span><div><h1>Saúde & Dados</h1><p>Analise no Claude → traga os dados aqui</p></div></div>
-    <div className="c"><h3 className="ca">🎯 Metas Corporais</h3>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8,textAlign:"center"}}>
-        {[{k:"weight",l:"Peso",u:"kg",c:"#22c55e",bk:"weight"},{k:"fat",l:"Gordura",u:"%",c:"#f5a623",bk:"fat"},{k:"muscle",l:"Músculo",u:"kg",c:"#38bdf8",bk:"muscle"}].map(m=><div key={m.k} style={{padding:10,background:"#1a1a1e",borderRadius:10}}><div style={{fontSize:10,color:"#888",marginBottom:3}}>{m.l}</div><div style={{fontSize:22,fontWeight:800,color:m.c}}>{d.health?.targets?.[m.k]||"—"}<span style={{fontSize:11}}>{m.u}</span></div><div style={{fontSize:11,color:"#666"}}>Atual: {d.health?.bio?.[m.bk]||"—"}{m.u}</div></div>)}
-      </div>
-      <div style={{marginTop:10}}>
-        {[{k:"weight",l:"Meta Peso"},{k:"fat",l:"Meta Gordura %"},{k:"muscle",l:"Meta Músculo kg"}].map(m=><EF key={m.k} label={m.l} value={d.health?.targets?.[m.k]} onSave={v=>up(`health.targets.${m.k}`,v)}/>)}
-      </div>
-    </div>
-    <div className="c"><h3 className="ca">⭕ Oura Ring</h3><p style={{fontSize:11,color:"#666",marginBottom:10}}>Dados do app Oura</p>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6,textAlign:"center",marginBottom:10}}>
-        {[{k:"sleep",l:"Sleep",c:"#818cf8"},{k:"readiness",l:"Ready",c:"#22c55e"},{k:"activity",l:"Activity",c:"#f5a623"}].map(m=><div key={m.k} style={{padding:8,background:"#1a1a1e",borderRadius:8}}><div style={{fontSize:9,color:"#888"}}>{m.l}</div><div style={{fontSize:22,fontWeight:800,color:m.c}}>{d.health?.oura?.[m.k]||"—"}</div></div>)}
-      </div>
-      {[{k:"sleep",l:"Sleep Score"},{k:"readiness",l:"Readiness"},{k:"activity",l:"Activity"},{k:"hrv",l:"HRV"},{k:"rhr",l:"Resting HR"},{k:"temp",l:"Temp. Variação"}].map(m=><EF key={m.k} label={m.l} value={d.health?.oura?.[m.k]} onSave={v=>up(`health.oura.${m.k}`,v)}/>)}
-    </div>
-    <div className="c"><h3 className="ca">⚖️ Bioimpedância</h3><p style={{fontSize:11,color:"#666",marginBottom:10}}>Resultados da balança → Claude analisa → salve aqui</p>
-      {[{k:"weight",l:"Peso",s:" kg"},{k:"fat",l:"% Gordura",s:"%"},{k:"muscle",l:"Massa Muscular",s:" kg"},{k:"water",l:"% Água",s:"%"},{k:"bone",l:"Massa Óssea",s:" kg"},{k:"metAge",l:"Idade Metabólica",s:" anos"},{k:"viscFat",l:"Gordura Visceral",s:""}].map(m=><EF key={m.k} label={m.l} value={d.health?.bio?.[m.k]} onSave={v=>up(`health.bio.${m.k}`,v)} suffix={m.s}/>)}
-    </div>
-    <div className="c"><h3 className="ca">💊 Medicamentos</h3>
-      {(d.health?.meds||[]).map((m,i)=><div key={i}><EF label="Nome" value={m.name} onSave={v=>{const nd=JSON.parse(JSON.stringify(d));nd.health.meds[i].name=v;sv(nd)}}/><EF label="Dose" value={m.dose} onSave={v=>{const nd=JSON.parse(JSON.stringify(d));nd.health.meds[i].dose=v;sv(nd)}}/></div>)}
-    </div>
-    <div className="c"><h3 className="ca">📅 Check-ups</h3>
-      {d.checkDates.map((c,i)=>{const dd=dU(c.next);return<div key={i} style={{display:"flex",gap:12,padding:"10px 0",borderBottom:"1px solid #1f1f23"}}><div style={{width:4,borderRadius:2,minHeight:36,background:sCol(dd)}}/><div style={{flex:1}}><div style={{fontSize:14,fontWeight:600,color:"#fff"}}>{c.tp} <span style={{fontSize:10,color:"#888"}}>({c.iv})</span></div><EF label="Último" value={c.last} type="date" onSave={v=>{const nd=JSON.parse(JSON.stringify(d));nd.checkDates[i].last=v;sv(nd)}}/><EF label="Próximo" value={c.next} type="date" onSave={v=>{const nd=JSON.parse(JSON.stringify(d));nd.checkDates[i].next=v;sv(nd)}}/></div></div>})}
-    </div>
-    <div className="c"><h3 className="ca">📝 Última Análise Claude</h3><textarea value={d.health?.lastAnalysis||""} onChange={e=>up("health.lastAnalysis",e.target.value)} placeholder="Cole aqui o resumo/recomendações que o Claude gerou da sua análise de dados..." className="ta" rows={5}/></div>
-    <div style={{height:90}}/>
+return<div className="pg">
+<div className="sh"><span style={{fontSize:32}}>❤️</span><div><h1>Saúde & Dados</h1><p>Oura · Bioimpedância · Rythm Health</p></div></div>
+
+```
+<div className="c"><h3 className="ca">⭕ Oura Ring</h3><p style={{fontSize:11,color:"#666",marginBottom:10}}>Dados do app Oura</p>
+  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6,textAlign:"center",marginBottom:10}}>
+    {[{k:"sleep",l:"Sleep",c:"#818cf8"},{k:"readiness",l:"Ready",c:"#22c55e"},{k:"activity",l:"Activity",c:"#f5a623"}].map(m=><div key={m.k} style={{padding:8,background:"#1a1a1e",borderRadius:8}}><div style={{fontSize:9,color:"#888"}}>{m.l}</div><div style={{fontSize:22,fontWeight:800,color:m.c}}>{d.health?.oura?.[m.k]||"—"}</div></div>)}
+  </div>
+  {[{k:"sleep",l:"Sleep Score"},{k:"readiness",l:"Readiness"},{k:"activity",l:"Activity"},{k:"hrv",l:"HRV"},{k:"rhr",l:"Resting HR"},{k:"temp",l:"Temp. Variação"}].map(m=><EF key={m.k} label={m.l} value={d.health?.oura?.[m.k]} onSave={v=>up(`health.oura.${m.k}`,v)}/>)}
+</div>
+
+<div className="c"><h3 className="ca">⚖️ Bioimpedância</h3><p style={{fontSize:11,color:"#666",marginBottom:10}}>Targets de peso/gordura/músculo: aba Operação 75kg</p>
+  {[{k:"weight",l:"Peso",s:" kg"},{k:"fat",l:"% Gordura",s:"%"},{k:"muscle",l:"Massa Muscular",s:" kg"},{k:"water",l:"% Água",s:"%"},{k:"bone",l:"Massa Óssea",s:" kg"},{k:"metAge",l:"Idade Metabólica",s:" anos"},{k:"viscFat",l:"Gordura Visceral",s:""}].map(m=><EF key={m.k} label={m.l} value={d.health?.bio?.[m.k]} onSave={v=>up(`health.bio.${m.k}`,v)} suffix={m.s}/>)}
+</div>
+
+<div className="c"><h3 className="ca">🧪 Rythm Health (Exame Mensal)</h3>
+  <p style={{fontSize:11,color:"#666",marginBottom:10}}>Validação científica do progresso. Atualize após cada exame.</p>
+  <EF label="Data do exame" value={d.health?.rythm?.date} type="date" onSave={v=>up("health.rythm.date",v)}/>
+  <div style={{fontSize:10,color:"#f5a623",fontWeight:700,marginTop:10,marginBottom:6,letterSpacing:1}}>LIPIDOGRAMA</div>
+  {[{k:"totalChol",l:"Colesterol Total",s:" mg/dL"},{k:"ldl",l:"LDL",s:" mg/dL"},{k:"hdl",l:"HDL",s:" mg/dL"},{k:"triglyc",l:"Triglicerídeos",s:" mg/dL"}].map(m=><EF key={m.k} label={m.l} value={d.health?.rythm?.[m.k]} onSave={v=>up(`health.rythm.${m.k}`,v)} suffix={m.s}/>)}
+  <div style={{fontSize:10,color:"#f5a623",fontWeight:700,marginTop:10,marginBottom:6,letterSpacing:1}}>METABOLISMO</div>
+  {[{k:"glucose",l:"Glicose",s:" mg/dL"},{k:"hba1c",l:"Hemoglobina A1c",s:"%"},{k:"insulin",l:"Insulina",s:" µUI/mL"}].map(m=><EF key={m.k} label={m.l} value={d.health?.rythm?.[m.k]} onSave={v=>up(`health.rythm.${m.k}`,v)} suffix={m.s}/>)}
+  <div style={{fontSize:10,color:"#f5a623",fontWeight:700,marginTop:10,marginBottom:6,letterSpacing:1}}>HORMÔNIOS</div>
+  {[{k:"testostT",l:"Testosterona Total",s:" ng/dL"},{k:"testostF",l:"Testosterona Livre",s:" pg/mL"},{k:"cortisol",l:"Cortisol",s:" µg/dL"},{k:"tsh",l:"TSH",s:" mUI/L"}].map(m=><EF key={m.k} label={m.l} value={d.health?.rythm?.[m.k]} onSave={v=>up(`health.rythm.${m.k}`,v)} suffix={m.s}/>)}
+  <div style={{fontSize:10,color:"#f5a623",fontWeight:700,marginTop:10,marginBottom:6,letterSpacing:1}}>VITAMINAS & INFLAMAÇÃO</div>
+  {[{k:"vitD",l:"Vitamina D",s:" ng/mL"},{k:"b12",l:"Vitamina B12",s:" pg/mL"},{k:"ferritin",l:"Ferritina",s:" ng/mL"},{k:"crp",l:"PCR (inflamação)",s:" mg/L"}].map(m=><EF key={m.k} label={m.l} value={d.health?.rythm?.[m.k]} onSave={v=>up(`health.rythm.${m.k}`,v)} suffix={m.s}/>)}
+  <textarea value={d.health?.rythm?.notes||""} onChange={e=>up("health.rythm.notes",e.target.value)} placeholder="Observações do exame, recomendações..." className="ta" rows={3} style={{marginTop:10}}/>
+</div>
+
+<div className="c"><h3 className="ca">💊 Medicamentos</h3>
+  {(d.health?.meds||[]).map((m,i)=><div key={i}><EF label="Nome" value={m.name} onSave={v=>{const nd=JSON.parse(JSON.stringify(d));nd.health.meds[i].name=v;sv(nd)}}/><EF label="Dose" value={m.dose} onSave={v=>{const nd=JSON.parse(JSON.stringify(d));nd.health.meds[i].dose=v;sv(nd)}}/></div>)}
+</div>
+
+<div className="c"><h3 className="ca">📅 Check-ups</h3>
+  {d.checkDates.map((c,i)=>{const dd=dU(c.next);return<div key={i} style={{display:"flex",gap:12,padding:"10px 0",borderBottom:"1px solid #1f1f23"}}><div style={{width:4,borderRadius:2,minHeight:36,background:sCol(dd)}}/><div style={{flex:1}}><div style={{fontSize:14,fontWeight:600,color:"#fff"}}>{c.tp} <span style={{fontSize:10,color:"#888"}}>({c.iv})</span></div><EF label="Último" value={c.last} type="date" onSave={v=>{const nd=JSON.parse(JSON.stringify(d));nd.checkDates[i].last=v;sv(nd)}}/><EF label="Próximo" value={c.next} type="date" onSave={v=>{const nd=JSON.parse(JSON.stringify(d));nd.checkDates[i].next=v;sv(nd)}}/></div></div>})}
+</div>
+
+<div className="c"><h3 className="ca">📝 Última Análise Claude</h3><textarea value={d.health?.lastAnalysis||""} onChange={e=>up("health.lastAnalysis",e.target.value)} placeholder="Cole aqui o resumo/recomendações que o Claude gerou da sua análise de dados..." className="ta" rows={5}/></div>
+<div style={{height:90}}/>
+```
+
   </div>;
 }
 
@@ -325,57 +582,69 @@ function Saude({d,sv,up}){
 // FINANÇAS
 // ═══════════════════════════════════════════════════════════
 function Fin({d,sv,up}){
-  const accs=[{k:"frc",i:"🚗",c:"#38bdf8"},{k:"personal",i:"👤",c:"#22c55e"},{k:"patrimonio",i:"🏠",c:"#f5a623"},{k:"porcino",i:"🐷",c:"#a78bfa"},{k:"cc",i:"🏦",c:"#fb923c"}];
-  return<div className="pg">
-    <div className="sh"><span style={{fontSize:32}}>💰</span><div><h1>Finanças</h1><p>Contas, patrimônio, investidores</p></div></div>
-    {accs.map(a=>{const f=d.finances?.[a.k]||{};return<div className="c" key={a.k}><div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}><span style={{fontSize:22}}>{a.i}</span><h3 style={{fontSize:15,fontWeight:700,color:a.c}}>{f.desc||a.k}</h3></div>
-      <EF label="Saldo" value={f.bal} onSave={v=>up(`finances.${a.k}.bal`,v)}/>
-      {a.k==="frc"&&<><EF label="Revenue 2025" value={f.rev25} onSave={v=>up("finances.frc.rev25",v)}/><EF label="Projeção 2026" value={f.proj26} onSave={v=>up("finances.frc.proj26",v)}/></>}
-      {a.k==="personal"&&<><EF label="Renda" value={f.income} onSave={v=>up("finances.personal.income",v)}/><EF label="Gastos" value={f.expenses} onSave={v=>up("finances.personal.expenses",v)}/></>}
-      {a.k==="patrimonio"&&<><EF label="Imóveis" value={f.realEstate} onSave={v=>up("finances.patrimonio.realEstate",v)}/><EF label="Investimentos" value={f.investments} onSave={v=>up("finances.patrimonio.investments",v)}/></>}
-      <EF label="Notas" value={f.notes} onSave={v=>up(`finances.${a.k}.notes`,v)}/>
-    </div>})}
-    <div className="c"><h3 className="ca">📊 Investidores</h3>
-      {(d.investidores||[]).map((inv,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 0",borderBottom:"1px solid #1a1a1e"}}><div><div style={{fontSize:14,fontWeight:600,color:"#fff"}}>{inv.name}</div>{inv.val&&<div style={{fontSize:12,color:"#888"}}>${parseInt(inv.val).toLocaleString()}</div>}</div><span style={{fontSize:11,padding:"4px 12px",borderRadius:12,fontWeight:600,background:inv.st==="Quitado"?"#1a3a1a":inv.st==="Parcial"?"#3a3a1a":"#3a1a1a",color:inv.st==="Quitado"?"#22c55e":inv.st==="Parcial"?"#f5a623":"#ef4444"}}>{inv.st}</span></div>)}
-    </div>
-    <div style={{height:90}}/>
+const accs=[{k:“frc”,i:“🚗”,c:”#38bdf8”},{k:“personal”,i:“👤”,c:”#22c55e”},{k:“patrimonio”,i:“🏠”,c:”#f5a623”},{k:“porcino”,i:“🐷”,c:”#a78bfa”},{k:“cc”,i:“🏦”,c:”#fb923c”}];
+return<div className="pg">
+<div className="sh"><span style={{fontSize:32}}>💰</span><div><h1>Finanças</h1><p>Contas, patrimônio, investidores</p></div></div>
+{accs.map(a=>{const f=d.finances?.[a.k]||{};return<div className="c" key={a.k}><div style={{display:“flex”,alignItems:“center”,gap:10,marginBottom:10}}><span style={{fontSize:22}}>{a.i}</span><h3 style={{fontSize:15,fontWeight:700,color:a.c}}>{f.desc||a.k}</h3></div>
+<EF label=“Saldo” value={f.bal} onSave={v=>up(`finances.${a.k}.bal`,v)}/>
+{a.k===“frc”&&<><EF label=“Revenue 2025” value={f.rev25} onSave={v=>up(“finances.frc.rev25”,v)}/><EF label=“Projeção 2026” value={f.proj26} onSave={v=>up(“finances.frc.proj26”,v)}/></>}
+{a.k===“personal”&&<><EF label=“Renda” value={f.income} onSave={v=>up(“finances.personal.income”,v)}/><EF label=“Gastos” value={f.expenses} onSave={v=>up(“finances.personal.expenses”,v)}/></>}
+{a.k===“patrimonio”&&<><EF label=“Imóveis” value={f.realEstate} onSave={v=>up(“finances.patrimonio.realEstate”,v)}/><EF label=“Investimentos” value={f.investments} onSave={v=>up(“finances.patrimonio.investments”,v)}/></>}
+<EF label=“Notas” value={f.notes} onSave={v=>up(`finances.${a.k}.notes`,v)}/>
+</div>})}
+<div className="c"><h3 className="ca">📊 Investidores</h3>
+{(d.investidores||[]).map((inv,i)=><div key={i} style={{display:“flex”,justifyContent:“space-between”,alignItems:“center”,padding:“10px 0”,borderBottom:“1px solid #1a1a1e”}}><div><div style={{fontSize:14,fontWeight:600,color:”#fff”}}>{inv.name}</div>{inv.val&&<div style={{fontSize:12,color:”#888”}}>${parseInt(inv.val).toLocaleString()}</div>}</div><span style={{fontSize:11,padding:“4px 12px”,borderRadius:12,fontWeight:600,background:inv.st===“Quitado”?”#1a3a1a”:inv.st===“Parcial”?”#3a3a1a”:”#3a1a1a”,color:inv.st===“Quitado”?”#22c55e”:inv.st===“Parcial”?”#f5a623”:”#ef4444”}}>{inv.st}</span></div>)}
+</div>
+<div style={{height:90}}/>
+
   </div>;
 }
 
 // ═══════════════════════════════════════════════════════════
-// ROTINA — Day + hacks + progress + streak
+// ROTINA — Operação 75kg (alinhada com 8 objetivos + lemas)
 // ═══════════════════════════════════════════════════════════
 function Rotina({d,sv}){
-  const day=td();const now=new Date();
-  const ch=d.rc?.[day]||{};const dn=Object.values(ch).filter(Boolean).length;const tot=RTPL.length;const pct=tot?Math.round(dn/tot*100):0;
-  const toggle=idx=>{const nd=JSON.parse(JSON.stringify(d));if(!nd.rc)nd.rc={};if(!nd.rc[day])nd.rc[day]={};nd.rc[day][idx]=!nd.rc[day]?.[idx];sv(nd)};
-  let streak=0;for(let i=0;i<90;i++){const dt=new Date(now);dt.setDate(dt.getDate()-i);const dk=dt.toISOString().split("T")[0];const c=d.rc?.[dk];if(c&&Object.values(c).filter(Boolean).length>=tot*.5)streak++;else if(i>0)break}
-  const groups={m:[],w:[],h:[],f:[],g:[]};RTPL.forEach((r,i)=>{if(groups[r.ct])groups[r.ct].push({...r,idx:i})});
+const day=td();const now=new Date();
+const ch=d.rc?.[day]||{};const dn=Object.values(ch).filter(Boolean).length;const tot=RTPL.length;const pct=tot?Math.round(dn/tot*100):0;
+const toggle=idx=>{const nd=JSON.parse(JSON.stringify(d));if(!nd.rc)nd.rc={};if(!nd.rc[day])nd.rc[day]={};nd.rc[day][idx]=!nd.rc[day]?.[idx];sv(nd)};
+let streak=0;for(let i=0;i<90;i++){const dt=new Date(now);dt.setDate(dt.getDate()-i);const dk=dt.toISOString().split(“T”)[0];const c=d.rc?.[dk];if(c&&Object.values(c).filter(Boolean).length>=tot*.5)streak++;else if(i>0)break}
+const groups={m:[],h:[],g:[],w:[],f:[]};RTPL.forEach((r,i)=>{if(groups[r.ct])groups[r.ct].push({…r,idx:i})});
+const lema=LEMAS[now.getDate()%LEMAS.length];
 
-  return<div className="pg">
-    <div className="sh"><span style={{fontSize:32}}>⚡</span><div><h1>Rotina do Dia</h1><p>{DN[now.getDay()]}, {now.getDate()} de {MN[now.getMonth()]}</p></div></div>
-    <div className="c" style={{background:"linear-gradient(135deg,#151517,#1a1a10)"}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-        <div><div style={{fontSize:36,fontWeight:800,color:pct>=80?"#22c55e":pct>=50?"#f5a623":"#888"}}>{pct}%</div><div style={{fontSize:12,color:"#888"}}>{dn}/{tot} completadas</div></div>
-        <div style={{textAlign:"right"}}>{streak>0&&<div style={{display:"inline-flex",alignItems:"center",gap:4,padding:"5px 12px",borderRadius:20,fontSize:12,fontWeight:700,background:"#2a2a1a",color:"#f5a623"}}>🔥 {streak} dias</div>}</div>
-      </div>
-      <div className="pb" style={{height:8}}><div className="pf" style={{width:`${pct}%`,background:pct>=80?"#22c55e":pct>=50?"#f5a623":"#ef4444"}}/></div>
+return<div className="pg">
+<div className="sh"><span style={{fontSize:32}}>⚡</span><div><h1>Rotina do Dia</h1><p>{DN[now.getDay()]}, {now.getDate()} de {MN[now.getMonth()]}</p></div></div>
+
+```
+{/* LEMA */}
+<div className="lemas"><span className="lema-tag">{lema.t}</span><div className="lema-txt">"{lema.f}"</div><div className="lema-sub">{lema.s}</div></div>
+
+{/* PROGRESSO */}
+<div className="c" style={{background:"linear-gradient(135deg,#151517,#1a1a10)"}}>
+  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+    <div><div style={{fontSize:36,fontWeight:800,color:pct>=80?"#22c55e":pct>=50?"#f5a623":"#888"}}>{pct}%</div><div style={{fontSize:12,color:"#888"}}>{dn}/{tot} completadas</div></div>
+    <div style={{textAlign:"right"}}>{streak>0&&<div style={{display:"inline-flex",alignItems:"center",gap:4,padding:"5px 12px",borderRadius:20,fontSize:12,fontWeight:700,background:"#2a2a1a",color:"#f5a623"}}>🔥 {streak} dias</div>}</div>
+  </div>
+  <div className="pb" style={{height:8}}><div className="pf" style={{width:`${pct}%`,background:pct>=80?"#22c55e":pct>=50?"#f5a623":"#ef4444"}}/></div>
+</div>
+
+{Object.entries(groups).map(([ct,items])=>items.length>0&&<div key={ct}>
+  <div style={{display:"flex",alignItems:"center",gap:8,padding:"10px 0 4px"}}><div style={{width:8,height:8,borderRadius:4,background:CC[ct]}}/><span style={{fontSize:13,fontWeight:700,color:CC[ct]}}>{CL[ct]}</span><span style={{fontSize:11,color:"#666"}}>{items.filter(r=>!!ch[r.idx]).length}/{items.length}</span></div>
+  {items.map(r=>{const ck=!!ch[r.idx];return<div key={r.idx} className="db" style={{borderLeftColor:ck?"#22c55e":CC[ct],opacity:ck?.55:1,cursor:"pointer"}} onClick={()=>toggle(r.idx)}>
+    <div style={{display:"flex",alignItems:"center",gap:8}}>
+      <span style={{fontSize:11,color:"#f5a623",fontWeight:600,minWidth:40}}>{r.tm}</span>
+      <span style={{fontSize:14}}>{r.ic}</span>
+      <div style={{flex:1}}><div style={{fontSize:14,color:"#e5e5e5",textDecoration:ck?"line-through":"none"}}>{r.tk}</div><div style={{fontSize:11,color:"#555",fontStyle:"italic",marginTop:1}}>{r.tp}</div></div>
+      <div className="cks" style={{borderColor:ck?"#22c55e":"#444",background:ck?"#22c55e":"transparent"}}>{ck&&<span style={{color:"#000",fontSize:11}}>✓</span>}</div>
     </div>
-    {Object.entries(groups).map(([ct,items])=>items.length>0&&<div key={ct}>
-      <div style={{display:"flex",alignItems:"center",gap:8,padding:"10px 0 4px"}}><div style={{width:8,height:8,borderRadius:4,background:CC[ct]}}/><span style={{fontSize:13,fontWeight:700,color:CC[ct]}}>{CL[ct]}</span><span style={{fontSize:11,color:"#666"}}>{items.filter(r=>!!ch[r.idx]).length}/{items.length}</span></div>
-      {items.map(r=>{const ck=!!ch[r.idx];return<div key={r.idx} className="db" style={{borderLeftColor:ck?"#22c55e":CC[ct],opacity:ck?.55:1,cursor:"pointer"}} onClick={()=>toggle(r.idx)}>
-        <div style={{display:"flex",alignItems:"center",gap:8}}>
-          <span style={{fontSize:11,color:"#f5a623",fontWeight:600,minWidth:40}}>{r.tm}</span>
-          <span style={{fontSize:14}}>{r.ic}</span>
-          <div style={{flex:1}}><div style={{fontSize:14,color:"#e5e5e5",textDecoration:ck?"line-through":"none"}}>{r.tk}</div><div style={{fontSize:11,color:"#555",fontStyle:"italic",marginTop:1}}>{r.tp}</div></div>
-          <div className="cks" style={{borderColor:ck?"#22c55e":"#444",background:ck?"#22c55e":"transparent"}}>{ck&&<span style={{color:"#000",fontSize:11}}>✓</span>}</div>
-        </div>
-      </div>})}
-    </div>)}
-    <div className="c" style={{marginTop:8}}><h3 className="ct" style={{color:"#f5a623",marginBottom:10}}>📆 Semana</h3>
-      {[{d:"Dom",t:["Igreja","Família","Review"]},{d:"Seg",t:["FRC","Reuniões"]},{d:"Ter",t:["FRC","Treinamentos"]},{d:"Qua",t:["FRC","Relatórios"]},{d:"Qui",t:["FRC","Cobrar"]},{d:"Sex",t:["FRC","Estratégia"]},{d:"Sáb",t:["Esporte","Família","Projeto"]}].map((w,i)=><div key={i} className="ir"><span style={{fontSize:12,fontWeight:700,color:i===now.getDay()?"#f5a623":"#888",width:28}}>{w.d}</span><div style={{display:"flex",flexWrap:"wrap",gap:4}}>{w.t.map((t,j)=><span key={j} style={{fontSize:10,background:i===now.getDay()?"#2a2a1a":"#1a1a1e",color:i===now.getDay()?"#f5a623":"#aaa",padding:"2px 8px",borderRadius:6}}>{t}</span>)}</div></div>)}
-    </div>
-    <div style={{height:90}}/>
+  </div>})}
+</div>)}
+
+<div className="c" style={{marginTop:8}}><h3 className="ct" style={{color:"#f5a623",marginBottom:10}}>📆 Semana</h3>
+  {[{d:"Dom",t:["Igreja","Família","Reset semanal"]},{d:"Seg",t:["Corrida 5km","FRC"]},{d:"Ter",t:["Força","FRC"]},{d:"Qua",t:["Corrida 5km","FRC"]},{d:"Qui",t:["Força","Cobrar"]},{d:"Sex",t:["Corrida 5km","Estratégia"]},{d:"Sáb",t:["Recovery","Família","Projeto"]}].map((w,i)=><div key={i} className="ir"><span style={{fontSize:12,fontWeight:700,color:i===now.getDay()?"#f5a623":"#888",width:28}}>{w.d}</span><div style={{display:"flex",flexWrap:"wrap",gap:4}}>{w.t.map((t,j)=><span key={j} style={{fontSize:10,background:i===now.getDay()?"#2a2a1a":"#1a1a1e",color:i===now.getDay()?"#f5a623":"#aaa",padding:"2px 8px",borderRadius:6}}>{t}</span>)}</div></div>)}
+</div>
+<div style={{height:90}}/>
+```
+
   </div>;
 }
 
@@ -383,74 +652,79 @@ function Rotina({d,sv}){
 // DIÁRIO — Mensal no topo + Journal
 // ═══════════════════════════════════════════════════════════
 function Diario({d,sv}){
-  const[vw,setVw]=useState("main");const[nw,setNw]=useState("");const[nt,setNt]=useState("reflection");const[sh,setSh]=useState(false);
-  const now=new Date();const[yr,setYr]=useState(now.getFullYear());const[mo,setMo]=useState(now.getMonth());
-  const[ci,setCi]=useState(0);const[ans,setAns]=useState({});
-  const mk=`${yr}-${String(mo+1).padStart(2,"0")}`;const ex=d.assessments?.[mk];
-  const startA=()=>{setAns(ex||{});setCi(0);setVw("fill")};
-  const saveA=()=>{const nd=JSON.parse(JSON.stringify(d));if(!nd.assessments)nd.assessments={};nd.assessments[mk]={...ans,at:new Date().toISOString()};sv(nd);setVw("review")};
-  const addJ=()=>{if(!nw.trim())return;const nd=JSON.parse(JSON.stringify(d));nd.journal.unshift({dt:td(),tm:new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}),tp:nt,tx:nw.trim()});sv(nd);setNw("");setSh(false)};
-  const rmJ=i=>{const nd=JSON.parse(JSON.stringify(d));nd.journal.splice(i,1);sv(nd)};
-  const tc={reflection:{l:"Reflexão",e:"💭",c:"#a78bfa"},study:{l:"Estudo",e:"📚",c:"#38bdf8"},gratitude:{l:"Gratidão",e:"🙏",c:"#22c55e"},idea:{l:"Ideia",e:"💡",c:"#f5a623"},goal:{l:"Meta",e:"🎯",c:"#ef4444"},dream:{l:"Sonho",e:"✨",c:"#f472b6"}};
-  const fm=Object.keys(d.assessments||{}).filter(k=>k.startsWith(String(yr))).length;
-  const annual=gAR(d.assessments||{},String(yr));
+const[vw,setVw]=useState(“main”);const[nw,setNw]=useState(””);const[nt,setNt]=useState(“reflection”);const[sh,setSh]=useState(false);
+const now=new Date();const[yr,setYr]=useState(now.getFullYear());const[mo,setMo]=useState(now.getMonth());
+const[ci,setCi]=useState(0);const[ans,setAns]=useState({});
+const mk=`${yr}-${String(mo+1).padStart(2,"0")}`;const ex=d.assessments?.[mk];
+const startA=()=>{setAns(ex||{});setCi(0);setVw(“fill”)};
+const saveA=()=>{const nd=JSON.parse(JSON.stringify(d));if(!nd.assessments)nd.assessments={};nd.assessments[mk]={…ans,at:new Date().toISOString()};sv(nd);setVw(“review”)};
+const addJ=()=>{if(!nw.trim())return;const nd=JSON.parse(JSON.stringify(d));nd.journal.unshift({dt:td(),tm:new Date().toLocaleTimeString(“pt-BR”,{hour:“2-digit”,minute:“2-digit”}),tp:nt,tx:nw.trim()});sv(nd);setNw(””);setSh(false)};
+const rmJ=i=>{const nd=JSON.parse(JSON.stringify(d));nd.journal.splice(i,1);sv(nd)};
+const tc={reflection:{l:“Reflexão”,e:“💭”,c:”#a78bfa”},study:{l:“Estudo”,e:“📚”,c:”#38bdf8”},gratitude:{l:“Gratidão”,e:“🙏”,c:”#22c55e”},idea:{l:“Ideia”,e:“💡”,c:”#f5a623”},goal:{l:“Meta”,e:“🎯”,c:”#ef4444”},dream:{l:“Sonho”,e:“✨”,c:”#f472b6”}};
+const fm=Object.keys(d.assessments||{}).filter(k=>k.startsWith(String(yr))).length;
+const annual=gAR(d.assessments||{},String(yr));
 
-  if(vw==="main")return<div className="pg">
-    <div className="sh"><span style={{fontSize:32}}>📔</span><div><h1>Diário & Avaliação</h1><p>Mensal + reflexões diárias</p></div></div>
-    <div className="c" style={{borderColor:"#f5a623",background:"linear-gradient(135deg,#1a1a10,#151517)"}}>
-      <h3 className="ca">📋 Avaliação Mensal</h3>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-        <button className="bs" onClick={()=>setYr(y=>y-1)} style={{fontSize:12}}>◀ {yr-1}</button>
-        <span style={{fontSize:16,fontWeight:800,color:"#fff"}}>{yr}</span>
-        <button className="bs" onClick={()=>setYr(y=>y+1)} style={{fontSize:12}}>{yr+1} ▶</button>
-      </div>
-      <div className="mg">{MN.map((m,i)=>{const done=!!d.assessments?.[`${yr}-${String(i+1).padStart(2,"0")}`];const cur=i===mo&&yr===now.getFullYear();return<button key={i} className="mb" style={{background:done?"#1a3a1a":cur?"#2a2a1a":"#1a1a1e",borderColor:done?"#22c55e":cur?"#f5a623":"#2a2a2e"}} onClick={()=>{setMo(i);if(done){setAns(d.assessments[`${yr}-${String(i+1).padStart(2,"0")}`]);setVw("review")}}}><span style={{fontSize:10,fontWeight:600,color:done?"#22c55e":cur?"#f5a623":"#888"}}>{m.substring(0,3)}</span>{done&&<span style={{fontSize:8}}>✅</span>}</button>})}</div>
-      <button className="bp" style={{marginTop:10,marginBottom:0}} onClick={startA}>{ex?"✏️ Editar":"📝 Preencher"} {MN[mo]}</button>
-      {fm>=2&&<button className="bp" style={{marginTop:6,marginBottom:0,background:"linear-gradient(135deg,#a78bfa,#7c3aed)"}} onClick={()=>setVw("annual")}>📊 Revisão Anual ({fm} meses)</button>}
-    </div>
-    {!sh?<button className="bp" style={{background:"#2a2a2e",color:"#ccc"}} onClick={()=>setSh(true)}>+ Nova Entrada Diário</button>:
-    <div className="c"><div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}}>{Object.entries(tc).map(([k,v])=><button key={k} className="tb" style={{background:nt===k?v.c:"#2a2a2e",color:nt===k?"#000":"#999"}} onClick={()=>setNt(k)}>{v.e} {v.l}</button>)}</div>
-      <textarea value={nw} onChange={e=>setNw(e.target.value)} placeholder="Escreva..." className="ta" rows={4} autoFocus/>
-      <div style={{display:"flex",gap:8,marginTop:8}}><button style={{flex:1,padding:10,borderRadius:10,background:"#f5a623",border:"none",color:"#000",fontWeight:700,cursor:"pointer"}} onClick={addJ}>Salvar</button><button className="bs" onClick={()=>{setSh(false);setNw("")}}>Cancelar</button></div></div>}
-    {d.journal.length===0&&!sh&&<div className="c" style={{textAlign:"center",padding:24}}><span style={{fontSize:32}}>📝</span><p style={{color:"#888",fontSize:13,marginTop:6}}>Nenhuma entrada.</p></div>}
-    {d.journal.map((e,i)=>{const c=tc[e.tp]||tc.reflection;return<div className="c" key={i}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{padding:"3px 8px",borderRadius:10,fontSize:10,fontWeight:700,background:c.c,color:"#000"}}>{c.e} {c.l}</span><span style={{fontSize:10,color:"#666"}}>{e.dt} {e.tm}</span></div><button className="bd" onClick={()=>rmJ(i)}>✕</button></div><div style={{fontSize:14,color:"#ccc",lineHeight:1.6}}>{e.tx}</div></div>})}
-    <div style={{height:90}}/>
+if(vw===“main”)return<div className="pg">
+<div className="sh"><span style={{fontSize:32}}>📔</span><div><h1>Diário & Avaliação</h1><p>Mensal + reflexões diárias</p></div></div>
+<div className=“c” style={{borderColor:”#f5a623”,background:“linear-gradient(135deg,#1a1a10,#151517)”}}>
+<h3 className="ca">📋 Avaliação Mensal</h3>
+<div style={{display:“flex”,justifyContent:“space-between”,alignItems:“center”,marginBottom:10}}>
+<button className=“bs” onClick={()=>setYr(y=>y-1)} style={{fontSize:12}}>◀ {yr-1}</button>
+<span style={{fontSize:16,fontWeight:800,color:”#fff”}}>{yr}</span>
+<button className=“bs” onClick={()=>setYr(y=>y+1)} style={{fontSize:12}}>{yr+1} ▶</button>
+</div>
+<div className="mg">{MN.map((m,i)=>{const done=!!d.assessments?.[`${yr}-${String(i+1).padStart(2,"0")}`];const cur=i===mo&&yr===now.getFullYear();return<button key={i} className=“mb” style={{background:done?”#1a3a1a”:cur?”#2a2a1a”:”#1a1a1e”,borderColor:done?”#22c55e”:cur?”#f5a623”:”#2a2a2e”}} onClick={()=>{setMo(i);if(done){setAns(d.assessments[`${yr}-${String(i+1).padStart(2,"0")}`]);setVw(“review”)}}}><span style={{fontSize:10,fontWeight:600,color:done?”#22c55e”:cur?”#f5a623”:”#888”}}>{m.substring(0,3)}</span>{done&&<span style={{fontSize:8}}>✅</span>}</button>})}</div>
+<button className="bp" style={{marginTop:10,marginBottom:0}} onClick={startA}>{ex?“✏️ Editar”:“📝 Preencher”} {MN[mo]}</button>
+{fm>=2&&<button className=“bp” style={{marginTop:6,marginBottom:0,background:“linear-gradient(135deg,#a78bfa,#7c3aed)”}} onClick={()=>setVw(“annual”)}>📊 Revisão Anual ({fm} meses)</button>}
+</div>
+{!sh?<button className=“bp” style={{background:”#2a2a2e”,color:”#ccc”}} onClick={()=>setSh(true)}>+ Nova Entrada Diário</button>:
+<div className="c"><div style={{display:“flex”,flexWrap:“wrap”,gap:6,marginBottom:10}}>{Object.entries(tc).map(([k,v])=><button key={k} className=“tb” style={{background:nt===k?v.c:”#2a2a2e”,color:nt===k?”#000”:”#999”}} onClick={()=>setNt(k)}>{v.e} {v.l}</button>)}</div>
+<textarea value={nw} onChange={e=>setNw(e.target.value)} placeholder=“Escreva…” className=“ta” rows={4} autoFocus/>
+<div style={{display:“flex”,gap:8,marginTop:8}}><button style={{flex:1,padding:10,borderRadius:10,background:”#f5a623”,border:“none”,color:”#000”,fontWeight:700,cursor:“pointer”}} onClick={addJ}>Salvar</button><button className=“bs” onClick={()=>{setSh(false);setNw(””)}}>Cancelar</button></div></div>}
+{d.journal.length===0&&!sh&&<div className=“c” style={{textAlign:“center”,padding:24}}><span style={{fontSize:32}}>📝</span><p style={{color:”#888”,fontSize:13,marginTop:6}}>Nenhuma entrada.</p></div>}
+{d.journal.map((e,i)=>{const c=tc[e.tp]||tc.reflection;return<div className="c" key={i}><div style={{display:“flex”,justifyContent:“space-between”,alignItems:“center”,marginBottom:6}}><div style={{display:“flex”,alignItems:“center”,gap:6}}><span style={{padding:“3px 8px”,borderRadius:10,fontSize:10,fontWeight:700,background:c.c,color:”#000”}}>{c.e} {c.l}</span><span style={{fontSize:10,color:”#666”}}>{e.dt} {e.tm}</span></div><button className=“bd” onClick={()=>rmJ(i)}>✕</button></div><div style={{fontSize:14,color:”#ccc”,lineHeight:1.6}}>{e.tx}</div></div>})}
+<div style={{height:90}}/>
+
   </div>;
 
-  if(vw==="fill"){const cat=ACAT[ci];const prog=((ci+1)/ACAT.length)*100;return<div className="pg">
-    <div style={{padding:"8px 0"}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><button className="bs" onClick={()=>ci>0?setCi(c=>c-1):setVw("main")}>← {ci===0?"Sair":"Voltar"}</button><span style={{fontSize:12,color:"#888"}}>{ci+1}/{ACAT.length}</span></div><div className="pb"><div className="pf" style={{width:`${prog}%`,background:cat.cl}}/></div></div>
-    <div style={{textAlign:"center",padding:"10px 0"}}><div style={{fontSize:32}}>{cat.ic}</div><h2 style={{fontSize:18,fontWeight:800,color:cat.cl}}>{cat.nm}</h2><p style={{fontSize:12,color:"#888"}}>{MN[mo]} {yr}</p></div>
-    {cat.qs.map(q=><div className="c" key={q.id}><p style={{fontSize:14,color:"#e5e5e5",marginBottom:10,lineHeight:1.4}}>{q.t}</p>{q.tp==="score"?<div style={{display:"flex",gap:3,flexWrap:"wrap"}}>{[1,2,3,4,5,6,7,8,9,10].map(s=><button key={s} className="sb" style={{background:s<=(ans[q.id]||0)?cat.cl:"#2a2a2e",color:s<=(ans[q.id]||0)?"#000":"#666"}} onClick={()=>setAns(p=>({...p,[q.id]:s}))}>{s}</button>)}</div>:<textarea value={ans[q.id]||""} onChange={e=>setAns(p=>({...p,[q.id]:e.target.value}))} placeholder="Resposta..." className="ta" rows={3}/>}</div>)}
-    <div style={{display:"flex",gap:8}}>{ci>0&&<button className="bs" style={{flex:1}} onClick={()=>setCi(c=>c-1)}>← Anterior</button>}{ci<ACAT.length-1?<button className="bp" style={{flex:2,marginBottom:0}} onClick={()=>setCi(c=>c+1)}>Próximo → {ACAT[ci+1].ic}</button>:<button className="bp" style={{flex:2,marginBottom:0,background:"linear-gradient(135deg,#22c55e,#16a34a)"}} onClick={saveA}>✅ Finalizar</button>}</div>
-    <div style={{height:90}}/>
+if(vw===“fill”){const cat=ACAT[ci];const prog=((ci+1)/ACAT.length)*100;return<div className="pg">
+<div style={{padding:“8px 0”}}><div style={{display:“flex”,justifyContent:“space-between”,marginBottom:6}}><button className=“bs” onClick={()=>ci>0?setCi(c=>c-1):setVw(“main”)}>← {ci===0?“Sair”:“Voltar”}</button><span style={{fontSize:12,color:”#888”}}>{ci+1}/{ACAT.length}</span></div><div className="pb"><div className=“pf” style={{width:`${prog}%`,background:cat.cl}}/></div></div>
+<div style={{textAlign:“center”,padding:“10px 0”}}><div style={{fontSize:32}}>{cat.ic}</div><h2 style={{fontSize:18,fontWeight:800,color:cat.cl}}>{cat.nm}</h2><p style={{fontSize:12,color:”#888”}}>{MN[mo]} {yr}</p></div>
+{cat.qs.map(q=><div className="c" key={q.id}><p style={{fontSize:14,color:”#e5e5e5”,marginBottom:10,lineHeight:1.4}}>{q.t}</p>{q.tp===“score”?<div style={{display:“flex”,gap:3,flexWrap:“wrap”}}>{[1,2,3,4,5,6,7,8,9,10].map(s=><button key={s} className=“sb” style={{background:s<=(ans[q.id]||0)?cat.cl:”#2a2a2e”,color:s<=(ans[q.id]||0)?”#000”:”#666”}} onClick={()=>setAns(p=>({…p,[q.id]:s}))}>{s}</button>)}</div>:<textarea value={ans[q.id]||””} onChange={e=>setAns(p=>({…p,[q.id]:e.target.value}))} placeholder=“Resposta…” className=“ta” rows={3}/>}</div>)}
+<div style={{display:“flex”,gap:8}}>{ci>0&&<button className=“bs” style={{flex:1}} onClick={()=>setCi(c=>c-1)}>← Anterior</button>}{ci<ACAT.length-1?<button className=“bp” style={{flex:2,marginBottom:0}} onClick={()=>setCi(c=>c+1)}>Próximo → {ACAT[ci+1].ic}</button>:<button className=“bp” style={{flex:2,marginBottom:0,background:“linear-gradient(135deg,#22c55e,#16a34a)”}} onClick={saveA}>✅ Finalizar</button>}</div>
+<div style={{height:90}}/>
+
   </div>}
 
-  if(vw==="review"){const ma=ex||ans;return<div className="pg">
-    <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0"}}><button className="bs" onClick={()=>setVw("main")}>← Voltar</button><h1 style={{fontSize:17,fontWeight:800,color:"#fff"}}>{MN[mo]} {yr}</h1></div>
-    {ACAT.map(cat=>{const fb=gFb(ma,cat.id);if(fb.av===0)return null;return<div className="c" key={cat.id}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}><div style={{display:"flex",alignItems:"center",gap:6}}><span style={{fontSize:18}}>{cat.ic}</span><div><div style={{fontSize:13,fontWeight:700,color:cat.cl}}>{cat.nm}</div><div style={{fontSize:10,color:"#888"}}>{fb.lv}</div></div></div><div style={{textAlign:"right"}}><div style={{fontSize:20,fontWeight:800,color:cat.cl}}>{fb.av.toFixed(1)}</div><span style={{fontSize:14}}>{fb.em}</span></div></div>
-      <div className="pb" style={{marginBottom:4}}><div className="pf" style={{width:`${fb.av*10}%`,background:cat.cl}}/></div>
-      <p style={{fontSize:11,color:"#aaa",fontStyle:"italic"}}>{fb.msg}</p>
-      {cat.qs.filter(q=>q.tp==="text"&&ma[q.id]).map(q=><div key={q.id} style={{marginTop:4,padding:6,background:"#1a1a1e",borderRadius:6}}><div style={{fontSize:9,color:"#666"}}>{q.t}</div><div style={{fontSize:12,color:"#ccc"}}>{ma[q.id]}</div></div>)}
-    </div>})}
-    <button className="bs" style={{width:"100%"}} onClick={startA}>✏️ Editar</button>
-    <div style={{height:90}}/>
+if(vw===“review”){const ma=ex||ans;return<div className="pg">
+<div style={{display:“flex”,alignItems:“center”,gap:8,padding:“8px 0”}}><button className=“bs” onClick={()=>setVw(“main”)}>← Voltar</button><h1 style={{fontSize:17,fontWeight:800,color:”#fff”}}>{MN[mo]} {yr}</h1></div>
+{ACAT.map(cat=>{const fb=gFb(ma,cat.id);if(fb.av===0)return null;return<div className="c" key={cat.id}><div style={{display:“flex”,justifyContent:“space-between”,alignItems:“center”,marginBottom:6}}><div style={{display:“flex”,alignItems:“center”,gap:6}}><span style={{fontSize:18}}>{cat.ic}</span><div><div style={{fontSize:13,fontWeight:700,color:cat.cl}}>{cat.nm}</div><div style={{fontSize:10,color:”#888”}}>{fb.lv}</div></div></div><div style={{textAlign:“right”}}><div style={{fontSize:20,fontWeight:800,color:cat.cl}}>{fb.av.toFixed(1)}</div><span style={{fontSize:14}}>{fb.em}</span></div></div>
+<div className="pb" style={{marginBottom:4}}><div className=“pf” style={{width:`${fb.av*10}%`,background:cat.cl}}/></div>
+<p style={{fontSize:11,color:”#aaa”,fontStyle:“italic”}}>{fb.msg}</p>
+{cat.qs.filter(q=>q.tp===“text”&&ma[q.id]).map(q=><div key={q.id} style={{marginTop:4,padding:6,background:”#1a1a1e”,borderRadius:6}}><div style={{fontSize:9,color:”#666”}}>{q.t}</div><div style={{fontSize:12,color:”#ccc”}}>{ma[q.id]}</div></div>)}
+</div>})}
+<button className=“bs” style={{width:“100%”}} onClick={startA}>✏️ Editar</button>
+<div style={{height:90}}/>
+
   </div>}
 
-  if(vw==="annual"&&annual){const{cs,oA,best,worst,imp,mc}=annual;return<div className="pg">
-    <div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0"}}><button className="bs" onClick={()=>setVw("main")}>← Voltar</button><h1 style={{fontSize:17,fontWeight:800,color:"#fff"}}>Revisão {yr}</h1></div>
-    <div className="c" style={{textAlign:"center",padding:20}}><div style={{fontSize:48,fontWeight:900,color:"#f5a623"}}>{oA}</div><div style={{fontSize:12,color:"#888"}}>{mc} meses avaliados</div></div>
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
-      {best&&<div className="c" style={{textAlign:"center",padding:10}}><div style={{fontSize:9,color:"#22c55e",fontWeight:700}}>MELHOR</div><div style={{fontSize:16}}>{best.ic}</div><div style={{fontSize:18,fontWeight:800,color:"#22c55e"}}>{best.av}</div><div style={{fontSize:9,color:"#888"}}>{best.nm}</div></div>}
-      {worst&&<div className="c" style={{textAlign:"center",padding:10}}><div style={{fontSize:9,color:"#ef4444",fontWeight:700}}>ATENÇÃO</div><div style={{fontSize:16}}>{worst.ic}</div><div style={{fontSize:18,fontWeight:800,color:"#ef4444"}}>{worst.av}</div><div style={{fontSize:9,color:"#888"}}>{worst.nm}</div></div>}
-      {imp&&<div className="c" style={{textAlign:"center",padding:10}}><div style={{fontSize:9,color:"#38bdf8",fontWeight:700}}>EVOLUIU</div><div style={{fontSize:16}}>{imp.ic}</div><div style={{fontSize:18,fontWeight:800,color:"#38bdf8"}}>{imp.tr>0?"+":""}{imp.tr.toFixed(1)}</div><div style={{fontSize:9,color:"#888"}}>{imp.nm}</div></div>}
-    </div>
-    <div className="c"><h3 className="ca">📊 Por Área</h3>{Object.values(cs).sort((a,b)=>b.av-a.av).map(c=><div key={c.nm} style={{marginBottom:10}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><span style={{fontSize:12,color:"#fff"}}>{c.ic} {c.nm}</span><span style={{fontSize:12,fontWeight:700,color:c.cl}}>{c.av} <span style={{fontSize:10,color:c.tr>0?"#22c55e":"#ef4444"}}>{c.tr>0?"↑":"↓"}{Math.abs(c.tr).toFixed(1)}</span></span></div><div className="pb"><div className="pf" style={{width:`${+c.av*10}%`,background:c.cl}}/></div></div>)}</div>
-    <div style={{height:90}}/>
+if(vw===“annual”&&annual){const{cs,oA,best,worst,imp,mc}=annual;return<div className="pg">
+<div style={{display:“flex”,alignItems:“center”,gap:8,padding:“8px 0”}}><button className=“bs” onClick={()=>setVw(“main”)}>← Voltar</button><h1 style={{fontSize:17,fontWeight:800,color:”#fff”}}>Revisão {yr}</h1></div>
+<div className=“c” style={{textAlign:“center”,padding:20}}><div style={{fontSize:48,fontWeight:900,color:”#f5a623”}}>{oA}</div><div style={{fontSize:12,color:”#888”}}>{mc} meses avaliados</div></div>
+<div style={{display:“grid”,gridTemplateColumns:“1fr 1fr 1fr”,gap:6}}>
+{best&&<div className=“c” style={{textAlign:“center”,padding:10}}><div style={{fontSize:9,color:”#22c55e”,fontWeight:700}}>MELHOR</div><div style={{fontSize:16}}>{best.ic}</div><div style={{fontSize:18,fontWeight:800,color:”#22c55e”}}>{best.av}</div><div style={{fontSize:9,color:”#888”}}>{best.nm}</div></div>}
+{worst&&<div className=“c” style={{textAlign:“center”,padding:10}}><div style={{fontSize:9,color:”#ef4444”,fontWeight:700}}>ATENÇÃO</div><div style={{fontSize:16}}>{worst.ic}</div><div style={{fontSize:18,fontWeight:800,color:”#ef4444”}}>{worst.av}</div><div style={{fontSize:9,color:”#888”}}>{worst.nm}</div></div>}
+{imp&&<div className=“c” style={{textAlign:“center”,padding:10}}><div style={{fontSize:9,color:”#38bdf8”,fontWeight:700}}>EVOLUIU</div><div style={{fontSize:16}}>{imp.ic}</div><div style={{fontSize:18,fontWeight:800,color:”#38bdf8”}}>{imp.tr>0?”+”:””}{imp.tr.toFixed(1)}</div><div style={{fontSize:9,color:”#888”}}>{imp.nm}</div></div>}
+</div>
+<div className="c"><h3 className="ca">📊 Por Área</h3>{Object.values(cs).sort((a,b)=>b.av-a.av).map(c=><div key={c.nm} style={{marginBottom:10}}><div style={{display:“flex”,justifyContent:“space-between”,marginBottom:2}}><span style={{fontSize:12,color:”#fff”}}>{c.ic} {c.nm}</span><span style={{fontSize:12,fontWeight:700,color:c.cl}}>{c.av} <span style={{fontSize:10,color:c.tr>0?”#22c55e”:”#ef4444”}}>{c.tr>0?“↑”:“↓”}{Math.abs(c.tr).toFixed(1)}</span></span></div><div className="pb"><div className=“pf” style={{width:`${+c.av*10}%`,background:c.cl}}/></div></div>)}</div>
+<div style={{height:90}}/>
+
   </div>}
   return<div className="pg"><button className="bs" onClick={()=>setVw("main")}>← Voltar</button></div>;
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+ReactDOM.createRoot(document.getElementById(“root”)).render(<App/>);
 </script>
+
 </body>
 </html>
